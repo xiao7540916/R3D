@@ -1,10 +1,10 @@
 #include<iostream>
-#include<device/r_device.h>
+#include<device/device.h>
 using namespace std;
 using namespace R3D;
 int main() {
-    RDevice *device = RDevice::GetDevice();
-    device->Init("windowtest", 800, 600);
+    Device *device = Device::GetInstance();
+    device->Init("windowtest", 800, 600, true);
     while (device->Run()) {
         glClearColor(1.0f, 0.5f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);

@@ -12,11 +12,12 @@ namespace R3D {
         }
         return m_glfwEvent;
     }
-    void GLFWEvent::Init(RDevice *in_device) {
+    void GLFWEvent::Init(Device *in_device) {
         m_device = in_device;
-        std::cout << "init eventsys" << std::endl;
     }
     void GLFWEvent::Release() {
-        std::cout << "release eventsys" << std::endl;
+    }
+    Device *GLFWEvent::GetDevice() {
+        return m_device;
     }
 }

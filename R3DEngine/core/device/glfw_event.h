@@ -1,15 +1,16 @@
 #pragma once
 namespace R3D {
-    class RDevice;
+    class Device;
     class GLFWEvent {
     public:
         ~GLFWEvent();
         static GLFWEvent *GetInstance();
-        void Init(RDevice *in_device);
+        void Init(Device *in_device);
         void Release();
+        Device *GetDevice();
     private:
         GLFWEvent();
         static GLFWEvent *m_glfwEvent;
-        RDevice *m_device;
+        Device *m_device;
     };
 }

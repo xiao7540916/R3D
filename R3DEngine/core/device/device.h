@@ -4,25 +4,25 @@
 #include<device/glfw_event.h>
 #include<util/r_log.h>
 namespace R3D {
-    class RDevice {
+    class Device {
     public:
-        ~RDevice();
-        static RDevice *GetDevice();
-        RDevice *Init(const char *in_appname, int in_width, int in_height);
+        ~Device();
+        Device(const Device &) = delete;
+        Device &operator=(const Device &) = delete;
+        static Device *GetInstance();
+        Device *Init(const char *in_appname, int in_width, int in_height,bool in_vsync = true);
         void Release();
         void InitControlSystem();
         bool Run();
         GLFWwindow *GetWindow();
         void SetAppName(const char *in_appname);
     private:
-        static RDevice *m_device;
+        static Device *m_device;
         GLFWwindow *m_window = nullptr;
         GLFWEvent *m_eventControl = nullptr;
         bool runable = false;
     private:
-        RDevice();
-        RDevice(const RDevice &) = delete;
-        RDevice &operator=(const RDevice &) = delete;
+        Device();
     };
 }
 

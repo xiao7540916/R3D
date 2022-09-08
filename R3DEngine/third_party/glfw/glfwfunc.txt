@@ -1,0 +1,120 @@
+GLFWWerrorfun* glfwSetErrorCallback(GLFWWerrorfun cbfunc) 其中错误回调函数的声明如下所示：
+void ExampleGLFWerrorfun(int error, const char* description)：
+.error将被设置为GLFW的某个错误编码值。
+.description中包含一个字符串，用于描述错误的原因。
+
+GLFW使用步骤：GLFW可以使OpenGL创建窗口变得十分简单，只需要简单四个步骤就可以完成创建窗口。流程如下：
+1.初始化GLFW库。
+2.创建一个GLFW窗口以及OpenGL环境。
+3.渲染你的场景。
+4.将输出结果呈现给用户。
+
+初始化并创建窗口：常用接口如下：
+1.int glfwInit(void)：必须在其他任何GLFW函数之前被调用，因为它负责初始化整个GLFW库。如果成功的话，该接口将返回GL_TRUE，否则就会返回GL_FALSE。
+
+2.GLFWwindow* glfwCreateWindow(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share)：负责创建一个新的OpenGL环境和窗口。
+.monitor非NULL的话，窗口会被全屏创建到指定的监视器上，分辨率由width和height来指定。否则窗口会被创建到桌面上，并且尺寸由width和height来指定。
+.title是一个UTF-8字符串的指针，可以用来创建窗口的初始标题。
+.share非NULL的话，新创建的窗口所关联的OpenGL环境将与share所给定的关联环境共享资源。
+
+3.void glfwMakeContextCurrent(GLFWwindow* window)：设置参数window中的窗口所关联的OpenGL环境为当前环境。这个环境在当前线程中会一直保持为当前环境，直到另一个环境被设置为当前环境，或者窗口被删除为止。
+
+4.int glfwWindowShouldClose(GLFWwindow* window)：如果用户准备关闭参数window所指定的窗口，那么此接口将会返回GL_TRUE，否则将会返回GL_FALSE。
+
+5.void glfwSwapBuffers(GLFWwindow* window)：请求窗口系统将参数window关联的后缓存画面呈现给用户。通常这一步是通过窗口的前后缓存的交换完成的。也可能是在一个“预备显示”的帧缓存队列中进行截取，窗口系统可能需要等待一次垂直刷新事件完成，再显示帧的内容。
+
+6.void glfwPollEvents(void)：告诉GLFW检查所有等待处理的事件和消息，包括操作系统和窗口系统中应当处理的消息。如果有消息正在等待，它会先处理这些消息再返回；否则该函数会立即返回。
+
+7.void glfwWaitEvents(void)：等待一个或多个事件传递到应用程序，并且处理它们再返回。对应的调用线程在事件到达之前会保持睡眠状态。
+
+处理用户输入：主要是对键盘和鼠标的用户输入进行处理。常见接口如下：
+1.GLFWkeyfun glfwSetKeyCallback(GLFWwindow* window, GLFWkeyfun cbfun)：设置一个新的键盘消息回调函数cbfun给指定的窗口window。如果按下或者放开键盘按键，系统会调用这个函数。它的返回值是前一个回调函数的返回值，从而用来恢复之前的回调函数。
+其中键盘消息回调函数的声明如下所示：
+void ExampleGLFWkeyfun(GLFWwindow* window, int key, int scancode, int action, int mods)：
+.window就是接受到键盘消息的窗口句柄。
+.key是按下或者松开的键盘按键。
+.scancode是一个系统平台相关的键位扫描码信息。
+.action可以是GLFW_PRESS（按下键），GLFW_RELEASE（松开键），GLFW_REPEAT（连续输入模式）中的一个。
+.mods对应着辅助键的设置，例如shift和ctrl是否同时被按下。
+
+2.int glfwGetKey(GLFWwindow* window, int key)：返回指定窗口window中指定按键key的状态，可以是GLFW_PRESS（按下键），GLFW_RELEASE（松开键），GLFW_REPEAT（连续输入模式）中的一个。
+
+3.GLFWcursorposfun glfwSetCursorPosCallback(GLFWwindow* window, GLFWcursorposfun cbfun)：设置一个新的鼠标光标位置回调函数cbfun给指定窗口window。每当鼠标光标位置发生变化的时候，这个回调函数就会被触发。它的返回值是前一个回调函数的返回值，从而用来恢复之前的回调函数。
+其中鼠标光标位置回调函数的声明如下所示：
+void GLFWcursorposfun(GLFWwindow* window, double x, double y)：
+.window就是接受到鼠标光标消息的窗口句柄。
+.x和y就是鼠标光标相对于窗口左上角的新位置。
+
+4.GLFWwindowsizefun glfwSetWindowSizeCallback(GLFWwindow* window, GLFWwindowsizefun cbfun)：设置一个新的鼠标按键回调函数cbfun给指定窗口window。当用户按下或者松开鼠标按键时，这个回调函数将会被触发。它的返回值是前一个回调函数的返回值，从而用来恢复之前的回调函数。
+其中鼠标按键回调函数的声明如下所示：
+void GLFWmousebuttonfun(GLFWwindow* window, int button, int action, int mods)：
+.window就是接受到鼠标按键消息的窗口句柄。
+.button就是当前的鼠标键。其中button可以是GLFW_MOUSE_BUTTON_1到GLFW_MOUSE_BUTTON_8中的一个值。
+.action就是可以是GLFW_PRESS（按下键），GLFW_RELEASE（松开键），GLFW_REPEAT（连续输入模式）中的一个。
+.mods对应着辅助键的设置，例如shift和ctrl是否同时被按下。
+
+5.int glfwGetMouseButton(GLFWwindow* window, int button)：返回指定窗口window中指定鼠标键button的状态。
+
+6.GLFWscrollfun glfwSetScrollCallback(GLFWwindow* window, GLFWscrollfun cbfun)：设置一个新的鼠标滚轮回调函数cbfun给指定窗口window。当用户滚动鼠标滚轮时，这个回调函数将会被触发。它的返回值是前一个回调函数的返回值，从而用来恢复之前的回调函数。
+其中鼠标滚轮回调函数的声明如下所示：
+void GLFWscrollfun(GLFWwindow* window, double xoffset, double yoffset)：
+.window就是接受到鼠标滚轮消息的窗口句柄。
+.xoffset和yoffset对应滚轮在x和y两个方向的运动。
+
+控制窗口属性：可以在创建窗口时进行指定，也可以在程序中进行指定。常用接口如下：
+1.void glfwWindowHint(int hint, int value)：设置窗口提示参数。设置以后就会影响之后创建的所有窗口。
+.hint表示GLFW内部定义的状态。
+.value表示状态值。
+
+2.void glfwDefaultWindowHints(void)：恢复所有提示参数到默认值。建议在每次设置窗口提示参数之前都调用一次这个函数，这样才能保证提示参数设置值不发生混乱。
+
+3.void glfwSetWindowSize(GLFWwindow* window, int width, int height)：设置窗口的尺寸大小。
+.window表示操作的窗口句柄。
+.width和height表示窗口的宽高大小。
+
+4.void glfwGetWindowSize(GLFWwindow* window, int* width, int* height)：获取窗口当前的尺寸大小。
+.window表示操作的窗口句柄。
+.width和height表示保存窗口宽高大小的地址。
+
+5.GLFWwindowsizefun glfwSetWindowSizeCallback(GLFWwindow* window, GLFWwindowsizefun cbfun)：设置一个新的窗口大小回调函数cbfun给指定窗口window。当窗口大小发生变化时，这个回调函数将会被触发。它的返回值是前一个回调函数的返回值，从而用来恢复之前的回调函数。
+其中窗口大小回调函数的声明如下所示：
+void GLFWwindowsizefun(GLFWwindow* window, int width, int height)：
+.window表示操作的窗口句柄。
+.width和height表示窗口的宽高大小。
+
+6.void glfwSetWindowPos(GLFWwindow* window, int xpos, int ypos)：设置窗口的坐标位置。
+.window表示操作的窗口句柄。
+.xpos和ypos表示窗口的横纵坐标。
+
+7.void glfwGetWindowPos(GLFWwindow* window, int* xpos, int* ypos)：获取窗口当前位置。
+.window表示操作的窗口句柄。
+.xpos和ypos表示保存窗口横纵坐标的地址。
+
+8.GLFWwindowposfun glfwSetWindowPosCallback(GLFWwindow* window, GLFWwindowposfun cbfun)：设置一个新的窗口坐标回调函数cbfun给指定窗口window。当窗口位置发生变化时，这个回调函数将会被触发。它的返回值是前一个回调函数的返回值，从而用来恢复之前的回调函数。
+其中窗口坐标回调函数的声明如下所示：
+void GLFWwindowposfun(GLFWwindow* window, int xpos, int ypos)：
+.window表示操作的窗口句柄。
+.xpos和ypos表示窗口的横纵坐标。
+
+9.void glfwGetFramebufferSize(GLFWwindow* window, int* width, int* height)：获取窗口帧缓存尺寸大小。
+.window表示操作的窗口句柄。
+.width和height表示保存窗口帧缓存宽高大小的地址。
+
+10.GLFWframebuffersizefun glfwSetFramebufferSizeCallback(GLFWwindow* window, GLFWframebuffersizefun cbfun)：设置一个新的窗口帧缓存大小回调函数cbfun给指定窗口window。当窗口帧缓存大小发生变化时，这个回调函数将会被触发。它的返回值是前一个回调函数的返回值，从而用来恢复之前的回调函数。
+其中窗口帧缓存大小回调函数的声明如下所示：
+void GLFWframebuffersizefun(GLFWwindow* window, int width, int height)：
+.window表示操作的窗口句柄。
+.width和height表示窗口帧缓存的宽高大小。
+
+11.void glfwSetWindowUserPointer(GLFWwindow* window, void* pointer)：设置窗口关联的用户数据指针。这里GLFW仅做存储，不做任何的特殊处理和应用。
+.window表示操作的窗口句柄。
+.pointer表示用户数据指针。
+
+12.void* glfwGetWindowUserPointer(GLFWwindow* window)：获取窗口关联的用户数据指针。
+.window表示操作的窗口句柄。
+
+清理和关闭程序：通常用在退出GLFW时进行的操作。常用接口如下：
+1.void glfwDestroyWindow(GLFWwindow* window)：销毁窗口对象以及关联的OpenGL环境。
+.window表示操作的窗口句柄。
+
+2.void glfwTerminate(void)：关闭glfw库本身。
