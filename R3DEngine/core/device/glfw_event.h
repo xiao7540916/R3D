@@ -4,11 +4,13 @@ namespace R3D {
 	class GLFWEvent
 	{
 	public:
-		GLFWEvent(RDevice& in_device);
 		~GLFWEvent();
-		void Init();
+		static GLFWEvent* GetInstance();
+		void Init(RDevice* in_device);
 		void Release();
 	private:
-		RDevice& m_device;
+		GLFWEvent();
+		static GLFWEvent* m_glfwEvent;
+		RDevice* m_device;
 	};
 }

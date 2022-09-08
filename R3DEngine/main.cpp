@@ -3,17 +3,19 @@
 using namespace std;
 using namespace R3D;
 int main() {
-	RDevice& device = RDevice::CreateDevice("windowtest", 800, 600);
+	RDevice* device = RDevice::GetDevice();
+	device->Init("windowtest", 800, 600);
 
-	while (device.Run()) {
+	while (device->Run()) {
 		glClearColor(1.0f, 0.5f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// 检查并调用事件，交换缓冲
-		glfwSwapBuffers(device.GetWindow());
+		glfwSwapBuffers(device->GetWindow());
 		glfwPollEvents();
 	}
 	glfwTerminate();
-	device.ReleaseDevice();
+	device->Release();
+	delete device;
 	return 0;
 }
