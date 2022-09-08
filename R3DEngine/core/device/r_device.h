@@ -2,6 +2,7 @@
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 #include<device/glfw_event.h>
+#include<util/r_log.h>
 namespace R3D {
 	class RDevice
 	{
@@ -14,6 +15,7 @@ namespace R3D {
 		bool Run();
 		GLFWwindow* GetWindow();
 		void SetAppName(const char* in_appname);
+
 	private:
 		static RDevice* m_device;
 		GLFWwindow* m_window = nullptr;

@@ -19,6 +19,7 @@ namespace R3D {
 	}
 	RDevice* RDevice::Init(const char* in_appname, int in_width, int in_height)
 	{
+		RLog::Init();
 		static bool onceInit = true;
 		RDevice* device = GetDevice();
 		if (onceInit) {

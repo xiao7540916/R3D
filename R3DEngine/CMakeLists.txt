@@ -8,10 +8,11 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/glad/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/glm/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/stb_image)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/assimp/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/spdlog/include)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/core)
 #添加编译路径
-file(GLOB_RECURSE CORE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/core/device/*.cpp)
+file(GLOB_RECURSE CORE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/core/*/*.cpp)
 file(GLOB_RECURSE GLAD_FILES ${CMAKE_CURRENT_SOURCE_DIR}/third_party/glad/src/glad.c)
 
 #链接
