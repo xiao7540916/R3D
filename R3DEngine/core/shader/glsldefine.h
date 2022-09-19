@@ -10,6 +10,11 @@ using glm::mat4;
 using glm::mat3;
 
 struct UniformBlockBase {
-    mat4 model;
     mat4 viewproj;
+    vec3 camerapos;
+    float fill0;
+};
+struct UniformBlockMesh{
+    mat4 model;
+    mat4 invmodelt;
 };

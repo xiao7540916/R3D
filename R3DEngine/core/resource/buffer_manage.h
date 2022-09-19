@@ -7,19 +7,22 @@
 #include <glad/glad.h>
 #include <shader/glsldefine.h>
 namespace R3D {
+    class Device;
     class BufferManage {
     public:
-        UniformBlockBase m_uniBlockBase;
         GLuint m_uniBlockBaseBuffer;
+        GLuint m_uniBlockMeshBuffer;
         ~BufferManage();
         BufferManage(const BufferManage &) = delete;
         BufferManage &operator=(const BufferManage &) = delete;
         static BufferManage *GetInstance();
-        void Init();
+        void Init(Device *in_device);
         void Release();
+        void UpdataUniBaseBuf();
     private:
         BufferManage();
         static BufferManage *m_bufferManage;
+        Device *m_device;
     };
 }
 

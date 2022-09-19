@@ -9,6 +9,7 @@ namespace R3D {
     class MeshCreate{
     public:
         static void CreateBox(Mesh &in_mesh,float in_width, float in_height, float in_depth,VertexLayout in_vertexLayout);
+        static void GetTangent(VertexPosNorTanUv &v0, VertexPosNorTanUv &v1, VertexPosNorTanUv &v2);
     };
 
 }

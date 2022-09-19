@@ -8,7 +8,8 @@
 namespace R3D {
     using std::vector;
     void
-    MeshCreate::CreateBox(Mesh &in_mesh, float in_width, float in_height, float in_depth, VertexLayout in_vertexLayout) {
+    MeshCreate::CreateBox(Mesh &in_mesh, float in_width, float in_height, float in_depth,
+                          VertexLayout in_vertexLayout) {
         switch (in_vertexLayout) {
             case VERT_POS: {
                 break;
@@ -75,14 +76,20 @@ namespace R3D {
                         24, 25, 26, 27, 28, 29,
                         32, 31, 30, 35, 34, 33
                 };
+                for (int i = 0; i < indices.size(); i = i + 3) {
+                    GetTangent(vertices[indices[i]], vertices[indices[i+1]], vertices[indices[i+2]]);
+                    GetTangent(vertices[indices[i+1]], vertices[indices[i+2]], vertices[indices[i]]);
+                    GetTangent(vertices[indices[i+2]], vertices[indices[i]], vertices[indices[i+1]]);
+                }
+
                 in_mesh.m_indiceSize = indices.size();
                 glCreateVertexArrays(1, &in_mesh.VAO);
                 //定义顶点缓冲对象，将顶点数据复制到缓冲中
                 glCreateBuffers(1, &in_mesh.VBO);
                 glCreateBuffers(1, &in_mesh.EBO);
-                glNamedBufferStorage(in_mesh.VBO, (long long)(vertices.size() * sizeof(VertexPosNorTanUv)),
+                glNamedBufferStorage(in_mesh.VBO, (long long) (vertices.size() * sizeof(VertexPosNorTanUv)),
                                      vertices.data(), 0);//创建缓冲并向其中写入数据
-                glNamedBufferStorage(in_mesh.EBO, (long long)(indices.size() * sizeof(uint32_t)), indices.data(), 0);
+                glNamedBufferStorage(in_mesh.EBO, (long long) (indices.size() * sizeof(uint32_t)), indices.data(), 0);
                 glBindVertexArray(in_mesh.VAO);//开始记录顶点信息
                 glBindBuffer(GL_ARRAY_BUFFER, in_mesh.VBO);
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, in_mesh.EBO);
@@ -101,5 +108,20 @@ namespace R3D {
             default:
                 break;
         }
+    }
+    void MeshCreate::GetTangent(VertexPosNorTanUv &v0, VertexPosNorTanUv &v1, VertexPosNorTanUv &v2) {
+        vec3 POS1 = v1.position - v0.position;
+        vec3 POS2 = v2.position - v0.position;
+        vec2 TEX1 = v1.uv - v0.uv;
+        vec2 TEX2 = v2.uv - v0.uv;
+        //翻转y方向
+//        TEX1.y = -TEX1.y;
+//        TEX2.y = -TEX2.y;
+        float a = 1.0f / (TEX1.x * TEX2.y - TEX2.x * TEX1.y);
+        vec3 tanu;
+        tanu.x = a * (TEX2.y * POS1.x - TEX1.y * POS2.x);
+        tanu.y = a * (TEX2.y * POS1.y - TEX1.y * POS2.y);
+        tanu.z = a * (TEX2.y * POS1.z - TEX1.y * POS2.z);
+        v0.tangent = normalize(tanu);
     }
 }

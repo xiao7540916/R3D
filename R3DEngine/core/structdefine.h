@@ -7,6 +7,8 @@
 #include <glm/glm.hpp>
 #include <unordered_map>
 #include <glad/glad.h>
+#define OFFSET(structure, member) ((size_t)&((structure*)0)->member)
+#define ZERO(member) (abs(member)<0.00001)
 namespace R3D {
     using glm::vec3;
     using glm::vec2;
@@ -38,6 +40,15 @@ namespace R3D {
         vec3 normal;
         vec3 tangent;
         vec2 uv;
+    };
+    enum SurfaceType {
+        SURFACE_NULL = 0,
+        SYRFACE_PHONE = 1
+    };
+    struct MaterialInfo {
+        SurfaceType surfaceType;//表面模型
+        bool castShadow;//投射阴影
+        bool receiveShadow;
     };
 }
 #endif //R3D_STRUCTDEFINE_H

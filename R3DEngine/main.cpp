@@ -12,16 +12,11 @@ string CURRENT_SOURCE_DIR = "C:/CppProjects/R3D/";
 string SHADER_DIR = "C:/CppProjects/R3D/R3DEngine/core/shader/";
 void guiMake();
 int main() {
-    Camera camera;
-    camera.SetLens(radians(70.0f), (float) 800 / (float) 600, 0.5f, 100.0f);
-    vec3 campos(0, 1, 5);
-    vec3 camtarget(0, 0, 0);
-    vec3 worldup(0, 1, 0);
-    camera.SetPosition(campos);
-    camera.LookAt(campos, camtarget, worldup);
-    camera.UpdateViewMatrix();
     Device *device = Device::GetInstance();
     device->Init("windowtest", 800, 600, true);
+    device->SetCamera(vec3(0, 0, 5), vec3(0, 0, 0), radians(70.0f),
+                      float(device->m_windowWidth) / float(device->m_windowHeight),
+                      0.1f, 100.0f);
     Gui *gui = Gui::GetInstance();
     TextureManage *textureManage = TextureManage::GetInstance();
     BufferManage *bufferManage = BufferManage::GetInstance();
@@ -34,30 +29,40 @@ int main() {
     MaterialPhone *materialPhone = new MaterialPhone();
     materialPhone->m_shader = phone;
     materialPhone->m_diffTexUrl = CURRENT_SOURCE_DIR + "Data/image/Box_Diffuse.png";
+    materialPhone->m_specTexUrl = CURRENT_SOURCE_DIR + "Data/image/Box_Spec.png";
+    materialPhone->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/Box_Normal.png";
     materialPhone->InitResource();
     Mesh box;
     MeshCreate::CreateBox(box, 1, 1, 1, VERT_POS_NOR_TAN_UV);
     box.SetMaterial(materialPhone);
     mat4 I = mat4(1.0f);
-    bufferManage->m_uniBlockBase.model = I;
-    bufferManage->m_uniBlockBase.viewproj = camera.GetProjection()*camera.GetView();
-    glNamedBufferSubData(bufferManage->m_uniBlockBaseBuffer, 0, sizeof(UniformBlockBase), &bufferManage->m_uniBlockBase);
+    UniformBlockMesh uniformBlockMesh;
+    uniformBlockMesh.model = I;
+    uniformBlockMesh.invmodelt = I;
+    bufferManage->UpdataUniBaseBuf();
+    glNamedBufferSubData(bufferManage->m_uniBlockMeshBuffer, 0, sizeof(UniformBlockMesh), &uniformBlockMesh);
     while (device->Run()) {
+        device->m_gameTime.Tick();
         glfwPollEvents();
+        bufferManage->UpdataUniBaseBuf();
         gui->Begin();
         guiMake();
         gui->End();
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
-        box.Remder();
-        box.Remder();
         box.Remder();
         gui->Render();
         glfwSwapBuffers(device->GetWindow());
+        device->m_mouseInfo.xoffset = 0.0f;
+        device->m_mouseInfo.yoffset = 0.0f;
         while (!device->m_eventInfo.empty()) {
+            EventInfo& eventInfo = device->m_eventInfo.front();
+            device->UpdataAppInfo(eventInfo);
+            device->UpdataInputInfo(eventInfo);
             device->m_eventInfo.pop();
         }
+        device->UpdataCamera();
     }
     glfwTerminate();
     device->Release();

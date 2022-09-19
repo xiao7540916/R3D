@@ -160,15 +160,189 @@ namespace R3D {
             std::cout << "Failed to initialize GLAD" << std::endl;
             return;
         }
+        m_mouseInfo.lastX = float(in_width >> 1);
+        m_mouseInfo.lastY = float(in_height >> 1);
+        m_gameTime.Start();
         glViewport(0, 0, in_width, in_height);
     }
     void Device::InitBufferManage() {
         Device *device = GetInstance();
         device->m_bufferManege = BufferManage::GetInstance();
-        device->m_bufferManege->Init();
+        device->m_bufferManege->Init(device);
     }
     void Device::InitRenderStateManage() {
         Device *device = GetInstance();
         device->m_renderStateManage = RenderStateManage::GetInstance();
     }
+    void
+    Device::SetCamera(vec3 in_position, vec3 in_target, float in_fovy, float in_aspect, float in_zn, float in_zf) {
+        if (m_camera == nullptr) {
+            m_camera = new Camera();
+            m_camera->SetLens(in_fovy, in_fovy, in_zn, in_zf);
+            m_camera->SetPosition(in_position);
+            m_camera->LookAt(in_position, in_target, vec3(0, 1, 0));
+            m_camera->UpdateViewMatrix();
+        } else {
+            delete m_camera;
+            m_camera = new Camera();
+            m_camera->SetLens(in_fovy, in_fovy, in_zn, in_zf);
+            m_camera->SetPosition(in_position);
+            m_camera->LookAt(in_position, in_target, vec3(0, 1, 0));
+            m_camera->UpdateViewMatrix();
+        }
+    }
+
+    void Device::UpdataInputInfo(EventInfo &in_eventInfo) {
+        if(in_eventInfo.type == EVENT_MOUSE_BUTTON){
+            {
+                if (in_eventInfo.button == GLFW_MOUSE_BUTTON_LEFT && in_eventInfo.action == GLFW_PRESS) {
+                    m_mouseInfo.leftdown = true;
+                }
+                if (in_eventInfo.button == GLFW_MOUSE_BUTTON_LEFT && in_eventInfo.action == GLFW_RELEASE) {
+                    m_mouseInfo.leftdown = false;
+                    m_mouseInfo.firstMouse = true;
+                }
+            }
+        }
+        if (in_eventInfo.type == EVENT_CURSOR_POS) {
+            m_mouseInfo.x = in_eventInfo.xpos;
+            m_mouseInfo.y = in_eventInfo.ypos;
+            if (m_mouseInfo.leftdown) {
+                if (m_mouseInfo.firstMouse) {
+                    m_mouseInfo.lastX = in_eventInfo.xpos;
+                    m_mouseInfo.lastY = in_eventInfo.ypos;
+                    m_mouseInfo.firstMouse = false;
+                }
+                m_mouseInfo.xoffset += m_mouseInfo.x - m_mouseInfo.lastX;
+                m_mouseInfo.yoffset += m_mouseInfo.lastY - m_mouseInfo.y;
+                m_mouseInfo.lastX = in_eventInfo.xpos;
+                m_mouseInfo.lastY = in_eventInfo.ypos;
+            }
+        }
+        else if(in_eventInfo.type == EVENT_KEY){
+            if (in_eventInfo.action == GLFW_PRESS){
+                switch (in_eventInfo.key) {
+                    case GLFW_KEY_W:{
+                        m_cameraKeyInfo.forward = true;
+                        break;
+                    }
+                    case GLFW_KEY_S:{
+                        m_cameraKeyInfo.back = true;
+                        break;
+                    }
+                    case GLFW_KEY_A:{
+                        m_cameraKeyInfo.left = true;
+                        break;
+                    }
+                    case GLFW_KEY_D:{
+                        m_cameraKeyInfo.right = true;
+                        break;
+                    }
+                    case GLFW_KEY_Q:{
+                        m_cameraKeyInfo.up = true;
+                        break;
+                    }
+                    case GLFW_KEY_E:{
+                        m_cameraKeyInfo.down = true;
+                        break;
+                    }
+                }
+            } else if(in_eventInfo.action == GLFW_RELEASE){
+                switch (in_eventInfo.key) {
+                    case GLFW_KEY_W:{
+                        m_cameraKeyInfo.forward = false;
+                        break;
+                    }
+                    case GLFW_KEY_S:{
+                        m_cameraKeyInfo.back = false;
+                        break;
+                    }
+                    case GLFW_KEY_A:{
+                        m_cameraKeyInfo.left = false;
+                        break;
+                    }
+                    case GLFW_KEY_D:{
+                        m_cameraKeyInfo.right = false;
+                        break;
+                    }
+                    case GLFW_KEY_Q:{
+                        m_cameraKeyInfo.up = false;
+                        break;
+                    }
+                    case GLFW_KEY_E:{
+                        m_cameraKeyInfo.down = false;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    void Device::UpdataCamera() const {
+        Camera& _camera = *m_camera;
+        //旋转
+        {
+            if(!(ZERO(m_mouseInfo.xoffset)&&ZERO(m_mouseInfo.yoffset))){
+                float sensitivity = 0.05;
+                float xoffset = m_mouseInfo.xoffset;
+                float yoffset = m_mouseInfo.yoffset;
+                xoffset *= sensitivity;
+                yoffset *= sensitivity;
+                _camera.yaw += xoffset;
+                _camera.pitch += yoffset;
+                if (_camera.pitch > 89.0f)
+                    _camera.pitch = 89.0f;
+                if (_camera.pitch < -89.0f)
+                    _camera.pitch = -89.0f;
+                glm::vec3 front;
+                front.x = cos(glm::radians(_camera.yaw)) * cos(glm::radians(_camera.pitch));
+                front.y = sin(glm::radians(_camera.pitch));
+                front.z = sin(glm::radians(_camera.yaw)) * cos(glm::radians(_camera.pitch));
+                front = glm::normalize(front);
+                _camera.SetFront(front);
+                _camera.UpdateViewMatrix();
+            }
+        }
+        //平移
+        {
+            float deltime = m_gameTime.DeltaTime();
+            if (m_cameraKeyInfo.forward) {
+                _camera.Walk(_camera.speed * deltime);
+                _camera.UpdateViewMatrix();
+            }
+            else if (m_cameraKeyInfo.back) {
+                _camera.Walk(-_camera.speed * deltime);
+                _camera.UpdateViewMatrix();
+            } else {
+            }
+            if (m_cameraKeyInfo.left) {
+                _camera.Strafe(_camera.speed * deltime);
+                _camera.UpdateViewMatrix();
+            }
+            else if (m_cameraKeyInfo.right) {
+                _camera.Strafe(-_camera.speed * deltime);
+                _camera.UpdateViewMatrix();
+            } else {
+            }
+            if (m_cameraKeyInfo.up) {
+                _camera.GoUp(-_camera.speed * deltime);
+                _camera.UpdateViewMatrix();
+            }
+            else if (m_cameraKeyInfo.down) {
+                _camera.GoUp(_camera.speed * deltime);
+                _camera.UpdateViewMatrix();
+            } else {
+            }
+        }
+
+    }
+    void Device::UpdataAppInfo(EventInfo &in_eventInfo) {
+        if(in_eventInfo.type == EVENT_KEY){
+            if (in_eventInfo.action == GLFW_RELEASE){
+                if(in_eventInfo.key == GLFW_KEY_ESCAPE){
+                    glfwSetWindowShouldClose(in_eventInfo.window, true);
+                }
+            }
+        }
+    }
 }
+
