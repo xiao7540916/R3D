@@ -29,6 +29,21 @@ namespace R3D {
         void InitResource()override;
         void BindResource()override;
     };
+    class MaterialMetalPbr : public Material {
+    public:
+        string m_albedoTexUrl = {};
+        string m_normalTexUrl = {};
+        string m_metallicTexUrl = {};
+        string m_roughnessTexUrl = {};
+        string m_aoTexUrl = {};
+        GLuint m_albedoTex;
+        GLuint m_normalTex;
+        GLuint m_metallicTex;
+        GLuint m_roughnessTex;
+        GLuint m_aoTex;
+        void InitResource()override;
+        void BindResource()override;
+    };
 }
 
 

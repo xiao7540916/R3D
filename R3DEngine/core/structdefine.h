@@ -43,7 +43,8 @@ namespace R3D {
     };
     enum SurfaceType {
         SURFACE_NULL = 0,
-        SYRFACE_PHONE = 1
+        SURFACE_PHONE = 1,
+        SURFACE_METALPBR = 2
     };
     struct MaterialInfo {
         SurfaceType surfaceType;//表面模型

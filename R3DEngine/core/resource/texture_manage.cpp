@@ -38,8 +38,24 @@ namespace R3D {
 //            stbi_set_flip_vertically_on_load(true);//翻转y轴
             unsigned char *data = stbi_load(in_url.c_str(), &width,
                                             &height, &nrChannels, 0);
+            GLint format;
             //根据图片格式自动选择加载方式
-            GLint format = nrChannels == 3 ? GL_RGB : GL_RGBA;
+            switch (nrChannels) {
+                case 1:
+                    format = GL_RED;
+                    break;
+                case 2:
+                    format = GL_RG;
+                    break;
+                case 3:
+                    format = GL_RGB;
+                    break;
+                case 4:
+                    format = GL_RGBA;
+                    break;
+                default:
+                    std::cout<<"set format false"<<std::endl;
+            }
             if (!data) {
                 std::cout << "加载" << in_url << "失败" << std::endl;
                 abort();

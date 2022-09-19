@@ -26,15 +26,29 @@ int main() {
             {SHADER_DIR + "phone/frag.glsl", GL_FRAGMENT_SHADER}
     };
     phone.lodShader(phonedesc);
+    Shader metalpbr;
+    vector<ShaderCreateDesc> metalpbrdesc = {
+            {SHADER_DIR + "metalpbr/vert.glsl", GL_VERTEX_SHADER},
+            {SHADER_DIR + "metalpbr/frag.glsl", GL_FRAGMENT_SHADER}
+    };
+    metalpbr.lodShader(metalpbrdesc);
     MaterialPhone *materialPhone = new MaterialPhone();
     materialPhone->m_shader = phone;
-    materialPhone->m_diffTexUrl = CURRENT_SOURCE_DIR + "Data/image/Box_Diffuse.png";
-    materialPhone->m_specTexUrl = CURRENT_SOURCE_DIR + "Data/image/Box_Spec.png";
-    materialPhone->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/Box_Normal.png";
+    materialPhone->m_diffTexUrl = CURRENT_SOURCE_DIR + "Data/image/phone/circlebox/diffuse.png";
+    materialPhone->m_specTexUrl = CURRENT_SOURCE_DIR + "Data/image/phone/circlebox/spec.png";
+    materialPhone->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/phone/circlebox/normal.png";
     materialPhone->InitResource();
+    MaterialMetalPbr *materialMetalPbr = new MaterialMetalPbr();
+    materialMetalPbr->m_shader = metalpbr;
+    materialMetalPbr->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/albedo.png";
+    materialMetalPbr->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/normal.png";
+    materialMetalPbr->m_metallicTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/metallic.png";
+    materialMetalPbr->m_roughnessTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/roughness.png";
+    materialMetalPbr->m_aoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/ao.png";
+    materialMetalPbr->InitResource();
     Mesh box;
     MeshCreate::CreateBox(box, 1, 1, 1, VERT_POS_NOR_TAN_UV);
-    box.SetMaterial(materialPhone);
+    box.SetMaterial(materialMetalPbr);
     mat4 I = mat4(1.0f);
     UniformBlockMesh uniformBlockMesh;
     uniformBlockMesh.model = I;
