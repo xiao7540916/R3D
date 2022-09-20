@@ -7,11 +7,26 @@
 #include <glm/glm.hpp>
 #include <unordered_map>
 #include <glad/glad.h>
+//数学常量
+#define PI 3.14159265f
+#define PI2 6.2831852f
+#define PI_DIV_2 1.5707963f
+#define PI_DIV_4 0.78539815f
+#define PI_INV 0.318309886f
+
+//计算精度
+#define EPSILON_E6 ((float)(1E-6))
+//角度弧度转换
+#define Deg_TO_Rad(deg) (deg*0.0174533f)
+#define Rad_TO_Deg(rad) (rad*57.2957796f)
 #define OFFSET(structure, member) ((size_t)&((structure*)0)->member)
-#define ZERO(member) (abs(member)<0.00001)
+#define ZERO(member) (abs(member)<EPSILON_E6)
 namespace R3D {
+    using glm::vec4;
     using glm::vec3;
     using glm::vec2;
+    using glm::mat3;
+    using glm::mat4;
     enum VertexLayout {
         VERT_POS,
         VERT_POS_COL,

@@ -18,7 +18,6 @@ namespace R3D {
         VertexLayout m_vertexLayout;
         void Remder();
         void SetMaterial(Material *in_material);
-
     private:
         Material *m_material;
     };

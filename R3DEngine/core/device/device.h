@@ -77,6 +77,8 @@ namespace R3D {
         void UpdataInputInfo(EventInfo &in_eventInfo);
         void UpdataCamera() const;
         bool Run();
+        void Tick();//每帧初始时运行
+        void Tock();//每帧结束前运行
         GLFWwindow *GetWindow();
         void SetAppName(const char *in_appname);
     public:

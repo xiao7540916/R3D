@@ -1,11 +1,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include<iostream>
 #include<device/device.h>
-#include <resource/texture_manage.h>
 #include <resource/mesh.h>
 #include <resource/mesh_create.h>
 #include <resource/material.h>
-#include <math/camera.h>
+#include <math/sphere.h>
 using namespace std;
 using namespace R3D;
 string CURRENT_SOURCE_DIR = "C:/CppProjects/R3D/";
@@ -13,12 +12,11 @@ string SHADER_DIR = "C:/CppProjects/R3D/R3DEngine/core/shader/";
 void guiMake();
 int main() {
     Device *device = Device::GetInstance();
-    device->Init("windowtest", 800, 600, true);
+    device->Init("windowtest", 1200, 900, true);
     device->SetCamera(vec3(0, 0, 5), vec3(0, 0, 0), radians(70.0f),
                       float(device->m_windowWidth) / float(device->m_windowHeight),
                       0.1f, 100.0f);
     Gui *gui = Gui::GetInstance();
-    TextureManage *textureManage = TextureManage::GetInstance();
     BufferManage *bufferManage = BufferManage::GetInstance();
     ShaderCache& shaderCache = device->m_shaderCache;
     MaterialPhone *materialPhone = new MaterialPhone();
@@ -42,30 +40,24 @@ int main() {
     UniformBlockMesh uniformBlockMesh;
     uniformBlockMesh.model = I;
     uniformBlockMesh.invmodelt = I;
-    bufferManage->UpdataUniBaseBuf();
     glNamedBufferSubData(bufferManage->m_uniBlockMeshBuffer, 0, sizeof(UniformBlockMesh), &uniformBlockMesh);
     while (device->Run()) {
-        device->m_gameTime.Tick();
+        device->Tick();
         glfwPollEvents();
         bufferManage->UpdataUniBaseBuf();
         gui->Begin();
         guiMake();
         gui->End();
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glEnable(GL_DEPTH_TEST);
         box.Remder();
         gui->Render();
         glfwSwapBuffers(device->GetWindow());
-        device->m_mouseInfo.xoffset = 0.0f;
-        device->m_mouseInfo.yoffset = 0.0f;
         while (!device->m_eventInfo.empty()) {
             EventInfo& eventInfo = device->m_eventInfo.front();
             device->UpdataAppInfo(eventInfo);
             device->UpdataInputInfo(eventInfo);
             device->m_eventInfo.pop();
         }
-        device->UpdataCamera();
+        device->Tock();
     }
     glfwTerminate();
     device->Release();
@@ -85,3 +77,20 @@ void guiMake() {
  *glActiveTexture(GL_TEXTURE1);
  *glBindTexture(GL_TEXTURE_2D, specularMap);
  * */
+
+
+/*
+ *     Sphere sp(1,vec3(0,0,1.1));
+    Camera cam;
+    cam.SetLens(30,1,0.1,6);
+    vec3 campos = vec3(0,6,6);
+    vec3 target = vec3(0,0,0);
+    cam.SetPosition(campos);
+    cam.LookAt(campos, target, vec3(0, 1, 0));
+    cam.UpdateViewMatrix();
+
+    vec3 spcenterviewpos = cam.GetView()*vec4(sp.GetCenter(),1.0f);
+    PrintVec3(spcenterviewpos);
+    Sphere spview(sp.GetRadius(),spcenterviewpos);
+    cout<<spview.Intersects(cam.m_frustum)<<endl;
+    */

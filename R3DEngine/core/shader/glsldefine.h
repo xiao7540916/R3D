@@ -1,7 +1,7 @@
 //
 // Created by Administrator on 2022/9/16.
 //
-
+#pragma once
 #include <glm/glm.hpp>
 using glm::vec4;
 using glm::vec3;
