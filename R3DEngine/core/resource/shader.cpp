@@ -56,7 +56,58 @@ namespace R3D {
         glDeleteShader(vertex);
         glDeleteShader(fragment);
     }
-    void Shader::lodShader(vector<ShaderCreateDesc> &shaderCreateDescs) {
+    void Shader::loadShader(const string &vertexPath, const string &fragmentPath) {
+        // 1.从路径中获取顶点，片元着色器源代码
+        std::string vertexCode;
+        std::string fragmentCode;
+        std::ifstream vShaderFile;
+        std::ifstream fShaderFile;
+        //确保 ifstream 对象可以抛出异常：
+        vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+        fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+        try {
+            //打开文件
+            vShaderFile.open(vertexPath);
+            fShaderFile.open(fragmentPath);
+            std::stringstream vShaderStream, fShaderStream;
+            //将文件读入流
+            vShaderStream << vShaderFile.rdbuf();
+            fShaderStream << fShaderFile.rdbuf();
+            //关闭文件句柄
+            vShaderFile.close();
+            fShaderFile.close();
+            //将流转换为string
+            vertexCode = vShaderStream.str();
+            fragmentCode = fShaderStream.str();
+        }
+        catch (std::ifstream::failure e) {
+            std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+        }
+        //获得着色器字符串
+        const char *vShaderCode = vertexCode.c_str();
+        const char *fShaderCode = fragmentCode.c_str();
+        unsigned int vertex, fragment;
+        // vertex shader
+        vertex = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vertex, 1, &vShaderCode, nullptr);
+        glCompileShader(vertex);
+        checkCompileErrors(vertex, "VERTEX");
+        // fragment Shader
+        fragment = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(fragment, 1, &fShaderCode, nullptr);
+        glCompileShader(fragment);
+        checkCompileErrors(fragment, "FRAGMENT");
+        // shader Program
+        ID = glCreateProgram();
+        glAttachShader(ID, vertex);
+        glAttachShader(ID, fragment);
+        glLinkProgram(ID);
+        checkCompileErrors(ID, "PROGRAM");
+        // delete the shaders as they're linked into our program now and no longer necessary
+        glDeleteShader(vertex);
+        glDeleteShader(fragment);
+    }
+    void Shader::loadShader(vector<ShaderCreateDesc> &shaderCreateDescs) {
         size_t shadercount = shaderCreateDescs.size();
         // 1.从路径中获取顶点，片元着色器源代码
         vector<string> shadercode(shadercount);
@@ -229,6 +280,8 @@ namespace R3D {
         }
     }
     Shader::~Shader() {
+    }
+    void Shader::Release() {
         if (ID != 0) {
             glDeleteProgram(ID);
         }

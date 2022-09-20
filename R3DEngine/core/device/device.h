@@ -7,6 +7,7 @@
 #include <resource/texture_manage.h>
 #include <resource/buffer_manage.h>
 #include <resource/render_state_manage.h>
+#include <resource/shader_cache.h>
 #include <math/camera.h>
 #include <util/r_log.h>
 #include <queue>
@@ -70,6 +71,7 @@ namespace R3D {
         void InitTextureManage();
         void InitBufferManage();
         void InitRenderStateManage();
+        void InitShaderCache();
         void SetCamera(vec3 in_position, vec3 in_target, float in_fovy, float in_aspect, float in_zn, float in_zf);
         void UpdataAppInfo(EventInfo &in_eventInfo);
         void UpdataInputInfo(EventInfo &in_eventInfo);
@@ -94,6 +96,7 @@ namespace R3D {
         CameraKeyInfo m_cameraKeyInfo;
         GameTime m_gameTime;
         Camera *m_camera = nullptr;
+        ShaderCache m_shaderCache;
     private:
         static Device *m_device;
         GLFWwindow *m_window = nullptr;

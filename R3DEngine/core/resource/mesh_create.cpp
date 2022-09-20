@@ -115,8 +115,6 @@ namespace R3D {
         vec2 TEX1 = v1.uv - v0.uv;
         vec2 TEX2 = v2.uv - v0.uv;
         //翻转y方向
-//        TEX1.y = -TEX1.y;
-//        TEX2.y = -TEX2.y;
         float a = 1.0f / (TEX1.x * TEX2.y - TEX2.x * TEX1.y);
         vec3 tanu;
         tanu.x = a * (TEX2.y * POS1.x - TEX1.y * POS2.x);

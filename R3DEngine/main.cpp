@@ -20,26 +20,15 @@ int main() {
     Gui *gui = Gui::GetInstance();
     TextureManage *textureManage = TextureManage::GetInstance();
     BufferManage *bufferManage = BufferManage::GetInstance();
-    Shader phone;
-    vector<ShaderCreateDesc> phonedesc = {
-            {SHADER_DIR + "phone/vert.glsl", GL_VERTEX_SHADER},
-            {SHADER_DIR + "phone/frag.glsl", GL_FRAGMENT_SHADER}
-    };
-    phone.lodShader(phonedesc);
-    Shader metalpbr;
-    vector<ShaderCreateDesc> metalpbrdesc = {
-            {SHADER_DIR + "metalpbr/vert.glsl", GL_VERTEX_SHADER},
-            {SHADER_DIR + "metalpbr/frag.glsl", GL_FRAGMENT_SHADER}
-    };
-    metalpbr.lodShader(metalpbrdesc);
+    ShaderCache& shaderCache = device->m_shaderCache;
     MaterialPhone *materialPhone = new MaterialPhone();
-    materialPhone->m_shader = phone;
+    materialPhone->m_shader = shaderCache.GetShader("phone");
     materialPhone->m_diffTexUrl = CURRENT_SOURCE_DIR + "Data/image/phone/circlebox/diffuse.png";
     materialPhone->m_specTexUrl = CURRENT_SOURCE_DIR + "Data/image/phone/circlebox/spec.png";
     materialPhone->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/phone/circlebox/normal.png";
     materialPhone->InitResource();
     MaterialMetalPbr *materialMetalPbr = new MaterialMetalPbr();
-    materialMetalPbr->m_shader = metalpbr;
+    materialMetalPbr->m_shader = shaderCache.GetShader("metalpbr");
     materialMetalPbr->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/albedo.png";
     materialMetalPbr->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/normal.png";
     materialMetalPbr->m_metallicTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/metallic.png";

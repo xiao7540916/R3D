@@ -27,6 +27,7 @@ namespace R3D {
             device->InitTextureManage();
             device->InitBufferManage();
             device->InitRenderStateManage();
+            device->InitShaderCache();
             onceInit = false;
         }
         return device;
@@ -174,6 +175,9 @@ namespace R3D {
         Device *device = GetInstance();
         device->m_renderStateManage = RenderStateManage::GetInstance();
     }
+    void Device::InitShaderCache() {
+        m_shaderCache.Init();
+    }
     void
     Device::SetCamera(vec3 in_position, vec3 in_target, float in_fovy, float in_aspect, float in_zn, float in_zf) {
         if (m_camera == nullptr) {
@@ -191,9 +195,8 @@ namespace R3D {
             m_camera->UpdateViewMatrix();
         }
     }
-
     void Device::UpdataInputInfo(EventInfo &in_eventInfo) {
-        if(in_eventInfo.type == EVENT_MOUSE_BUTTON){
+        if (in_eventInfo.type == EVENT_MOUSE_BUTTON) {
             {
                 if (in_eventInfo.button == GLFW_MOUSE_BUTTON_LEFT && in_eventInfo.action == GLFW_PRESS) {
                     m_mouseInfo.leftdown = true;
@@ -218,58 +221,57 @@ namespace R3D {
                 m_mouseInfo.lastX = in_eventInfo.xpos;
                 m_mouseInfo.lastY = in_eventInfo.ypos;
             }
-        }
-        else if(in_eventInfo.type == EVENT_KEY){
-            if (in_eventInfo.action == GLFW_PRESS){
+        } else if (in_eventInfo.type == EVENT_KEY) {
+            if (in_eventInfo.action == GLFW_PRESS) {
                 switch (in_eventInfo.key) {
-                    case GLFW_KEY_W:{
+                    case GLFW_KEY_W: {
                         m_cameraKeyInfo.forward = true;
                         break;
                     }
-                    case GLFW_KEY_S:{
+                    case GLFW_KEY_S: {
                         m_cameraKeyInfo.back = true;
                         break;
                     }
-                    case GLFW_KEY_A:{
+                    case GLFW_KEY_A: {
                         m_cameraKeyInfo.left = true;
                         break;
                     }
-                    case GLFW_KEY_D:{
+                    case GLFW_KEY_D: {
                         m_cameraKeyInfo.right = true;
                         break;
                     }
-                    case GLFW_KEY_Q:{
+                    case GLFW_KEY_Q: {
                         m_cameraKeyInfo.up = true;
                         break;
                     }
-                    case GLFW_KEY_E:{
+                    case GLFW_KEY_E: {
                         m_cameraKeyInfo.down = true;
                         break;
                     }
                 }
-            } else if(in_eventInfo.action == GLFW_RELEASE){
+            } else if (in_eventInfo.action == GLFW_RELEASE) {
                 switch (in_eventInfo.key) {
-                    case GLFW_KEY_W:{
+                    case GLFW_KEY_W: {
                         m_cameraKeyInfo.forward = false;
                         break;
                     }
-                    case GLFW_KEY_S:{
+                    case GLFW_KEY_S: {
                         m_cameraKeyInfo.back = false;
                         break;
                     }
-                    case GLFW_KEY_A:{
+                    case GLFW_KEY_A: {
                         m_cameraKeyInfo.left = false;
                         break;
                     }
-                    case GLFW_KEY_D:{
+                    case GLFW_KEY_D: {
                         m_cameraKeyInfo.right = false;
                         break;
                     }
-                    case GLFW_KEY_Q:{
+                    case GLFW_KEY_Q: {
                         m_cameraKeyInfo.up = false;
                         break;
                     }
-                    case GLFW_KEY_E:{
+                    case GLFW_KEY_E: {
                         m_cameraKeyInfo.down = false;
                         break;
                     }
@@ -278,10 +280,10 @@ namespace R3D {
         }
     }
     void Device::UpdataCamera() const {
-        Camera& _camera = *m_camera;
+        Camera &_camera = *m_camera;
         //旋转
         {
-            if(!(ZERO(m_mouseInfo.xoffset)&&ZERO(m_mouseInfo.yoffset))){
+            if (!(ZERO(m_mouseInfo.xoffset) && ZERO(m_mouseInfo.yoffset))) {
                 float sensitivity = 0.05;
                 float xoffset = m_mouseInfo.xoffset;
                 float yoffset = m_mouseInfo.yoffset;
@@ -308,8 +310,7 @@ namespace R3D {
             if (m_cameraKeyInfo.forward) {
                 _camera.Walk(_camera.speed * deltime);
                 _camera.UpdateViewMatrix();
-            }
-            else if (m_cameraKeyInfo.back) {
+            } else if (m_cameraKeyInfo.back) {
                 _camera.Walk(-_camera.speed * deltime);
                 _camera.UpdateViewMatrix();
             } else {
@@ -317,8 +318,7 @@ namespace R3D {
             if (m_cameraKeyInfo.left) {
                 _camera.Strafe(_camera.speed * deltime);
                 _camera.UpdateViewMatrix();
-            }
-            else if (m_cameraKeyInfo.right) {
+            } else if (m_cameraKeyInfo.right) {
                 _camera.Strafe(-_camera.speed * deltime);
                 _camera.UpdateViewMatrix();
             } else {
@@ -326,19 +326,17 @@ namespace R3D {
             if (m_cameraKeyInfo.up) {
                 _camera.GoUp(-_camera.speed * deltime);
                 _camera.UpdateViewMatrix();
-            }
-            else if (m_cameraKeyInfo.down) {
+            } else if (m_cameraKeyInfo.down) {
                 _camera.GoUp(_camera.speed * deltime);
                 _camera.UpdateViewMatrix();
             } else {
             }
         }
-
     }
     void Device::UpdataAppInfo(EventInfo &in_eventInfo) {
-        if(in_eventInfo.type == EVENT_KEY){
-            if (in_eventInfo.action == GLFW_RELEASE){
-                if(in_eventInfo.key == GLFW_KEY_ESCAPE){
+        if (in_eventInfo.type == EVENT_KEY) {
+            if (in_eventInfo.action == GLFW_RELEASE) {
+                if (in_eventInfo.key == GLFW_KEY_ESCAPE) {
                     glfwSetWindowShouldClose(in_eventInfo.window, true);
                 }
             }
