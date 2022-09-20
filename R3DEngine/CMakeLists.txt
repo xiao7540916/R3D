@@ -22,4 +22,5 @@ set(GLFW_LINK ${CMAKE_CURRENT_SOURCE_DIR}/third_party/glfw/lib-vc2019/glfw3.lib)
 set(ASSIMP_LINK ${CMAKE_CURRENT_SOURCE_DIR}/third_party/assimp/lib/assimp-vc142-mtd.lib)
 link_libraries(${OPENGL} ${GLFW_LINK} ${ASSIMP_LINK})
 
-add_executable(R3DEngine ${CORE_FILES} ${GLAD_FILES} main.cpp)
+add_executable(EngineTest ${CORE_FILES} ${GLAD_FILES} main.cpp)
+set_property(TARGET EngineTest PROPERTY RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/bin)

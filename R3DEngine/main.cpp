@@ -7,8 +7,8 @@
 #include <math/sphere.h>
 using namespace std;
 using namespace R3D;
-string CURRENT_SOURCE_DIR = "C:/CppProjects/R3D/";
-string SHADER_DIR = "C:/CppProjects/R3D/R3DEngine/core/shader/";
+string CURRENT_SOURCE_DIR = "../../";
+string SHADER_DIR = "../../R3DEngine/core/shader/";
 void guiMake();
 int main() {
     Device *device = Device::GetInstance();
