@@ -62,6 +62,14 @@ namespace R3D {
         SURFACE_METALPBR = 2,
         SURFACE_GREEN = 3
     };
+    enum MtrQueue {
+        MTRQUEUE_BACKGROUND = 1000,
+        MTRQUEUE_GEOMETRY = 2000,
+        MTRQUEUE_GEOMETRYREF = 2100,
+        MTRQUEUE_ALPHATEST = 2450,
+        MTRQUEUE_TRANSPARENT = 3000,
+        MTRQUEUE_OVERLAY = 4000
+    };
     struct MaterialInfo {
         SurfaceType surfaceType;//表面模型
         bool castShadow;//投射阴影

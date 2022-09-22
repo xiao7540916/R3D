@@ -11,6 +11,8 @@ struct UniformBlockBase {
 struct UniformBlockMesh{
     mat4 model;
     mat4 invmodelt;
+    vec2 uvoffset;
+    vec2 uvscale;
 };
 layout(std140, binding = 0) uniform UniformBaseBuffer {
     UniformBlockBase block;
@@ -27,7 +29,7 @@ out VS_OUT {
 void main() {
     gl_Position = ubobasedata.block.viewproj*ubomeshdata.block.model*vec4(vPosition, 1.0);
     vs_out.FragPos = vec3(ubomeshdata.block.model * vec4(vPosition, 1.0));
-    vs_out.TexCoords = vUv;
+    vs_out.TexCoords = ubomeshdata.block.uvoffset+vUv*ubomeshdata.block.uvscale;
     mat3 normalMatrix = mat3(ubomeshdata.block.invmodelt);
     vec3 T = normalize(normalMatrix * vTangent);
     vec3 N = normalize(normalMatrix * vNormal);

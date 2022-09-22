@@ -13,6 +13,7 @@ namespace R3D {
     public:
         unordered_map<string, Shader> m_shaders;
         void Init();//初始化所有需要的Shader
+        void Release();
         Shader GetShader(string in_shadertype);
     };
 }

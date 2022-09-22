@@ -8,7 +8,11 @@
 #include <algorithm>
 namespace R3D {
     bool cmp(Object *a, Object *b) {
-        return (a->GetMaterial()->m_shader.ID) < (b->GetMaterial()->m_shader.ID);
+        if (a->GetMaterial()->m_mtrQueue == b->GetMaterial()->m_mtrQueue) {
+            return (a->GetMaterial()->m_shader.ID) < (b->GetMaterial()->m_shader.ID);
+        } else {
+            return (a->GetMaterial()->m_mtrQueue) < (b->GetMaterial()->m_mtrQueue);
+        }
     }
     void RenderList::Render() {
         uint32_t objectCount = m_objectList.size();
@@ -16,7 +20,6 @@ namespace R3D {
             m_objectList[i]->Render();
         }
     }
-
     void RenderList::RenderBndSphere() {
         uint32_t objectCount = m_objectList.size();
         for (int i = 0;i < objectCount;++i) {

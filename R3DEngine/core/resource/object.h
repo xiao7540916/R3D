@@ -20,7 +20,8 @@ namespace R3D {
         Material *m_material;
         Object *m_father;//父节点指针
         std::list<Object *> m_chileList;//子节点链表
-
+        vec2 m_uvoffset = vec2(0);
+        vec2 m_uvscale = vec2(1);
         vec3 m_positionRelative;//相对父节点位置
         mat3 m_rotateRelative;//相对父节点的旋转矩阵
         //采用绝对缩放的原因是比如一辆汽车和车上的人都缩小了，如果采用相对缩放，车上的人下车了，相对缩放就没有了，人就会突然变大
@@ -138,6 +139,7 @@ namespace R3D {
         void RenderBndSphere();
         void RenderSlfBndSphere();
         void SetMaterial(Material *in_material);
+        void SetUvConfig(const vec2& in_uvoffset,const vec2& in_uvscale);
         inline Material *GetMaterial() {return m_material;};
     };
 }

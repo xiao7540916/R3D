@@ -14,39 +14,25 @@ void guiMake();
 int main() {
     Device *device = Device::GetInstance();
     device->Init("windowtest", 1200, 900, true);
-    device->SetCamera(vec3(0, 0, 5), vec3(0, 0, 0), radians(70.0f),
+    device->SetCamera(vec3(0, 1, 5), vec3(0, 0, 0), radians(70.0f),
                       float(device->m_windowWidth) / float(device->m_windowHeight),
                       0.1f, 100.0f);
     Gui *gui = Gui::GetInstance();
     BufferManage *bufferManage = BufferManage::GetInstance();
     MeshManage *meshManage = MeshManage::GetInstance();
     ShaderCache &shaderCache = device->m_shaderCache;
-    MaterialPhone *materialPhone = new MaterialPhone();
-    materialPhone->m_shader = shaderCache.GetShader("phone");
-    materialPhone->m_diffTexUrl = CURRENT_SOURCE_DIR + "Data/image/phone/circlebox/diffuse.png";
-    materialPhone->m_specTexUrl = CURRENT_SOURCE_DIR + "Data/image/phone/circlebox/spec.png";
-    materialPhone->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/phone/circlebox/normal.png";
-    materialPhone->InitResource();
-    MaterialMetalPbr *materialMetalPbr = new MaterialMetalPbr();
-    materialMetalPbr->m_shader = shaderCache.GetShader("metalpbr");
-    materialMetalPbr->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/bathroomtile/albedo.png";
-    materialMetalPbr->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/bathroomtile/normal.png";
-    materialMetalPbr->m_roughnessTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/bathroomtile/roughness.png";
-    materialMetalPbr->m_aoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/bathroomtile/ao.png";
-    materialMetalPbr->InitResource();
-    MaterialGreen *materialGreen = new MaterialGreen();
-    materialGreen->m_shader = shaderCache.GetShader("green");
+    MaterialManage &materialManage = *device->m_materialManage;
+
     Object *rootplane = new Object("rootplane", nullptr, vec3(0), 0, 0, 0, true);
     device->m_opaqueList.m_objectList.push_back(rootplane);
     rootplane->SetMesh(meshManage->GetMesh("planemesh"));
-    rootplane->SetMaterial(materialMetalPbr);
-    rootplane->m_bndSphMaterial = materialGreen;
+    rootplane->SetMaterial(materialManage.GetMaterial("metalpbr_bathroomtile"));
+    rootplane->SetUvConfig(vec2(0),vec2(5));
     rootplane->Scale(10.0f);
     Object *box = new Object("box", rootplane, vec3(0), 0, 0, 0, true);
     device->m_opaqueList.m_objectList.push_back(box);
     box->SetMesh(meshManage->GetMesh("boxmesh"));
-    box->SetMaterial(materialPhone);
-    box->m_bndSphMaterial = materialGreen;
+    box->SetMaterial(materialManage.GetMaterial("phone_circlebox"));
     box->Scale(1.0f);
     box->MoveTo(vec3(0, 0.5, 0));
     rootplane->UpdataSubSceneGraph(true);

@@ -14,7 +14,9 @@ struct UniformBlockBase {
     vec3 camerapos;
     float fill0;
 };
-struct UniformBlockMesh{
+struct UniformBlockMesh {
     mat4 model;
     mat4 invmodelt;
+    vec2 uvoffset;
+    vec2 uvscale;
 };

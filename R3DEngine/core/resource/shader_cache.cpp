@@ -24,4 +24,7 @@ namespace R3D {
             return m_shaders[in_shadertype];
         }
     }
+    void ShaderCache::Release() {
+        m_shaders.clear();
+    }
 }

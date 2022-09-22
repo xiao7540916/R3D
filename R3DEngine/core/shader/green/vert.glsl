@@ -11,6 +11,8 @@ struct UniformBlockBase {
 struct UniformBlockMesh{
     mat4 model;
     mat4 invmodelt;
+    vec2 uvoffset;
+    vec2 uvscale;
 };
 layout(std140, binding = 0) uniform UniformBaseBuffer {
     UniformBlockBase block;

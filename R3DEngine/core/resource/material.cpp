@@ -4,6 +4,7 @@
 
 #include "material.h"
 #include "render_state_manage.h"
+#include <device/device.h>
 #include <iostream>
 extern string CURRENT_SOURCE_DIR;
 namespace R3D {
@@ -57,6 +58,9 @@ namespace R3D {
             m_shader.use();
         }
         BindResource();
+    }
+    MaterialPhone::MaterialPhone() {
+        m_mtrQueue = MTRQUEUE_GEOMETRY;
     }
     void MaterialMetalPbr::InitResource() {
         if (m_albedoTexUrl.empty()) {
@@ -114,6 +118,9 @@ namespace R3D {
         }
         BindResource();
     }
+    MaterialMetalPbr::MaterialMetalPbr() {
+        m_mtrQueue = MTRQUEUE_GEOMETRY;
+    }
     void MaterialGreen::InitResource() {
     }
     void MaterialGreen::BindResource() {
@@ -126,5 +133,59 @@ namespace R3D {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             m_shader.use();
         }
+    }
+    MaterialGreen::MaterialGreen() {
+        m_mtrQueue = MTRQUEUE_GEOMETRY;
+    }
+    MaterialManage::MaterialManage() {
+    }
+    MaterialManage *MaterialManage::m_materialManage = nullptr;
+    MaterialManage *MaterialManage::GetInstance() {
+        if (m_materialManage == nullptr) {
+            m_materialManage = new MaterialManage();
+        }
+        return m_materialManage;
+    }
+    void MaterialManage::Init() {
+        ShaderCache &shaderCache = Device::GetInstance()->m_shaderCache;
+        MaterialPhone *phone_circlebox = new MaterialPhone();
+        phone_circlebox->m_shader = shaderCache.GetShader("phone");
+        phone_circlebox->m_diffTexUrl = CURRENT_SOURCE_DIR + "Data/image/phone/circlebox/diffuse.png";
+        phone_circlebox->m_specTexUrl = CURRENT_SOURCE_DIR + "Data/image/phone/circlebox/spec.png";
+        phone_circlebox->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/phone/circlebox/normal.png";
+        phone_circlebox->InitResource();
+        AddMaterial("phone_circlebox", phone_circlebox);
+        MaterialMetalPbr *metalpbr_bathroomtile = new MaterialMetalPbr();
+        metalpbr_bathroomtile->m_shader = shaderCache.GetShader("metalpbr");
+        metalpbr_bathroomtile->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/bathroomtile/albedo.png";
+        metalpbr_bathroomtile->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/bathroomtile/normal.png";
+        metalpbr_bathroomtile->m_roughnessTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/bathroomtile/roughness.png";
+        metalpbr_bathroomtile->m_aoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/bathroomtile/ao.png";
+        metalpbr_bathroomtile->InitResource();
+        AddMaterial("metalpbr_bathroomtile", metalpbr_bathroomtile);
+        MaterialGreen *green = new MaterialGreen();
+        green->m_shader = shaderCache.GetShader("green");
+        AddMaterial("green", green);
+    }
+    void MaterialManage::Release() {
+        for (auto item = m_nameToMtr.begin();item != m_nameToMtr.end();item++) {
+            delete item->second;
+        }
+        m_nameToMtr.clear();
+        //m_nameToMtr自身占用空间仍需要清理
+    }
+    void MaterialManage::AddMaterial(const string &in_name, Material *in_material) {
+        if (m_nameToMtr.find(in_name) != m_nameToMtr.end()) {
+            std::cout << "material " << in_name << " has add!" << std::endl;
+            return;
+        }
+        m_nameToMtr.insert({in_name, in_material});
+    }
+    Material *MaterialManage::GetMaterial(const string &in_name) {
+        if (m_nameToMtr.find(in_name) != m_nameToMtr.end()) {
+            return m_nameToMtr[in_name];
+        }
+        std::cout << "can not find " << in_name << " material" << std::endl;
+        return m_nameToMtr["green"];
     }
 }

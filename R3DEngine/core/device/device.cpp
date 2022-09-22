@@ -29,6 +29,7 @@ namespace R3D {
             device->InitRenderStateManage();
             device->InitShaderCache();
             device->InitMeshManage();
+            device->InitMaterialManage();
             onceInit = false;
         }
         return device;
@@ -48,6 +49,9 @@ namespace R3D {
         delete m_bufferManege;
         device->m_meshManage->Release();
         delete m_meshManage;
+        m_shaderCache.Release();
+        m_materialManage->Release();
+        delete m_materialManage;
     }
     GLFWwindow *Device::GetWindow() {
         return m_window;
@@ -185,6 +189,11 @@ namespace R3D {
     }
     void Device::InitShaderCache() {
         m_shaderCache.Init();
+    }
+    void Device::InitMaterialManage() {
+        Device *device = GetInstance();
+        device->m_materialManage = MaterialManage::GetInstance();
+        device->m_materialManage->Init();
     }
     void
     Device::SetCamera(vec3 in_position, vec3 in_target, float in_fovy, float in_aspect, float in_zn, float in_zf) {

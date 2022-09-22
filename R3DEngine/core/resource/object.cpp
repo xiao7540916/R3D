@@ -15,6 +15,8 @@ namespace R3D {
                    float in_radianY, float in_radianZ, bool in_visible) :
             m_dirtyBB(true), m_dirty(true), m_name(in_name), m_visible(in_visible),
             m_scale(1.0f), m_mesh(nullptr), m_father(nullptr) {
+        //默认包围球材质
+        m_bndSphMaterial = MaterialManage::GetInstance()->GetMaterial("green");
         if (!in_father) {
             m_transformation = mat4(1);
             m_positionRelative = vec3(0.0f);
@@ -144,8 +146,8 @@ namespace R3D {
     const mat4 &Object::UpdataTransformation() {
         m_transformation = GetTransformMatrixRelative();//获取相对变换矩阵
         Object *pNode = m_father;
-        if(pNode){
-            std::cout<<pNode->m_name<<std::endl;
+        if (pNode) {
+            std::cout << pNode->m_name << std::endl;
         }
 
 //    递归乘以父节点变换矩阵
@@ -156,7 +158,6 @@ namespace R3D {
             pNode = pNode->m_father;
         }
         m_finalTransformMatrix = glm::scale(m_transformation, vec3(m_scale));
-
         m_dirty = false;
         return m_transformation;
     }
@@ -165,7 +166,7 @@ namespace R3D {
         if (dirty) {
             m_transformation = GetTransformMatrixRelative();
             if (m_father) {
-                m_transformation = m_father->m_transformation*m_transformation;
+                m_transformation = m_father->m_transformation * m_transformation;
             }
             m_finalTransformMatrix = glm::scale(m_transformation, glm::vec3(m_scale));
             m_dirty = false;
@@ -300,6 +301,8 @@ namespace R3D {
         static UniformBlockMesh uniformBlockMesh;
         uniformBlockMesh.model = GetFinalTransformMatrix();
         uniformBlockMesh.invmodelt = glm::transpose(glm::inverse(GetFinalTransformMatrix()));
+        uniformBlockMesh.uvoffset = m_uvoffset;
+        uniformBlockMesh.uvscale = m_uvscale;
         glNamedBufferSubData(BufferManage::GetInstance()->m_uniBlockMeshBuffer, 0, sizeof(UniformBlockMesh),
                              &uniformBlockMesh);
         m_mesh->Render(m_material);
@@ -331,5 +334,9 @@ namespace R3D {
         } else {
             std::cout << "no boundingsphere material" << std::endl;
         }
+    }
+    void Object::SetUvConfig(const vec2 &in_uvoffset, const vec2 &in_uvscale) {
+        m_uvoffset = in_uvoffset;
+        m_uvscale = in_uvscale;
     }
 }

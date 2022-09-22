@@ -9,6 +9,7 @@
 #include <resource/render_state_manage.h>
 #include <resource/shader_cache.h>
 #include <resource/mesh_manage.h>
+#include <resource/material.h>
 #include <device/render_list.h>
 #include <math/camera.h>
 #include <util/r_log.h>
@@ -75,6 +76,7 @@ namespace R3D {
         void InitRenderStateManage();
         void InitShaderCache();
         void InitMeshManage();
+        void InitMaterialManage();
         void SetCamera(vec3 in_position, vec3 in_target, float in_fovy, float in_aspect, float in_zn, float in_zf);
         void UpdataAppInfo(EventInfo &in_eventInfo);
         void UpdataInputInfo(EventInfo &in_eventInfo);
@@ -102,6 +104,7 @@ namespace R3D {
         GameTime m_gameTime;
         Camera *m_camera = nullptr;
         ShaderCache m_shaderCache;
+        MaterialManage *m_materialManage;
         MeshManage *m_meshManage = nullptr;
         RenderList m_opaqueList;
     private:
