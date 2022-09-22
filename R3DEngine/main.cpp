@@ -5,6 +5,7 @@
 #include <resource/mesh_create.h>
 #include <resource/material.h>
 #include <math/sphere.h>
+#include <resource/object.h>
 using namespace std;
 using namespace R3D;
 string CURRENT_SOURCE_DIR = "../../";
@@ -18,7 +19,8 @@ int main() {
                       0.1f, 100.0f);
     Gui *gui = Gui::GetInstance();
     BufferManage *bufferManage = BufferManage::GetInstance();
-    ShaderCache& shaderCache = device->m_shaderCache;
+    MeshManage *meshManage = MeshManage::GetInstance();
+    ShaderCache &shaderCache = device->m_shaderCache;
     MaterialPhone *materialPhone = new MaterialPhone();
     materialPhone->m_shader = shaderCache.GetShader("phone");
     materialPhone->m_diffTexUrl = CURRENT_SOURCE_DIR + "Data/image/phone/circlebox/diffuse.png";
@@ -33,26 +35,48 @@ int main() {
     materialMetalPbr->m_roughnessTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/roughness.png";
     materialMetalPbr->m_aoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/ao.png";
     materialMetalPbr->InitResource();
-    Mesh box;
-    MeshCreate::CreateBox(box, 1, 1, 1, VERT_POS_NOR_TAN_UV);
-    box.SetMaterial(materialMetalPbr);
-    mat4 I = mat4(1.0f);
-    UniformBlockMesh uniformBlockMesh;
-    uniformBlockMesh.model = I;
-    uniformBlockMesh.invmodelt = I;
-    glNamedBufferSubData(bufferManage->m_uniBlockMeshBuffer, 0, sizeof(UniformBlockMesh), &uniformBlockMesh);
+    MaterialGreen *materialGreen = new MaterialGreen();
+    materialGreen->m_shader = shaderCache.GetShader("green");
+
+
+
+
+
+    Object* obj2 = new Object("box2", nullptr,vec3(0),0,0,0, true);
+    obj2->SetMesh(meshManage->GetMesh("boxmesh"));
+    obj2->SetMaterial(materialPhone);
+    obj2->m_bndSphMaterial = materialGreen;
+    obj2->Scale(1.0f);
+    obj2->MoveTo(vec3(1,1,0));
+
+    Object* obj = new Object("box", obj2,vec3(1,0,0),0,0,0, true);
+    obj->SetMesh(meshManage->GetMesh("boxmesh"));
+    obj->SetMaterial(materialPhone);
+    obj->m_bndSphMaterial = materialGreen;
+    obj->Scale(1.0f);
+
+    obj2->UpdataSubSceneGraph(true);
+    obj2->UpdataBoundSphere(obj2);
     while (device->Run()) {
+        obj2->RotationRool(device->m_gameTime.TotalTime()*0.01);
+        obj->RotationPitch(device->m_gameTime.TotalTime()*0.01);
+        obj2->UpdataSubSceneGraph(true);
+        obj2->UpdataBoundSphere(obj2);
         device->Tick();
         glfwPollEvents();
         bufferManage->UpdataUniBaseBuf();
         gui->Begin();
         guiMake();
         gui->End();
-        box.Remder();
+        obj->Render();
+        obj2->Render();
+        obj->RenderBndSphere();
+        obj2->RenderBndSphere();
+        obj2->RenderSlfBndSphere();
         gui->Render();
         glfwSwapBuffers(device->GetWindow());
         while (!device->m_eventInfo.empty()) {
-            EventInfo& eventInfo = device->m_eventInfo.front();
+            EventInfo &eventInfo = device->m_eventInfo.front();
             device->UpdataAppInfo(eventInfo);
             device->UpdataInputInfo(eventInfo);
             device->m_eventInfo.pop();

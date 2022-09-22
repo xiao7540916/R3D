@@ -6,6 +6,7 @@
 #include <structdefine.h>
 #include <vector>
 #include <glad/glad.h>
+#include <math/sphere.h>
 namespace R3D {
     using std::vector;
     class Material;
@@ -16,10 +17,8 @@ namespace R3D {
         GLuint EBO;
         int m_indiceSize;
         VertexLayout m_vertexLayout;
-        void Remder();
-        void SetMaterial(Material *in_material);
-    private:
-        Material *m_material;
+        Sphere m_sphere;//模型空间的包围球
+        void Render(Material *in_material);
     };
 }
 

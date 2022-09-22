@@ -12,6 +12,9 @@ namespace R3D {
         Shader metalpbr;
         metalpbr.loadShader(SHADER_DIR + "metalpbr/vert.glsl", SHADER_DIR + "metalpbr/frag.glsl");
         m_shaders.insert({"metalpbr", metalpbr});
+        Shader green;
+        green.loadShader(SHADER_DIR + "green/vert.glsl", SHADER_DIR + "green/frag.glsl");
+        m_shaders.insert({"green", green});
     }
     Shader ShaderCache::GetShader(string in_shadertype) {
         if (m_shaders.find(in_shadertype) == m_shaders.end()) {

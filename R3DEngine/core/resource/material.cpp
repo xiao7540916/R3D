@@ -3,6 +3,7 @@
 //
 
 #include "material.h"
+#include "render_state_manage.h"
 #include <iostream>
 extern string CURRENT_SOURCE_DIR;
 namespace R3D {
@@ -44,6 +45,18 @@ namespace R3D {
         if (m_textureManage->m_textureBindCache[3] != m_dumpTex) {
             glBindTextureUnit(3, m_dumpTex);
         }
+    }
+    void MaterialPhone::RenderPrepare() {
+        if (RenderStateManage::GetInstance()->NeedChangeState(m_shader.ID)) {
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
+            glFrontFace(GL_CCW);
+            glCullFace(GL_BACK);
+            glDepthFunc(GL_LESS);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            m_shader.use();
+        }
+        BindResource();
     }
     void MaterialMetalPbr::InitResource() {
         if (m_albedoTexUrl.empty()) {
@@ -87,6 +100,31 @@ namespace R3D {
         }
         if (m_textureManage->m_textureBindCache[4] != m_aoTex) {
             glBindTextureUnit(4, m_aoTex);
+        }
+    }
+    void MaterialMetalPbr::RenderPrepare() {
+        if (RenderStateManage::GetInstance()->NeedChangeState(m_shader.ID)) {
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
+            glFrontFace(GL_CCW);
+            glCullFace(GL_BACK);
+            glDepthFunc(GL_LESS);
+            glPolygonMode(GL_FRONT, GL_FILL);
+            m_shader.use();
+        }
+        BindResource();
+    }
+    void MaterialGreen::InitResource() {
+    }
+    void MaterialGreen::BindResource() {
+    }
+    void MaterialGreen::RenderPrepare() {
+        if (RenderStateManage::GetInstance()->NeedChangeState(m_shader.ID)) {
+            glEnable(GL_DEPTH_TEST);
+            glDisable(GL_CULL_FACE);
+            glDepthFunc(GL_LESS);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            m_shader.use();
         }
     }
 }

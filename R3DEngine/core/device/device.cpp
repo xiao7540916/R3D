@@ -28,6 +28,7 @@ namespace R3D {
             device->InitBufferManage();
             device->InitRenderStateManage();
             device->InitShaderCache();
+            device->InitMeshManage();
             onceInit = false;
         }
         return device;
@@ -45,6 +46,8 @@ namespace R3D {
         delete m_textureManage;
         device->m_bufferManege->Release();
         delete m_bufferManege;
+        device->m_meshManage->Release();
+        delete m_meshManage;
     }
     GLFWwindow *Device::GetWindow() {
         return m_window;
@@ -126,6 +129,11 @@ namespace R3D {
         Device *device = GetInstance();
         device->m_textureManage = TextureManage::GetInstance();
         device->m_textureManage->Init();
+    }
+    void Device::InitMeshManage() {
+        Device *device = GetInstance();
+        device->m_meshManage = MeshManage::GetInstance();
+        device->m_meshManage->Init();
     }
     void Device::InitGlfw(const char *in_appname, int in_width, int in_height, bool in_vsync) {
         Device *device = GetInstance();

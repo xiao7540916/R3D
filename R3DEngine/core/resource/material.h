@@ -15,6 +15,7 @@ namespace R3D {
         TextureManage *m_textureManage;
         virtual void InitResource() = 0;
         virtual void BindResource() = 0;
+        virtual void RenderPrepare() = 0;
     };
     class MaterialPhone : public Material {
     public:
@@ -28,6 +29,7 @@ namespace R3D {
         GLuint m_dumpTex;
         void InitResource()override;
         void BindResource()override;
+        void RenderPrepare()override;
     };
     class MaterialMetalPbr : public Material {
     public:
@@ -43,6 +45,13 @@ namespace R3D {
         GLuint m_aoTex;
         void InitResource()override;
         void BindResource()override;
+        void RenderPrepare()override;
+    };
+    class MaterialGreen : public Material {
+    public:
+        void InitResource()override;
+        void BindResource()override;
+        void RenderPrepare()override;
     };
 }
 
