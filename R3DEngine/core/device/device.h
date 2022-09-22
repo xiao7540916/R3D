@@ -9,6 +9,7 @@
 #include <resource/render_state_manage.h>
 #include <resource/shader_cache.h>
 #include <resource/mesh_manage.h>
+#include <device/render_list.h>
 #include <math/camera.h>
 #include <util/r_log.h>
 #include <queue>
@@ -102,6 +103,7 @@ namespace R3D {
         Camera *m_camera = nullptr;
         ShaderCache m_shaderCache;
         MeshManage *m_meshManage = nullptr;
+        RenderList m_opaqueList;
     private:
         static Device *m_device;
         GLFWwindow *m_window = nullptr;

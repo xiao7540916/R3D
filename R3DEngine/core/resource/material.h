@@ -27,9 +27,9 @@ namespace R3D {
         GLuint m_specTex;
         GLuint m_normalTex;
         GLuint m_dumpTex;
-        void InitResource()override;
-        void BindResource()override;
-        void RenderPrepare()override;
+        void InitResource() override;
+        void BindResource() override;
+        void RenderPrepare() override;
     };
     class MaterialMetalPbr : public Material {
     public:
@@ -43,15 +43,19 @@ namespace R3D {
         GLuint m_metallicTex;
         GLuint m_roughnessTex;
         GLuint m_aoTex;
-        void InitResource()override;
-        void BindResource()override;
-        void RenderPrepare()override;
+        void InitResource() override;
+        void BindResource() override;
+        void RenderPrepare() override;
     };
     class MaterialGreen : public Material {
     public:
-        void InitResource()override;
-        void BindResource()override;
-        void RenderPrepare()override;
+        void InitResource() override;
+        void BindResource() override;
+        void RenderPrepare() override;
+    };
+    //材质管理(主要用于初始化一些材质，减少主程序工作量,实例运行需要在贴图和着色器加载完成后)
+    class MaterialManage {
+    public:
     };
 }
 

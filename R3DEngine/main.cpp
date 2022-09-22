@@ -29,50 +29,41 @@ int main() {
     materialPhone->InitResource();
     MaterialMetalPbr *materialMetalPbr = new MaterialMetalPbr();
     materialMetalPbr->m_shader = shaderCache.GetShader("metalpbr");
-    materialMetalPbr->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/albedo.png";
-    materialMetalPbr->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/normal.png";
-    materialMetalPbr->m_metallicTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/metallic.png";
-    materialMetalPbr->m_roughnessTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/roughness.png";
-    materialMetalPbr->m_aoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/ao.png";
+    materialMetalPbr->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/bathroomtile/albedo.png";
+    materialMetalPbr->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/bathroomtile/normal.png";
+    materialMetalPbr->m_roughnessTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/bathroomtile/roughness.png";
+    materialMetalPbr->m_aoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/bathroomtile/ao.png";
     materialMetalPbr->InitResource();
     MaterialGreen *materialGreen = new MaterialGreen();
     materialGreen->m_shader = shaderCache.GetShader("green");
-
-
-
-
-
-    Object* obj2 = new Object("box2", nullptr,vec3(0),0,0,0, true);
-    obj2->SetMesh(meshManage->GetMesh("boxmesh"));
-    obj2->SetMaterial(materialPhone);
-    obj2->m_bndSphMaterial = materialGreen;
-    obj2->Scale(1.0f);
-    obj2->MoveTo(vec3(1,1,0));
-
-    Object* obj = new Object("box", obj2,vec3(1,0,0),0,0,0, true);
-    obj->SetMesh(meshManage->GetMesh("boxmesh"));
-    obj->SetMaterial(materialPhone);
-    obj->m_bndSphMaterial = materialGreen;
-    obj->Scale(1.0f);
-
-    obj2->UpdataSubSceneGraph(true);
-    obj2->UpdataBoundSphere(obj2);
+    Object *rootplane = new Object("rootplane", nullptr, vec3(0), 0, 0, 0, true);
+    device->m_opaqueList.m_objectList.push_back(rootplane);
+    rootplane->SetMesh(meshManage->GetMesh("planemesh"));
+    rootplane->SetMaterial(materialMetalPbr);
+    rootplane->m_bndSphMaterial = materialGreen;
+    rootplane->Scale(10.0f);
+    Object *box = new Object("box", rootplane, vec3(0), 0, 0, 0, true);
+    device->m_opaqueList.m_objectList.push_back(box);
+    box->SetMesh(meshManage->GetMesh("boxmesh"));
+    box->SetMaterial(materialPhone);
+    box->m_bndSphMaterial = materialGreen;
+    box->Scale(1.0f);
+    box->MoveTo(vec3(0, 0.5, 0));
+    rootplane->UpdataSubSceneGraph(true);
+    rootplane->UpdataBoundSphere(rootplane);
+    device->m_opaqueList.Sort();
+    for (int i = 0;i < device->m_opaqueList.m_objectList.size();++i) {
+        cout << device->m_opaqueList.m_objectList[i]->GetMaterial()->m_shader.ID << endl;
+    }
     while (device->Run()) {
-        obj2->RotationRool(device->m_gameTime.TotalTime()*0.01);
-        obj->RotationPitch(device->m_gameTime.TotalTime()*0.01);
-        obj2->UpdataSubSceneGraph(true);
-        obj2->UpdataBoundSphere(obj2);
         device->Tick();
         glfwPollEvents();
         bufferManage->UpdataUniBaseBuf();
         gui->Begin();
         guiMake();
         gui->End();
-        obj->Render();
-        obj2->Render();
-        obj->RenderBndSphere();
-        obj2->RenderBndSphere();
-        obj2->RenderSlfBndSphere();
+        device->m_opaqueList.Render();
+        device->m_opaqueList.RenderBndSphere();
         gui->Render();
         glfwSwapBuffers(device->GetWindow());
         while (!device->m_eventInfo.empty()) {

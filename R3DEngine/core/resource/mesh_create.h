@@ -16,6 +16,7 @@ namespace R3D {
         static void
         CreateBox(Mesh &in_mesh, float in_width, float in_height, float in_depth, VertexLayout in_vertexLayout);
         static void CreateGeosphere(Mesh &in_mesh, float in_radius, uint32_t in_numSubdivisions, VertexLayout in_vertexLayout);
+        static void CreatePlane(Mesh& in_mesh,float in_x,float in_z,VertexLayout in_vertexLayout);
     };
 }
 

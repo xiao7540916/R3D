@@ -138,6 +138,7 @@ namespace R3D {
         void RenderBndSphere();
         void RenderSlfBndSphere();
         void SetMaterial(Material *in_material);
+        inline Material *GetMaterial() {return m_material;};
     };
 }
 
