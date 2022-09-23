@@ -37,10 +37,16 @@ namespace R3D {
         GetInstance()->m_device->OnWindowClose(window);
     }
     void GLFWEvent::Scroll(GLFWwindow *window, double xoffset, double yoffset) {
-        GetInstance()->m_device->OnScroll(window, xoffset, yoffset);
+        ImGuiIO &io = ImGui::GetIO();
+        if(!io.WantCaptureMouse){
+            GetInstance()->m_device->OnScroll(window, xoffset, yoffset);
+        }
     }
     void GLFWEvent::MouseButton(GLFWwindow *window, int button, int action, int mods) {
-        GetInstance()->m_device->OnMouseButton(window, button, action, mods);
+        ImGuiIO &io = ImGui::GetIO();
+        if(!io.WantCaptureMouse){
+            GetInstance()->m_device->OnMouseButton(window, button, action, mods);
+        }
     }
     void GLFWEvent::Key(GLFWwindow *window, int key, int scancode, int action, int mods) {
         GetInstance()->m_device->OnKey(window, key, scancode, action, mods);

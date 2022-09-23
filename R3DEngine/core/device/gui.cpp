@@ -1,7 +1,13 @@
 //
 // Created by Administrator on 2022/9/9.
 //
-
+/*
+ * imgui屏蔽系统事件说明，主要在glfw_event.cpp中处理输入冲突问题
+ * ImGuiIO &io = ImGui::GetIO();
+ *您可以读取 io.WantCaptureMouse、io.WantCaptureKeyboard 标志来判断亲爱的 imgui 是否想要使用您的输入。
+ *当 io.WantCaptureMouse 为真时，不要将鼠标输入数据发送到您的主应用程序，或者清除/覆盖您的鼠标数据副本。
+ *当 io.WantCaptureKeyboard 为真时，不要将键盘输入数据发送到您的主应用程序，或清除/覆盖您的键盘数据副本。
+ * */
 #include "gui.h"
 #include <device/device.h>
 namespace R3D {

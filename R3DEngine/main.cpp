@@ -10,6 +10,7 @@ using namespace std;
 using namespace R3D;
 string CURRENT_SOURCE_DIR = "../../";
 string SHADER_DIR = "../../R3DEngine/core/shader/";
+uint32_t FPS = 0;
 void guiMake();
 int main() {
     Device *device = Device::GetInstance();
@@ -22,12 +23,11 @@ int main() {
     MeshManage *meshManage = MeshManage::GetInstance();
     ShaderCache &shaderCache = device->m_shaderCache;
     MaterialManage &materialManage = *device->m_materialManage;
-
     Object *rootplane = new Object("rootplane", nullptr, vec3(0), 0, 0, 0, true);
     device->m_opaqueList.m_objectList.push_back(rootplane);
     rootplane->SetMesh(meshManage->GetMesh("planemesh"));
     rootplane->SetMaterial(materialManage.GetMaterial("metalpbr_bathroomtile"));
-    rootplane->SetUvConfig(vec2(0),vec2(5));
+    rootplane->SetUvConfig(vec2(0), vec2(5));
     rootplane->Scale(10.0f);
     Object *box = new Object("box", rootplane, vec3(0), 0, 0, 0, true);
     device->m_opaqueList.m_objectList.push_back(box);
@@ -49,7 +49,7 @@ int main() {
         guiMake();
         gui->End();
         device->m_opaqueList.Render();
-        device->m_opaqueList.RenderBndSphere();
+//        device->m_opaqueList.RenderBndSphere();
         gui->Render();
         glfwSwapBuffers(device->GetWindow());
         while (!device->m_eventInfo.empty()) {
@@ -66,10 +66,22 @@ int main() {
     return 0;
 }
 void guiMake() {
-//    ImGui::Begin("Hello, world!");
-//    ImGui::End();
-//    ImGui::Begin("Hello, world2!");
-//    ImGui::End();
+    ImGui::Begin("Info");
+    static uint32_t fpsFrameCount = 0;
+    static GameTime& gametime = Device::GetInstance()->m_gameTime;
+    static float deltatime = gametime.DeltaTime() * 100.0f;
+    static float lasttime = gametime.TotalTime();
+    static float nowtime;
+    if (fpsFrameCount < 100) {
+        fpsFrameCount++;
+    } else {
+        fpsFrameCount = 0;
+        nowtime = gametime.TotalTime();
+        deltatime = nowtime - lasttime;
+        lasttime = nowtime;
+    }
+    ImGui::Text("fps:%d", int(100.0f / deltatime));
+    ImGui::End();
 };
 
 /*
