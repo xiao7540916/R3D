@@ -14,7 +14,7 @@ uint32_t FPS = 0;
 void guiMake();
 int main() {
     Device *device = Device::GetInstance();
-    device->Init("windowtest", 1200, 900, true);
+    device->Init("windowtest", 1200, 900, false);
     device->SetCamera(vec3(0, 1, 5), vec3(0, 0, 0), radians(70.0f),
                       float(device->m_windowWidth) / float(device->m_windowHeight),
                       0.1f, 100.0f);
@@ -49,7 +49,6 @@ int main() {
         guiMake();
         gui->End();
         device->m_opaqueList.Render();
-//        device->m_opaqueList.RenderBndSphere();
         gui->Render();
         glfwSwapBuffers(device->GetWindow());
         while (!device->m_eventInfo.empty()) {
@@ -68,7 +67,7 @@ int main() {
 void guiMake() {
     ImGui::Begin("Info");
     static uint32_t fpsFrameCount = 0;
-    static GameTime& gametime = Device::GetInstance()->m_gameTime;
+    static GameTime &gametime = Device::GetInstance()->m_gameTime;
     static float deltatime = gametime.DeltaTime() * 100.0f;
     static float lasttime = gametime.TotalTime();
     static float nowtime;
@@ -80,7 +79,10 @@ void guiMake() {
         deltatime = nowtime - lasttime;
         lasttime = nowtime;
     }
-    ImGui::Text("fps:%d", int(100.0f / deltatime));
+    ImGui::Text("FPS:%d", int(100.0f / deltatime));
+    ImGui::End();
+    ImGui::Begin("DepthTex");
+    ImGui::Image((ImTextureID)TextureManage::GetInstance()->m_urlToTexture["../../Data/image/phone/circlebox/diffuse.png"],ImVec2(512,512));
     ImGui::End();
 };
 

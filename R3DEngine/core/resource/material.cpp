@@ -11,6 +11,10 @@ namespace R3D {
     Material::Material() {
         m_textureManage = TextureManage::GetInstance();
     }
+    //---------------------------------------------
+    MaterialPhone::MaterialPhone() {
+        m_mtrQueue = MTRQUEUE_GEOMETRY;
+    }
     void MaterialPhone::InitResource() {
         if (m_diffTexUrl.empty()) {
             m_diffTexUrl = CURRENT_SOURCE_DIR + "Data/image/white.png";
@@ -59,7 +63,8 @@ namespace R3D {
         }
         BindResource();
     }
-    MaterialPhone::MaterialPhone() {
+    //---------------------------------------------
+    MaterialMetalPbr::MaterialMetalPbr() {
         m_mtrQueue = MTRQUEUE_GEOMETRY;
     }
     void MaterialMetalPbr::InitResource() {
@@ -118,7 +123,8 @@ namespace R3D {
         }
         BindResource();
     }
-    MaterialMetalPbr::MaterialMetalPbr() {
+    //---------------------------------------------
+    MaterialGreen::MaterialGreen() {
         m_mtrQueue = MTRQUEUE_GEOMETRY;
     }
     void MaterialGreen::InitResource() {
@@ -134,9 +140,26 @@ namespace R3D {
             m_shader.use();
         }
     }
-    MaterialGreen::MaterialGreen() {
-        m_mtrQueue = MTRQUEUE_GEOMETRY;
+    //----------------------------------------------
+    MaterialDepth::MaterialDepth() {
+        m_mtrQueue = MTRQUEUE_BACKGROUND;
     }
+    void MaterialDepth::InitResource() {
+    }
+    void MaterialDepth::BindResource() {
+    }
+    void MaterialDepth::RenderPrepare() {
+        if (RenderStateManage::GetInstance()->NeedChangeState(m_shader.ID)) {
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
+            glFrontFace(GL_CCW);
+            glCullFace(GL_BACK);
+            glDepthFunc(GL_LESS);
+            glPolygonMode(GL_FRONT, GL_FILL);
+            m_shader.use();
+        }
+    }
+    //----------------------------------------------
     MaterialManage::MaterialManage() {
     }
     MaterialManage *MaterialManage::m_materialManage = nullptr;
@@ -155,6 +178,7 @@ namespace R3D {
         phone_circlebox->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/phone/circlebox/normal.png";
         phone_circlebox->InitResource();
         AddMaterial("phone_circlebox", phone_circlebox);
+        //----------------------------------------------
         MaterialMetalPbr *metalpbr_bathroomtile = new MaterialMetalPbr();
         metalpbr_bathroomtile->m_shader = shaderCache.GetShader("metalpbr");
         metalpbr_bathroomtile->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/bathroomtile/albedo.png";
@@ -163,9 +187,14 @@ namespace R3D {
         metalpbr_bathroomtile->m_aoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/bathroomtile/ao.png";
         metalpbr_bathroomtile->InitResource();
         AddMaterial("metalpbr_bathroomtile", metalpbr_bathroomtile);
+        //----------------------------------------------
         MaterialGreen *green = new MaterialGreen();
         green->m_shader = shaderCache.GetShader("green");
         AddMaterial("green", green);
+        //----------------------------------------------
+        MaterialDepth *depth = new MaterialDepth();
+        depth->m_shader = shaderCache.GetShader("depth");
+        AddMaterial("depth", depth);
     }
     void MaterialManage::Release() {
         for (auto item = m_nameToMtr.begin();item != m_nameToMtr.end();item++) {

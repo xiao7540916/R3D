@@ -22,7 +22,7 @@ namespace R3D {
     }
     TextureManage::TextureManage() {
     }
-    void TextureManage::LoadTexture(const string &in_url) {
+    void TextureManage::LoadTexture(const string &in_url, GLint in_repeatinfo, GLint in_mipmapinfo) {
         if (m_urlToTexture.find(in_url) == m_urlToTexture.end()) {
             std::cout << in_url << std::endl;
             //纹理
@@ -30,10 +30,10 @@ namespace R3D {
             glGenTextures(1, &texture);
             glBindTexture(GL_TEXTURE_2D, texture);
             //设置纹理包装和过滤的方式
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);//设置mipmap采样方式
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, in_repeatinfo);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, in_repeatinfo);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, in_mipmapinfo);//设置mipmap采样方式
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, in_mipmapinfo);
             int width, height, nrChannels;
 //            stbi_set_flip_vertically_on_load(true);//翻转y轴
             unsigned char *data = stbi_load(in_url.c_str(), &width,
@@ -54,7 +54,7 @@ namespace R3D {
                     format = GL_RGBA;
                     break;
                 default:
-                    std::cout<<"set format false"<<std::endl;
+                    std::cout << "set format false" << std::endl;
             }
             if (!data) {
                 std::cout << "加载" << in_url << "失败" << std::endl;

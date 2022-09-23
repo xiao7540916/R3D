@@ -21,7 +21,7 @@ namespace R3D {
         static TextureManage *GetInstance();
         void Init();
         void Release();
-        void LoadTexture(const string &in_url);
+        void LoadTexture(const string &in_url,GLint in_param = GL_REPEAT,GLint in_mipmapinfo = GL_LINEAR_MIPMAP_LINEAR);
         void LoadTextureEx(const string &in_url, const TextureLayout &in_textureLayout);
         GLuint GetTextureByUrl(const string &in_url);
     private:

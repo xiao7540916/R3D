@@ -57,6 +57,13 @@ namespace R3D {
         void BindResource() override;
         void RenderPrepare() override;
     };
+    class MaterialDepth : public Material {
+    public:
+        MaterialDepth();
+        void InitResource() override;
+        void BindResource() override;
+        void RenderPrepare() override;
+    };
     //材质管理(主要用于初始化一些材质，减少主程序工作量,实例运行需要在贴图和着色器加载完成后)
     class MaterialManage {
     public:
