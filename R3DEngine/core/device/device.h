@@ -110,6 +110,7 @@ namespace R3D {
         MeshManage *m_meshManage = nullptr;
         RenderList m_opaqueList;
         FrameBufferDepth m_preDepthFBO;
+        FrameBufferColDepthHDR m_backHDRFBO;
     private:
         static Device *m_device;
         GLFWwindow *m_window = nullptr;

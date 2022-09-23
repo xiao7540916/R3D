@@ -30,7 +30,7 @@ namespace R3D {
             device->InitShaderCache();
             device->InitMeshManage();
             device->InitMaterialManage();
-            device->InitFrameBuffers(in_width,in_height);
+            device->InitFrameBuffers(in_width, in_height);
             onceInit = false;
         }
         return device;
@@ -53,6 +53,8 @@ namespace R3D {
         m_shaderCache.Release();
         m_materialManage->Release();
         delete m_materialManage;
+        m_preDepthFBO.Release();
+        m_backHDRFBO.Release();
     }
     GLFWwindow *Device::GetWindow() {
         return m_window;
@@ -198,6 +200,7 @@ namespace R3D {
     }
     void Device::InitFrameBuffers(int in_width, int in_height) {
         m_preDepthFBO.Init(in_width, in_height);
+        m_backHDRFBO.Init(in_width, in_height);
     }
     void
     Device::SetCamera(vec3 in_position, vec3 in_target, float in_fovy, float in_aspect, float in_zn, float in_zf) {
@@ -367,6 +370,7 @@ namespace R3D {
         m_gameTime.Tick();
         m_mouseInfo.xoffset = 0.0f;
         m_mouseInfo.yoffset = 0.0f;
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);

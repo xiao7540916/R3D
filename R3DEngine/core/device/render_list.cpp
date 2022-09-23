@@ -30,8 +30,6 @@ namespace R3D {
         std::sort(m_objectList.begin(), m_objectList.end(), cmp);
     }
     void RenderList::RenderDepth() {
-        glClear(GL_DEPTH_BUFFER_BIT);
-        glEnable(GL_DEPTH_TEST);
         uint32_t objectCount = m_objectList.size();
         for (int i = 0;i < objectCount;++i) {
             m_objectList[i]->RenderDepth();

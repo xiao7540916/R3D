@@ -57,7 +57,7 @@ namespace R3D {
             glEnable(GL_CULL_FACE);
             glFrontFace(GL_CCW);
             glCullFace(GL_BACK);
-            glDepthFunc(GL_LESS);
+            glDepthFunc(GL_EQUAL);
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             m_shader.use();
         }
@@ -117,7 +117,7 @@ namespace R3D {
             glEnable(GL_CULL_FACE);
             glFrontFace(GL_CCW);
             glCullFace(GL_BACK);
-            glDepthFunc(GL_LESS);
+            glDepthFunc(GL_EQUAL);
             glPolygonMode(GL_FRONT, GL_FILL);
             m_shader.use();
         }

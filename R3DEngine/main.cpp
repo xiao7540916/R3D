@@ -56,10 +56,30 @@ int main() {
         guiMake();
         gui->End();
         //渲染开始
+        //深度预渲染
         glBindFramebuffer(GL_FRAMEBUFFER, device->m_preDepthFBO.m_frameBuffer);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST);
         device->m_opaqueList.RenderDepth();
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        //拷贝pre深度缓冲到后台缓冲，使用深度相等渲染
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, device->m_preDepthFBO.m_frameBuffer);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, device->m_backHDRFBO.m_frameBuffer);
+        glBlitFramebuffer(0, 0, device->m_windowWidth, device->m_windowHeight,
+                          0, 0, device->m_windowWidth, device->m_windowHeight,
+                          GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+        //后台HDR缓冲渲染
+        glBindFramebuffer(GL_FRAMEBUFFER, device->m_backHDRFBO.m_frameBuffer);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST);
         device->m_opaqueList.Render();
+        //windowframe
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, device->m_backHDRFBO.m_frameBuffer);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        glBlitFramebuffer(0, 0, device->m_windowWidth, device->m_windowHeight,
+                          0, 0, device->m_windowWidth, device->m_windowHeight,
+                          GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
         gui->Render();
         //渲染结束
         glfwSwapBuffers(device->GetWindow());
@@ -90,6 +110,11 @@ void guiMake() {
     ImGui::Begin("DepthTex");
     //翻转y轴使图像于屏幕匹配
     ImGui::Image((ImTextureID) Device::GetInstance()->m_preDepthFBO.m_depthAttach, ImVec2(600, 450), ImVec2(0, 1),
+                 ImVec2(1, 0));
+    ImGui::End();
+    ImGui::Begin("BackColTex");
+    //翻转y轴使图像于屏幕匹配
+    ImGui::Image((ImTextureID) Device::GetInstance()->m_backHDRFBO.m_colorAttach0, ImVec2(600, 450), ImVec2(0, 1),
                  ImVec2(1, 0));
     ImGui::End();
 };
