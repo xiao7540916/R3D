@@ -30,6 +30,7 @@ namespace R3D {
             device->InitShaderCache();
             device->InitMeshManage();
             device->InitMaterialManage();
+            device->InitFrameBuffers(in_width,in_height);
             onceInit = false;
         }
         return device;
@@ -194,6 +195,9 @@ namespace R3D {
         Device *device = GetInstance();
         device->m_materialManage = MaterialManage::GetInstance();
         device->m_materialManage->Init();
+    }
+    void Device::InitFrameBuffers(int in_width, int in_height) {
+        m_preDepthFBO.Init(in_width, in_height);
     }
     void
     Device::SetCamera(vec3 in_position, vec3 in_target, float in_fovy, float in_aspect, float in_zn, float in_zf) {

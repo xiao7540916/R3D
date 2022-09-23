@@ -75,5 +75,6 @@ namespace R3D {
         bool castShadow;//投射阴影
         bool receiveShadow;
     };
+
 }
 #endif //R3D_STRUCTDEFINE_H

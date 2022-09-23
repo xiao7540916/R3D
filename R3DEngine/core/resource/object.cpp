@@ -339,4 +339,16 @@ namespace R3D {
         m_uvoffset = in_uvoffset;
         m_uvscale = in_uvscale;
     }
+    void Object::RenderDepth() {
+        static Material *depthMaterial = MaterialManage::GetInstance()->GetMaterial("depth");
+        //更新uniform缓冲
+        static UniformBlockMesh uniformBlockMesh;
+        uniformBlockMesh.model = GetFinalTransformMatrix();
+        uniformBlockMesh.invmodelt = glm::transpose(glm::inverse(GetFinalTransformMatrix()));
+        uniformBlockMesh.uvoffset = m_uvoffset;
+        uniformBlockMesh.uvscale = m_uvscale;
+        glNamedBufferSubData(BufferManage::GetInstance()->m_uniBlockMeshBuffer, 0, sizeof(UniformBlockMesh),
+                             &uniformBlockMesh);
+        m_mesh->Render(depthMaterial);
+    }
 }

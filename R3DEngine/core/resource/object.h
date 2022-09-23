@@ -138,6 +138,7 @@ namespace R3D {
         void Render();
         void RenderBndSphere();
         void RenderSlfBndSphere();
+        void RenderDepth();
         void SetMaterial(Material *in_material);
         void SetUvConfig(const vec2& in_uvoffset,const vec2& in_uvscale);
         inline Material *GetMaterial() {return m_material;};

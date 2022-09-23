@@ -12,6 +12,7 @@ namespace R3D{
         vector<Object*> m_objectList;
         void Render();
         void RenderBndSphere();
+        void RenderDepth();
         void Sort();
     };
 }

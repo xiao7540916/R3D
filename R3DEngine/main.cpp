@@ -14,7 +14,7 @@ uint32_t FPS = 0;
 void guiMake();
 int main() {
     Device *device = Device::GetInstance();
-    device->Init("windowtest", 1200, 900, false);
+    device->Init("windowtest", 1200, 900, true);
     device->SetCamera(vec3(0, 1, 5), vec3(0, 0, 0), radians(70.0f),
                       float(device->m_windowWidth) / float(device->m_windowHeight),
                       0.1f, 100.0f);
@@ -42,21 +42,27 @@ int main() {
         cout << device->m_opaqueList.m_objectList[i]->GetMaterial()->m_shader.ID << endl;
     }
     while (device->Run()) {
+        //数据准备
         device->Tick();
         glfwPollEvents();
-        bufferManage->UpdataUniBaseBuf();
-        gui->Begin();
-        guiMake();
-        gui->End();
-        device->m_opaqueList.Render();
-        gui->Render();
-        glfwSwapBuffers(device->GetWindow());
         while (!device->m_eventInfo.empty()) {
             EventInfo &eventInfo = device->m_eventInfo.front();
             device->UpdataAppInfo(eventInfo);
             device->UpdataInputInfo(eventInfo);
             device->m_eventInfo.pop();
         }
+        bufferManage->UpdataUniBaseBuf();
+        gui->Begin();
+        guiMake();
+        gui->End();
+        //渲染开始
+        glBindFramebuffer(GL_FRAMEBUFFER, device->m_preDepthFBO.m_frameBuffer);
+        device->m_opaqueList.RenderDepth();
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        device->m_opaqueList.Render();
+        gui->Render();
+        //渲染结束
+        glfwSwapBuffers(device->GetWindow());
         device->Tock();
     }
     glfwTerminate();
@@ -82,7 +88,9 @@ void guiMake() {
     ImGui::Text("FPS:%d", int(100.0f / deltatime));
     ImGui::End();
     ImGui::Begin("DepthTex");
-    ImGui::Image((ImTextureID)TextureManage::GetInstance()->m_urlToTexture["../../Data/image/phone/circlebox/diffuse.png"],ImVec2(512,512));
+    //翻转y轴使图像于屏幕匹配
+    ImGui::Image((ImTextureID) Device::GetInstance()->m_preDepthFBO.m_depthAttach, ImVec2(600, 450), ImVec2(0, 1),
+                 ImVec2(1, 0));
     ImGui::End();
 };
 

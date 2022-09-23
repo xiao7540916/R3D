@@ -10,6 +10,7 @@
 #include <resource/shader_cache.h>
 #include <resource/mesh_manage.h>
 #include <resource/material.h>
+#include <resource/frame_buffer.h>
 #include <device/render_list.h>
 #include <math/camera.h>
 #include <util/r_log.h>
@@ -77,6 +78,7 @@ namespace R3D {
         void InitShaderCache();
         void InitMeshManage();
         void InitMaterialManage();
+        void InitFrameBuffers(int in_width, int in_height);
         void SetCamera(vec3 in_position, vec3 in_target, float in_fovy, float in_aspect, float in_zn, float in_zf);
         void UpdataAppInfo(EventInfo &in_eventInfo);
         void UpdataInputInfo(EventInfo &in_eventInfo);
@@ -107,6 +109,7 @@ namespace R3D {
         MaterialManage *m_materialManage;
         MeshManage *m_meshManage = nullptr;
         RenderList m_opaqueList;
+        FrameBufferDepth m_preDepthFBO;
     private:
         static Device *m_device;
         GLFWwindow *m_window = nullptr;
