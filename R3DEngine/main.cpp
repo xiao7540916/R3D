@@ -15,7 +15,7 @@ void guiMake();
 int main() {
     Device *device = Device::GetInstance();
     device->Init("windowtest", 1200, 900, true);
-    device->SetCamera(vec3(0, 1, 5), vec3(0, 0, 0), radians(70.0f),
+    device->SetCamera(vec3(-4, 3, 4), vec3(0, 0, 0), radians(70.0f),
                       float(device->m_windowWidth) / float(device->m_windowHeight),
                       0.1f, 100.0f);
     Gui *gui = Gui::GetInstance();
@@ -23,24 +23,37 @@ int main() {
     MeshManage *meshManage = MeshManage::GetInstance();
     ShaderCache &shaderCache = device->m_shaderCache;
     MaterialManage &materialManage = *device->m_materialManage;
+    Mesh *spotmesh = new Mesh();
+    MeshCreate::LoadObjToMesh(*spotmesh, CURRENT_SOURCE_DIR + "Data/model/spot/spot.obj", VERT_POS_NOR_TAN_UV);
+    meshManage->AddMesh("spotmesh", spotmesh);
     Object *rootplane = new Object("rootplane", nullptr, vec3(0), 0, 0, 0, true);
     device->m_opaqueList.m_objectList.push_back(rootplane);
     rootplane->SetMesh(meshManage->GetMesh("planemesh"));
     rootplane->SetMaterial(materialManage.GetMaterial("metalpbr_bathroomtile"));
     rootplane->SetUvConfig(vec2(0), vec2(5));
     rootplane->Scale(10.0f);
-    Object *box = new Object("box", rootplane, vec3(0), 0, 0, 0, true);
-    device->m_opaqueList.m_objectList.push_back(box);
-    box->SetMesh(meshManage->GetMesh("boxmesh"));
-    box->SetMaterial(materialManage.GetMaterial("phone_circlebox"));
-    box->Scale(1.0f);
-    box->MoveTo(vec3(0, 0.5, 0));
+    for (int i = 0;i < 1;++i) {
+//        Object *box = new Object("box" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
+//        device->m_opaqueList.m_objectList.push_back(box);
+//        box->SetMesh(meshManage->GetMesh("spotmesh"));
+//        box->SetMaterial(materialManage.GetMaterial("phone_circlebox"));
+//        box->Scale(0.5f);
+//        box->MoveTo(vec3((i % 4 - 1.5) * 1.5f, 0.5, (i / 4 - 1.5) * 1.5f));
+
+        Object *box = new Object("box" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
+        device->m_opaqueList.m_objectList.push_back(box);
+        box->SetMesh(meshManage->GetMesh("boxmesh"));
+        box->SetMaterial(materialManage.GetMaterial("phone_circlebox"));
+        box->Scale(0.5f);
+//        box->MoveTo(vec3((i % 4 - 1.5) * 1.5f, 0.5, (i / 4 - 1.5) * 1.5f));
+    }
     rootplane->UpdataSubSceneGraph(true);
     rootplane->UpdataBoundSphere(rootplane);
     device->m_opaqueList.Sort();
     for (int i = 0;i < device->m_opaqueList.m_objectList.size();++i) {
-        cout << device->m_opaqueList.m_objectList[i]->GetMaterial()->m_shader.ID << endl;
+        cout << device->m_opaqueList.m_objectList[i]->GetMaterial()->m_shader.ID << " ";
     }
+    cout << endl;
     while (device->Run()) {
         //数据准备
         device->Tick();
@@ -61,6 +74,7 @@ int main() {
         glClear(GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
         device->m_opaqueList.RenderDepth();
+
         //拷贝pre深度缓冲到后台缓冲，使用深度相等渲染
         glBindFramebuffer(GL_READ_FRAMEBUFFER, device->m_preDepthFBO.m_frameBuffer);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, device->m_backHDRFBO.m_frameBuffer);
@@ -73,6 +87,7 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
         device->m_opaqueList.Render();
+        device->m_opaqueList.RenderBndSphere();
         //windowframe
         glBindFramebuffer(GL_READ_FRAMEBUFFER, device->m_backHDRFBO.m_frameBuffer);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);

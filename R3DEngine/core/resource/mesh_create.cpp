@@ -5,6 +5,8 @@
 #include "mesh_create.h"
 #include <resource/mesh.h>
 #include <vector>
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
 namespace R3D {
     using std::vector;
     void MeshCreate::GetTangent(VertexPosNorTanUv &v0, VertexPosNorTanUv &v1, VertexPosNorTanUv &v2) {
@@ -290,7 +292,7 @@ namespace R3D {
     }
     void MeshCreate::CreatePlane(Mesh &in_mesh, float in_x, float in_z, VertexLayout in_vertexLayout) {
         in_mesh.m_vertexLayout = in_vertexLayout;
-        in_mesh.m_sphere.SetRadius(0.5f * sqrtf(in_x*in_x+in_z*in_z));
+        in_mesh.m_sphere.SetRadius(0.5f * sqrtf(in_x * in_x + in_z * in_z));
         in_mesh.m_sphere.SetCenter(vec3(0, 0, 0));
         switch (in_vertexLayout) {
             case VERT_POS: {
@@ -319,7 +321,7 @@ namespace R3D {
                     vertices[i].position.z *= (in_z);
                 }
                 vector<uint32_t> indices = {
-                        0,1,3,1,2,3
+                        0, 1, 3, 1, 2, 3
                 };
                 for (int i = 0;i < indices.size();i = i + 3) {
                     GetTangent(vertices[indices[i]], vertices[indices[i + 1]], vertices[indices[i + 2]]);
@@ -327,6 +329,99 @@ namespace R3D {
                     GetTangent(vertices[indices[i + 2]], vertices[indices[i]], vertices[indices[i + 1]]);
                 }
                 in_mesh.m_indiceSize = indices.size();
+                glCreateVertexArrays(1, &in_mesh.VAO);
+                //定义顶点缓冲对象，将顶点数据复制到缓冲中
+                glCreateBuffers(1, &in_mesh.VBO);
+                glCreateBuffers(1, &in_mesh.EBO);
+                glNamedBufferStorage(in_mesh.VBO, (long long) (vertices.size() * sizeof(VertexPosNorTanUv)),
+                                     vertices.data(), 0);//创建缓冲并向其中写入数据
+                glNamedBufferStorage(in_mesh.EBO, (long long) (indices.size() * sizeof(uint32_t)), indices.data(), 0);
+                glBindVertexArray(in_mesh.VAO);//开始记录顶点信息
+                glBindBuffer(GL_ARRAY_BUFFER, in_mesh.VBO);
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, in_mesh.EBO);
+                //设置顶点缓冲的属性解释
+                glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void *) 0);
+                glEnableVertexAttribArray(0);
+                glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void *) (3 * sizeof(float)));
+                glEnableVertexAttribArray(1);
+                glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void *) (6 * sizeof(float)));
+                glEnableVertexAttribArray(2);
+                glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void *) (9 * sizeof(float)));
+                glEnableVertexAttribArray(3);
+                glBindVertexArray(0);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+    //加载没有子网格的模型
+    void MeshCreate::LoadObjToMesh(Mesh &in_mesh, const string &in_url, VertexLayout in_vertexLayout) {
+        in_mesh.m_vertexLayout = in_vertexLayout;
+        switch (in_vertexLayout) {
+            case VERT_POS: {
+                break;
+            }
+            case VERT_POS_COL: {
+                break;
+            }
+            case VERT_POS_NOR: {
+                break;
+            }
+            case VERT_POS_NOR_UV: {
+                break;
+            }
+            case VERT_POS_NOR_TAN_UV: {
+                using namespace tinyobj;
+                vector<VertexPosNorTanUv> vertices;
+                vector<uint32_t> indices;
+                vec3 minpoint(99999);
+                vec3 maxpoint(-99999);
+                attrib_t attrib;
+                std::vector<shape_t> shapes;
+                std::vector<material_t> materials;
+                std::string warn, err;
+                if (!LoadObj(&attrib, &shapes, &materials, &warn, &err, in_url.c_str())) {
+                    using namespace std;
+                    throw runtime_error(warn + err);
+                }
+                uint32_t indiceCount = shapes[0].mesh.indices.size();
+                in_mesh.m_indiceSize = int(indiceCount);
+                indices.resize(indiceCount);
+                for (int i = 0;i < indiceCount;++i) {
+                    indices[i] = shapes[0].mesh.indices[i].vertex_index;
+                }
+                uint32_t vertexCount = attrib.vertices.size() / 3;
+                vertices.resize(vertexCount);
+                for (int i = 0;i < vertexCount;++i) {
+                    vertices[i].position.x = attrib.vertices[i * 3 + 0];
+                    vertices[i].position.y = attrib.vertices[i * 3 + 1];
+                    vertices[i].position.z = attrib.vertices[i * 3 + 2];
+                    vertices[i].normal.x = attrib.normals[i * 3 + 0];
+                    vertices[i].normal.y = attrib.normals[i * 3 + 1];
+                    vertices[i].normal.z = attrib.normals[i * 3 + 2];
+                    vertices[i].tangent = vec3(1, 0, 0);
+                    vertices[i].uv.x = attrib.texcoords[i * 2 + 0];
+                    vertices[i].uv.y = attrib.texcoords[i * 2 + 1];
+                    minpoint.x = attrib.vertices[i * 3 + 0] < minpoint.x ? attrib.vertices[i * 3 + 0] : minpoint.x;
+                    minpoint.y = attrib.vertices[i * 3 + 0] < minpoint.y ? attrib.vertices[i * 3 + 0] : minpoint.y;
+                    minpoint.z = attrib.vertices[i * 3 + 0] < minpoint.z ? attrib.vertices[i * 3 + 0] : minpoint.z;
+                    maxpoint.x = attrib.vertices[i * 3 + 0] > maxpoint.x ? attrib.vertices[i * 3 + 0] : maxpoint.x;
+                    maxpoint.y = attrib.vertices[i * 3 + 0] > maxpoint.y ? attrib.vertices[i * 3 + 0] : maxpoint.y;
+                    maxpoint.z = attrib.vertices[i * 3 + 0] > maxpoint.z ? attrib.vertices[i * 3 + 0] : maxpoint.z;
+                }
+                vec3 midpoint = 0.5f * (minpoint + maxpoint);
+                float radius = 0.5f * glm::length(maxpoint - minpoint);
+                in_mesh.m_sphere.SetRadius(radius);
+                in_mesh.m_sphere.SetCenter(minpoint);
+                for (int j = 0;j < indices.size();j = j + 3) {
+                    GetTangent(vertices[indices[j]], vertices[indices[j + 1]],
+                               vertices[indices[j + 2]]);
+                    GetTangent(vertices[indices[j + 1]],
+                               vertices[indices[j + 2]], vertices[indices[j]]);
+                    GetTangent(vertices[indices[j + 2]], vertices[indices[j]],
+                               vertices[indices[j + 1]]);
+                }
                 glCreateVertexArrays(1, &in_mesh.VAO);
                 //定义顶点缓冲对象，将顶点数据复制到缓冲中
                 glCreateBuffers(1, &in_mesh.VBO);

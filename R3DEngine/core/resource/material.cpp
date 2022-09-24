@@ -58,7 +58,7 @@ namespace R3D {
             glFrontFace(GL_CCW);
             glCullFace(GL_BACK);
             glDepthFunc(GL_EQUAL);
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            glPolygonMode(GL_FRONT, GL_FILL);
             m_shader.use();
         }
         BindResource();
@@ -155,7 +155,8 @@ namespace R3D {
             glFrontFace(GL_CCW);
             glCullFace(GL_BACK);
             glDepthFunc(GL_LESS);
-            glPolygonMode(GL_FRONT, GL_FILL);
+            //注：此处GL_FRONT_AND_BACK对应恢复包围球pass中的状态，不可仅恢复FRONT状态，造成渲染错误
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             m_shader.use();
         }
     }
