@@ -180,11 +180,11 @@ namespace R3D {
         phone_circlebox->InitResource();
         AddMaterial("phone_circlebox", phone_circlebox);
         //----------------------------------------------
-        MaterialPhone *phone_spot = new MaterialPhone();
-        phone_spot->m_shader = shaderCache.GetShader("phone");
-        phone_spot->m_diffTexUrl = CURRENT_SOURCE_DIR + "Data/image/phone/spot/diffuse.png";
-        phone_spot->InitResource();
-        AddMaterial("phone_spot", phone_spot);
+        MaterialMetalPbr *metalpbr_spot = new MaterialMetalPbr();
+        metalpbr_spot->m_shader = shaderCache.GetShader("metalpbr");
+        metalpbr_spot->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/phone/spot/diffuse.png";
+        metalpbr_spot->InitResource();
+        AddMaterial("metalpbr_spot", metalpbr_spot);
         //----------------------------------------------
         MaterialMetalPbr *metalpbr_bathroomtile = new MaterialMetalPbr();
         metalpbr_bathroomtile->m_shader = shaderCache.GetShader("metalpbr");

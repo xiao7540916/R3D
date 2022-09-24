@@ -83,7 +83,7 @@ void main() {
 
     // reflectance equation
     vec3 Lo = vec3(0.0);
-    vec3 lightPositions[1] = {vec3(1,1,1)};
+    vec3 lightPositions[1] = {vec3(2,2,-2)};
     vec3 lightColors[1] = {vec3(1,1,1)};
     for (int i = 0; i < 1; ++i)
     {
@@ -123,7 +123,7 @@ void main() {
 
     // ambient lighting (note that the next IBL tutorial will replace
     // this ambient lighting with environment lighting).
-    vec3 ambient = vec3(0.03) * albedo * ao;
+    vec3 ambient = vec3(0.0) * albedo * ao;
 
     vec3 color = ambient + Lo;
 

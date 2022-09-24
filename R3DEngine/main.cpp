@@ -23,7 +23,6 @@ int main() {
     MeshManage *meshManage = MeshManage::GetInstance();
     ShaderCache &shaderCache = device->m_shaderCache;
     MaterialManage &materialManage = *device->m_materialManage;
-
     Object *rootplane = new Object("rootplane", nullptr, vec3(0), 0, 0, 0, true);
     device->m_opaqueList.m_objectList.push_back(rootplane);
     rootplane->SetMesh(meshManage->GetMesh("planemesh"));
@@ -34,7 +33,7 @@ int main() {
         Object *box = new Object("spot" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
         device->m_opaqueList.m_objectList.push_back(box);
         box->SetMesh(meshManage->GetMesh("spotmesh"));
-        box->SetMaterial(materialManage.GetMaterial("phone_spot"));
+        box->SetMaterial(materialManage.GetMaterial("metalpbr_spot"));
         box->Scale(1.0f);
         box->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.725, (i / 4 - 1.5) * 2.0f));
     }
@@ -46,7 +45,7 @@ int main() {
         box->Scale(1.0f);
         box->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.5, (i / 4 - 1.5) * 2.0f));
     }
-    for (int i = 8;i < 12;++i) {
+    for (int i = 12;i < 16;++i) {
         Object *box = new Object("box" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
         device->m_opaqueList.m_objectList.push_back(box);
         box->SetMesh(meshManage->GetMesh("boxmesh"));
@@ -54,7 +53,7 @@ int main() {
         box->Scale(1.0f);
         box->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.5, (i / 4 - 1.5) * 2.0f));
     }
-    for (int i = 12;i < 16;++i) {
+    for (int i = 8;i < 12;++i) {
         Object *box = new Object("box" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
         device->m_opaqueList.m_objectList.push_back(box);
         box->SetMesh(meshManage->GetMesh("boxmesh"));

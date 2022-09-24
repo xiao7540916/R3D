@@ -17,8 +17,9 @@ in VS_OUT {
     vec2 TexCoords;
     mat3 TBN;
 } fs_in;
+const float INVPI = 0.31831f;
 void main() {
-    vec3 LightPos = vec3(2,2,2);
+    vec3 LightPos = vec3(2,2,-2);
     vec3 normal = texture(normalTex, fs_in.TexCoords).rgb;
     // transform normal vector to range [-1,1]
     normal = normalize(normal * 2.0 - 1.0);  // this normal is in tangent space
@@ -27,7 +28,7 @@ void main() {
     // get diffuse color
     vec3 color = texture(diffTex, fs_in.TexCoords).rgb;
     // ambient
-    vec3 ambient = 0.1 * color;
+    vec3 ambient = 0.0 * color;
     // diffuse
     vec3 lightDir = normalize(LightPos - fs_in.FragPos);
     float diff = max(dot(lightDir, normal), 0.0);
@@ -39,5 +40,5 @@ void main() {
     float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
     float specstrength = texture(specTex,fs_in.TexCoords).r;
     vec3 specular = vec3(specstrength) * spec;
-    FragColor = vec4(ambient + diffuse + specular, 1.0);
+    FragColor = vec4(INVPI*(ambient + diffuse + specular), 1.0);
 }
