@@ -180,6 +180,12 @@ namespace R3D {
         phone_circlebox->InitResource();
         AddMaterial("phone_circlebox", phone_circlebox);
         //----------------------------------------------
+        MaterialPhone *phone_spot = new MaterialPhone();
+        phone_spot->m_shader = shaderCache.GetShader("phone");
+        phone_spot->m_diffTexUrl = CURRENT_SOURCE_DIR + "Data/image/phone/spot/diffuse.png";
+        phone_spot->InitResource();
+        AddMaterial("phone_spot", phone_spot);
+        //----------------------------------------------
         MaterialMetalPbr *metalpbr_bathroomtile = new MaterialMetalPbr();
         metalpbr_bathroomtile->m_shader = shaderCache.GetShader("metalpbr");
         metalpbr_bathroomtile->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/bathroomtile/albedo.png";
@@ -188,6 +194,16 @@ namespace R3D {
         metalpbr_bathroomtile->m_aoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/bathroomtile/ao.png";
         metalpbr_bathroomtile->InitResource();
         AddMaterial("metalpbr_bathroomtile", metalpbr_bathroomtile);
+        //----------------------------------------------
+        MaterialMetalPbr *metalpbr_rusted_iron = new MaterialMetalPbr();
+        metalpbr_rusted_iron->m_shader = shaderCache.GetShader("metalpbr");
+        metalpbr_rusted_iron->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/albedo.png";
+        metalpbr_rusted_iron->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/normal.png";
+        metalpbr_rusted_iron->m_metallicTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/metallic.png";
+        metalpbr_rusted_iron->m_roughnessTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/roughness.png";
+        metalpbr_rusted_iron->m_aoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/ao.png";
+        metalpbr_rusted_iron->InitResource();
+        AddMaterial("metalpbr_rusted_iron", metalpbr_rusted_iron);
         //----------------------------------------------
         MaterialGreen *green = new MaterialGreen();
         green->m_shader = shaderCache.GetShader("green");

@@ -4,6 +4,7 @@
 
 #include "mesh_manage.h"
 #include <resource/mesh_create.h>
+extern string CURRENT_SOURCE_DIR;
 namespace R3D {
     MeshManage::MeshManage() {
     }
@@ -38,6 +39,9 @@ namespace R3D {
         Mesh *planemesh = new Mesh();
         MeshCreate::CreatePlane(*planemesh, 1, 1, VERT_POS_NOR_TAN_UV);
         AddMesh("planemesh", planemesh);
+        Mesh *spotmesh = new Mesh();
+        MeshCreate::LoadObjToMesh(*spotmesh, CURRENT_SOURCE_DIR + "Data/model/spot/spot.obj", VERT_POS_NOR_TAN_UV);
+        AddMesh("spotmesh", spotmesh);
     }
     void MeshManage::Release() {
         for (auto item = m_nameToMesh.begin();item != m_nameToMesh.end();item++) {

@@ -402,18 +402,18 @@ namespace R3D {
                     vertices[i].normal.z = attrib.normals[i * 3 + 2];
                     vertices[i].tangent = vec3(1, 0, 0);
                     vertices[i].uv.x = attrib.texcoords[i * 2 + 0];
-                    vertices[i].uv.y = attrib.texcoords[i * 2 + 1];
+                    vertices[i].uv.y = 1.0f-attrib.texcoords[i * 2 + 1];
                     minpoint.x = attrib.vertices[i * 3 + 0] < minpoint.x ? attrib.vertices[i * 3 + 0] : minpoint.x;
-                    minpoint.y = attrib.vertices[i * 3 + 0] < minpoint.y ? attrib.vertices[i * 3 + 0] : minpoint.y;
-                    minpoint.z = attrib.vertices[i * 3 + 0] < minpoint.z ? attrib.vertices[i * 3 + 0] : minpoint.z;
+                    minpoint.y = attrib.vertices[i * 3 + 0] < minpoint.y ? attrib.vertices[i * 3 + 1] : minpoint.y;
+                    minpoint.z = attrib.vertices[i * 3 + 0] < minpoint.z ? attrib.vertices[i * 3 + 2] : minpoint.z;
                     maxpoint.x = attrib.vertices[i * 3 + 0] > maxpoint.x ? attrib.vertices[i * 3 + 0] : maxpoint.x;
-                    maxpoint.y = attrib.vertices[i * 3 + 0] > maxpoint.y ? attrib.vertices[i * 3 + 0] : maxpoint.y;
-                    maxpoint.z = attrib.vertices[i * 3 + 0] > maxpoint.z ? attrib.vertices[i * 3 + 0] : maxpoint.z;
+                    maxpoint.y = attrib.vertices[i * 3 + 0] > maxpoint.y ? attrib.vertices[i * 3 + 1] : maxpoint.y;
+                    maxpoint.z = attrib.vertices[i * 3 + 0] > maxpoint.z ? attrib.vertices[i * 3 + 2] : maxpoint.z;
                 }
                 vec3 midpoint = 0.5f * (minpoint + maxpoint);
                 float radius = 0.5f * glm::length(maxpoint - minpoint);
                 in_mesh.m_sphere.SetRadius(radius);
-                in_mesh.m_sphere.SetCenter(minpoint);
+                in_mesh.m_sphere.SetCenter(midpoint);
                 for (int j = 0;j < indices.size();j = j + 3) {
                     GetTangent(vertices[indices[j]], vertices[indices[j + 1]],
                                vertices[indices[j + 2]]);
