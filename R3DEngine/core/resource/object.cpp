@@ -351,4 +351,7 @@ namespace R3D {
                              &uniformBlockMesh);
         m_mesh->Render(depthMaterial);
     }
+    void Object::Updata(float in_deltaTime, EventInfo &in_eventInfo) {
+        std::cout << m_name << std::endl;
+    }
 }

@@ -16,31 +16,6 @@
 #include <util/r_log.h>
 #include <queue>
 namespace R3D {
-#define EVENT_COUNT_MAX 10
-    enum EventType {
-        EVENT_NONE = 0,
-        EVENT_WINDOW_SIZE,
-        EVENT_CURSOR_POS,
-        EVENT_WINDOW_CLOSE,
-        EVENT_SCROLL,
-        EVENT_MOUSE_BUTTON,
-        EVENT_KEY
-    };
-    struct EventInfo {
-        EventType type;
-        GLFWwindow *window;
-        int width;
-        int height;
-        double xpos;
-        double ypos;
-        double xoffset;
-        double yoffset;
-        int button;
-        int action;
-        int mods;
-        int key;
-        int scancode;
-    };
     struct MouseInfo {
         float x = 0;
         float y = 0;

@@ -16,6 +16,7 @@ namespace R3D {
     protected:
         string m_name;//节点名字
         bool m_visible;//是否可见
+        bool m_dynamic = false;
         Mesh *m_mesh;
         Material *m_material;
         Object *m_father;//父节点指针
@@ -40,6 +41,7 @@ namespace R3D {
                float in_radianY, float in_radianZ, bool in_visible);
         //取得名字
         inline const string &GetName() const {return m_name;}
+        inline bool GetDynamic() const {return m_dynamic;}
         //获取当前位置(世界空间中)
         inline vec3 GetPosition() const {
             return vec3(m_transformation[3][0], m_transformation[3][1], m_transformation[3][2]);
@@ -140,8 +142,9 @@ namespace R3D {
         void RenderSlfBndSphere();
         void RenderDepth();
         void SetMaterial(Material *in_material);
-        void SetUvConfig(const vec2& in_uvoffset,const vec2& in_uvscale);
+        void SetUvConfig(const vec2 &in_uvoffset, const vec2 &in_uvscale);
         inline Material *GetMaterial() {return m_material;};
+        void Updata(float in_deltaTime, EventInfo &in_eventInfo);
     };
 }
 

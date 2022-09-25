@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 #include <unordered_map>
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 //数学常量
 #define PI 3.14159265f
 #define PI2 6.2831852f
@@ -21,12 +22,38 @@
 #define Rad_TO_Deg(rad) (rad*57.2957796f)
 #define OFFSET(structure, member) ((size_t)&((structure*)0)->member)
 #define ZERO(member) (abs(member)<EPSILON_E6)
+#define EVENT_COUNT_MAX 10
 namespace R3D {
     using glm::vec4;
     using glm::vec3;
     using glm::vec2;
     using glm::mat3;
     using glm::mat4;
+
+    enum EventType {
+        EVENT_NONE = 0,
+        EVENT_WINDOW_SIZE,
+        EVENT_CURSOR_POS,
+        EVENT_WINDOW_CLOSE,
+        EVENT_SCROLL,
+        EVENT_MOUSE_BUTTON,
+        EVENT_KEY
+    };
+    struct EventInfo {
+        EventType type;
+        GLFWwindow *window;
+        int width;
+        int height;
+        double xpos;
+        double ypos;
+        double xoffset;
+        double yoffset;
+        int button;
+        int action;
+        int mods;
+        int key;
+        int scancode;
+    };
     enum VertexLayout {
         VERT_POS,
         VERT_POS_COL,
@@ -75,6 +102,11 @@ namespace R3D {
         bool castShadow;//投射阴影
         bool receiveShadow;
     };
-
+    enum LightType {
+        LIGHT_AMBIENT = 0,
+        LIGHT_DIRECTION = 1,
+        LIGHT_POINT = 2,
+        LIGHT_SPOT = 3
+    };
 }
 #endif //R3D_STRUCTDEFINE_H

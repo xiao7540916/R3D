@@ -6,11 +6,17 @@
 #include <resource/material.h>
 #include <math/sphere.h>
 #include <resource/object.h>
+#include <device/scene.h>
 using namespace std;
 using namespace R3D;
 string CURRENT_SOURCE_DIR = "../../";
 string SHADER_DIR = "../../R3DEngine/core/shader/";
-uint32_t FPS = 0;
+struct OptionConfig {
+    uint32_t FPS;
+    uint32_t OpaqueRenderCount;
+    bool SphereRender = false;
+};
+OptionConfig optionConfig{};
 void guiMake();
 int main() {
     Device *device = Device::GetInstance();
@@ -23,15 +29,17 @@ int main() {
     MeshManage *meshManage = MeshManage::GetInstance();
     ShaderCache &shaderCache = device->m_shaderCache;
     MaterialManage &materialManage = *device->m_materialManage;
+    Scene scene;
+    scene.Init(device);
     Object *rootplane = new Object("rootplane", nullptr, vec3(0), 0, 0, 0, true);
-    device->m_opaqueList.m_objectList.push_back(rootplane);
+    scene.SetRoot(rootplane);
     rootplane->SetMesh(meshManage->GetMesh("planemesh"));
     rootplane->SetMaterial(materialManage.GetMaterial("metalpbr_bathroomtile"));
     rootplane->SetUvConfig(vec2(0), vec2(16));
     rootplane->Scale(16.0f);
     for (int i = 0;i < 4;++i) {
         Object *box = new Object("spot" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
-        device->m_opaqueList.m_objectList.push_back(box);
+        box->Attach(rootplane);
         box->SetMesh(meshManage->GetMesh("spotmesh"));
         box->SetMaterial(materialManage.GetMaterial("metalpbr_spot"));
         box->Scale(1.0f);
@@ -39,7 +47,7 @@ int main() {
     }
     for (int i = 4;i < 8;++i) {
         Object *box = new Object("box" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
-        device->m_opaqueList.m_objectList.push_back(box);
+        box->Attach(rootplane);
         box->SetMesh(meshManage->GetMesh("boxmesh"));
         box->SetMaterial(materialManage.GetMaterial("metalpbr_rusted_iron"));
         box->Scale(1.0f);
@@ -47,7 +55,7 @@ int main() {
     }
     for (int i = 12;i < 16;++i) {
         Object *box = new Object("box" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
-        device->m_opaqueList.m_objectList.push_back(box);
+        box->Attach(rootplane);
         box->SetMesh(meshManage->GetMesh("boxmesh"));
         box->SetMaterial(materialManage.GetMaterial("phone_circlebox"));
         box->Scale(1.0f);
@@ -55,7 +63,7 @@ int main() {
     }
     for (int i = 8;i < 12;++i) {
         Object *box = new Object("box" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
-        device->m_opaqueList.m_objectList.push_back(box);
+        box->Attach(rootplane);
         box->SetMesh(meshManage->GetMesh("boxmesh"));
         box->SetMaterial(materialManage.GetMaterial("metalpbr_bathroomtile"));
         box->Scale(1.0f);
@@ -63,9 +71,10 @@ int main() {
     }
     rootplane->UpdataSubSceneGraph(true);
     rootplane->UpdataBoundSphere(rootplane);
-    device->m_opaqueList.Sort();
+    scene.MakeRenderList();
+    scene.m_opaqueList.Sort();
     for (int i = 0;i < device->m_opaqueList.m_objectList.size();++i) {
-        cout << device->m_opaqueList.m_objectList[i]->GetMaterial()->m_shader.ID << " ";
+        cout << scene.m_opaqueList.m_objectList[i]->GetMaterial()->m_shader.ID << " ";
     }
     cout << endl;
     while (device->Run()) {
@@ -76,8 +85,13 @@ int main() {
             EventInfo &eventInfo = device->m_eventInfo.front();
             device->UpdataAppInfo(eventInfo);
             device->UpdataInputInfo(eventInfo);
+            scene.UpdataAnimate(device->m_gameTime.DeltaTime(), eventInfo);
             device->m_eventInfo.pop();
         }
+        scene.UpdataTransBound();
+        scene.MakeRenderList();
+        scene.SortRenderList();
+        optionConfig.OpaqueRenderCount = scene.m_opaqueList.m_objectList.size();
         bufferManage->UpdataUniBaseBuf();
         gui->Begin();
         guiMake();
@@ -87,7 +101,7 @@ int main() {
         glBindFramebuffer(GL_FRAMEBUFFER, device->m_preDepthFBO.m_frameBuffer);
         glClear(GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
-        device->m_opaqueList.RenderDepth();
+        scene.m_opaqueList.RenderDepth();
 
         //拷贝pre深度缓冲到后台缓冲，使用深度相等渲染
         glBindFramebuffer(GL_READ_FRAMEBUFFER, device->m_preDepthFBO.m_frameBuffer);
@@ -100,8 +114,10 @@ int main() {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
-        device->m_opaqueList.Render();
-//        device->m_opaqueList.RenderBndSphere();
+        scene.m_opaqueList.Render();
+        if(optionConfig.SphereRender){
+            scene.m_opaqueList.RenderBndSphere();
+        }
         //windowframe
         glBindFramebuffer(GL_READ_FRAMEBUFFER, device->m_backHDRFBO.m_frameBuffer);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
@@ -135,6 +151,8 @@ void guiMake() {
         lasttime = nowtime;
     }
     ImGui::Text("FPS:%d", int(100.0f / deltatime));
+    ImGui::Text("OpaqueCount:%d", int(optionConfig.OpaqueRenderCount));
+    ImGui::Checkbox("SphereRender",&optionConfig.SphereRender);
     ImGui::End();
     ImGui::Begin("DepthTex");
     //翻转y轴使图像于屏幕匹配

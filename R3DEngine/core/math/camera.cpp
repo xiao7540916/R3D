@@ -60,10 +60,10 @@ namespace R3D {
         mProjection = glm::perspective(mFovY, mAspect, mNearZ, mFarZ);
 
         //设置裁剪平面，坐标基于摄像机坐标系
-        vec3 normalT = glm::normalize(vec3(0, -1.0f, -tanf(0.5f * Deg_TO_Rad(mFovY))));
-        vec3 normalB = glm::normalize(vec3(0, 1.0f, -tanf(0.5f * Deg_TO_Rad(mFovY))));
-        vec3 normalL = glm::normalize(vec3(1.0f, 0, -tanf(0.5f * Deg_TO_Rad(mFovY)) * mAspect));
-        vec3 normalR = glm::normalize(vec3(-1.0f, 0, -tanf(0.5f * Deg_TO_Rad(mFovY)) * mAspect));
+        vec3 normalT = glm::normalize(vec3(0, -1.0f, -tanf(0.5f * mFovY)));
+        vec3 normalB = glm::normalize(vec3(0, 1.0f, -tanf(0.5f * mFovY)));
+        vec3 normalL = glm::normalize(vec3(1.0f, 0, -tanf(0.5f * mFovY) * mAspect));
+        vec3 normalR = glm::normalize(vec3(-1.0f, 0, -tanf(0.5f * mFovY) * mAspect));
         m_frustum.m_planes[0].init(normalT, 0.0f);
         m_frustum.m_planes[1].init(normalB, 0.0f);
         m_frustum.m_planes[2].init(normalL, 0.0f);
