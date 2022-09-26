@@ -15,7 +15,7 @@ namespace R3D {
     MaterialPhone::MaterialPhone() {
         m_mtrQueue = MTRQUEUE_GEOMETRY;
     }
-    void MaterialPhone::InitResource() {
+    void MaterialPhone::InitResource(GLint in_param,GLint in_mipmapinfo) {
         if (m_diffTexUrl.empty()) {
             m_diffTexUrl = CURRENT_SOURCE_DIR + "Data/image/white.png";
         }
@@ -28,10 +28,10 @@ namespace R3D {
         if (m_dumpTexUrl.empty()) {
             m_dumpTexUrl = CURRENT_SOURCE_DIR + "Data/image/black.png";
         }
-        m_textureManage->LoadTexture(m_diffTexUrl);
-        m_textureManage->LoadTexture(m_specTexUrl);
-        m_textureManage->LoadTexture(m_normalTexUrl);
-        m_textureManage->LoadTexture(m_dumpTexUrl);
+        m_textureManage->LoadTexture(m_diffTexUrl,in_param,in_mipmapinfo);
+        m_textureManage->LoadTexture(m_specTexUrl,in_param,in_mipmapinfo);
+        m_textureManage->LoadTexture(m_normalTexUrl,in_param,in_mipmapinfo);
+        m_textureManage->LoadTexture(m_dumpTexUrl,in_param,in_mipmapinfo);
         m_diffTex = m_textureManage->GetTextureByUrl(m_diffTexUrl);
         m_specTex = m_textureManage->GetTextureByUrl(m_specTexUrl);
         m_normalTex = m_textureManage->GetTextureByUrl(m_normalTexUrl);
@@ -67,7 +67,7 @@ namespace R3D {
     MaterialMetalPbr::MaterialMetalPbr() {
         m_mtrQueue = MTRQUEUE_GEOMETRY;
     }
-    void MaterialMetalPbr::InitResource() {
+    void MaterialMetalPbr::InitResource(GLint in_param,GLint in_mipmapinfo) {
         if (m_albedoTexUrl.empty()) {
             m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/white.png";
         }
@@ -83,11 +83,11 @@ namespace R3D {
         if (m_aoTexUrl.empty()) {
             m_aoTexUrl = CURRENT_SOURCE_DIR + "Data/image/white.png";
         }
-        m_textureManage->LoadTexture(m_albedoTexUrl);
-        m_textureManage->LoadTexture(m_normalTexUrl);
-        m_textureManage->LoadTexture(m_metallicTexUrl);
-        m_textureManage->LoadTexture(m_roughnessTexUrl);
-        m_textureManage->LoadTexture(m_aoTexUrl);
+        m_textureManage->LoadTexture(m_albedoTexUrl,in_param,in_mipmapinfo);
+        m_textureManage->LoadTexture(m_normalTexUrl,in_param,in_mipmapinfo);
+        m_textureManage->LoadTexture(m_metallicTexUrl,in_param,in_mipmapinfo);
+        m_textureManage->LoadTexture(m_roughnessTexUrl,in_param,in_mipmapinfo);
+        m_textureManage->LoadTexture(m_aoTexUrl,in_param,in_mipmapinfo);
         m_albedoTex = m_textureManage->GetTextureByUrl(m_albedoTexUrl);
         m_normalTex = m_textureManage->GetTextureByUrl(m_normalTexUrl);
         m_metallicTex = m_textureManage->GetTextureByUrl(m_metallicTexUrl);
@@ -127,7 +127,7 @@ namespace R3D {
     MaterialGreen::MaterialGreen() {
         m_mtrQueue = MTRQUEUE_GEOMETRY;
     }
-    void MaterialGreen::InitResource() {
+    void MaterialGreen::InitResource(GLint in_param,GLint in_mipmapinfo) {
     }
     void MaterialGreen::BindResource() {
     }
@@ -144,7 +144,7 @@ namespace R3D {
     MaterialDepth::MaterialDepth() {
         m_mtrQueue = MTRQUEUE_BACKGROUND;
     }
-    void MaterialDepth::InitResource() {
+    void MaterialDepth::InitResource(GLint in_param,GLint in_mipmapinfo) {
     }
     void MaterialDepth::BindResource() {
     }
@@ -202,7 +202,7 @@ namespace R3D {
         metalpbr_rusted_iron->m_metallicTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/metallic.png";
         metalpbr_rusted_iron->m_roughnessTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/roughness.png";
         metalpbr_rusted_iron->m_aoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/ao.png";
-        metalpbr_rusted_iron->InitResource();
+        metalpbr_rusted_iron->InitResource(GL_CLAMP_TO_EDGE);
         AddMaterial("metalpbr_rusted_iron", metalpbr_rusted_iron);
         //----------------------------------------------
         MaterialMetalPbr *metalpbr_gold = new MaterialMetalPbr();

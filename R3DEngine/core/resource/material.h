@@ -14,7 +14,7 @@ namespace R3D {
         Shader m_shader;
         MtrQueue m_mtrQueue;
         TextureManage *m_textureManage;
-        virtual void InitResource() = 0;
+        virtual void InitResource(GLint in_param,GLint in_mipmapinfo) = 0;
         virtual void BindResource() = 0;
         virtual void RenderPrepare() = 0;
     };
@@ -29,7 +29,7 @@ namespace R3D {
         GLuint m_specTex{};
         GLuint m_normalTex{};
         GLuint m_dumpTex{};
-        void InitResource() override;
+        void InitResource(GLint in_param = GL_REPEAT,GLint in_mipmapinfo = GL_LINEAR_MIPMAP_LINEAR) override;
         void BindResource() override;
         void RenderPrepare() override;
     };
@@ -46,21 +46,21 @@ namespace R3D {
         GLuint m_metallicTex{};
         GLuint m_roughnessTex{};
         GLuint m_aoTex{};
-        void InitResource() override;
+        void InitResource(GLint in_param = GL_REPEAT,GLint in_mipmapinfo = GL_LINEAR_MIPMAP_LINEAR) override;
         void BindResource() override;
         void RenderPrepare() override;
     };
     class MaterialGreen : public Material {
     public:
         MaterialGreen();
-        void InitResource() override;
+        void InitResource(GLint in_param = GL_REPEAT,GLint in_mipmapinfo = GL_LINEAR_MIPMAP_LINEAR) override;
         void BindResource() override;
         void RenderPrepare() override;
     };
     class MaterialDepth : public Material {
     public:
         MaterialDepth();
-        void InitResource() override;
+        void InitResource(GLint in_param = GL_REPEAT,GLint in_mipmapinfo = GL_LINEAR_MIPMAP_LINEAR) override;
         void BindResource() override;
         void RenderPrepare() override;
     };

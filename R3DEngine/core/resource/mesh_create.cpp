@@ -513,9 +513,11 @@ namespace R3D {
                 std::unordered_map<VertexPosNorTanUv, uint32_t> uniqueVertices{};
                 vector<VertexPosNorTanUv> vertices;
                 vector<uint32_t> indices;
-                vec3 minpoint(99999);
-                vec3 maxpoint(-99999);
+                vector<vec3> minpoints;
+                vector<vec3> maxpoints;
                 for (int i = 0;i < subMeshMtrIdInfo.size();++i) {
+                    vec3 minpoint(99999);
+                    vec3 maxpoint(-99999);
                     for (int j = subMeshMtrIdInfo[i].startindex*3;j < (subMeshMtrIdInfo[i].count+subMeshMtrIdInfo[i].startindex)*3;++j) {
                         index_t index = shapes[0].mesh.indices[j];
                         VertexPosNorTanUv vertex;
@@ -541,6 +543,8 @@ namespace R3D {
                         maxpoint.y = vertex.position.y > maxpoint.y ? vertex.position.y : maxpoint.y;
                         maxpoint.z = vertex.position.z > maxpoint.z ? vertex.position.z : maxpoint.z;
                     }
+                    minpoints.push_back(minpoint);
+                    maxpoints.push_back(maxpoint);
                 }
                 int facecount = indices.size() / 3;
                 for (int j = 0;j < facecount;++j) {
@@ -563,8 +567,8 @@ namespace R3D {
                 for (int i = 0;i < subMeshMtrIdInfo.size();++i) {
                     Mesh* submesh = new Mesh();
 
-                    vec3 midpoint = 0.5f * (minpoint + maxpoint);
-                    float radius = 0.5f * glm::length(maxpoint - minpoint);
+                    vec3 midpoint = 0.5f * (minpoints[i] + maxpoints[i]);
+                    float radius = 0.5f * glm::length(maxpoints[i] - minpoints[i]);
                     submesh->m_sphere.SetRadius(radius);
                     submesh->m_sphere.SetCenter(midpoint);
                     submesh->m_indiceSize = subMeshMtrIdInfo[i].count * 3;

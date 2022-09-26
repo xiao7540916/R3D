@@ -41,13 +41,11 @@ int main() {
         Object *matballsub0 = new Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
         matballsub0->SetMesh(meshManage->GetMesh("matballmesh0"));
         matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_gold"));
-        matballsub0->Scale(1.0f);
         matballsub0->RotationYaw(PI*0.75f);
         matballsub0->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.0f, (i / 4 - 1.5) * 2.0f));
         Object *matballsub1 = new Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
         matballsub1->SetMesh(meshManage->GetMesh("matballmesh1"));
         matballsub1->SetMaterial(materialManage.GetMaterial("metalpbr_rusted_iron"));
-        matballsub1->Scale(1.0f);
     }
     for (int i = 4;i < 8;++i) {
         Object *box = new Object("box" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
