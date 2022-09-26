@@ -39,6 +39,10 @@ namespace R3D {
     }
     void Scene::Init(Device *in_device) {
         m_device = in_device;
+        for (auto &m_dirLight : m_dirLights) {
+            m_dirLight.direction = vec3(0, 1, 0);
+            m_dirLight.strength = vec3(0);
+        }
     }
     void Scene::UpdataTransBound() {
         m_root->UpdataSubSceneGraph(true);

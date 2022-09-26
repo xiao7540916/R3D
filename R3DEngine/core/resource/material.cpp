@@ -205,6 +205,14 @@ namespace R3D {
         metalpbr_rusted_iron->InitResource(GL_CLAMP_TO_EDGE);
         AddMaterial("metalpbr_rusted_iron", metalpbr_rusted_iron);
         //----------------------------------------------
+        MaterialMetalPbr *metalpbr_dirtground = new MaterialMetalPbr();
+        metalpbr_dirtground->m_shader = shaderCache.GetShader("metalpbr");
+        metalpbr_dirtground->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/dirtground/albedo.png";
+        metalpbr_dirtground->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/dirtground/normal.png";
+        metalpbr_dirtground->m_roughnessTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/dirtground/roughness.png";
+        metalpbr_dirtground->InitResource();
+        AddMaterial("metalpbr_dirtground", metalpbr_dirtground);
+        //----------------------------------------------
         MaterialMetalPbr *metalpbr_gold = new MaterialMetalPbr();
         metalpbr_gold->m_shader = shaderCache.GetShader("metalpbr");
         metalpbr_gold->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/gold/albedo.png";

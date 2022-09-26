@@ -8,6 +8,7 @@
 #include <shader/glsldefine.h>
 namespace R3D {
     class Device;
+    class Scene;
     class BufferManage {
     public:
         GLuint m_uniBlockBaseBuffer;
@@ -18,7 +19,7 @@ namespace R3D {
         static BufferManage *GetInstance();
         void Init(Device *in_device);
         void Release();
-        void UpdataUniBaseBuf();
+        void UpdataUniBaseBuf(Scene &in_scene);
     private:
         BufferManage();
         static BufferManage *m_bufferManage;

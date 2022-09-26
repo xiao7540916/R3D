@@ -5,10 +5,21 @@ layout(binding = 1)uniform sampler2D normalTex;
 layout(binding = 2)uniform sampler2D metalTex;
 layout(binding = 3)uniform sampler2D roughnessTex;
 layout(binding = 4)uniform sampler2D aoTex;
+struct DirLight {
+    vec3 direction;
+    float fill0;
+    vec3 strength;
+    float fill1;
+};
+
 struct UniformBlockBase {
     mat4 viewproj;
     vec3 camerapos;
     float fill0;
+    DirLight dirLight0;
+    DirLight dirLight1;
+    DirLight dirLight2;
+    DirLight dirLight3;
 };
 layout(std140, binding = 0) uniform UniformBaseBuffer {
     UniformBlockBase block;
@@ -83,8 +94,9 @@ void main() {
 
     // reflectance equation
     vec3 Lo = vec3(0.0);
-    vec3 lightPositions[1] = {vec3(2,2,-2)};
-    vec3 lightColors[1] = {vec3(1,1,1)};
+    //点光源
+    vec3 lightPositions[1] = { vec3(2, 2, -2) };
+    vec3 lightColors[1] = { vec3(0, 0, 0) };
     for (int i = 0; i < 1; ++i)
     {
         // calculate per-light radiance
@@ -93,6 +105,39 @@ void main() {
         float distance = length(lightPositions[i] - WorldPos);
         float attenuation = 1.0 / (distance * distance);
         vec3 radiance = lightColors[i] * attenuation;
+
+        // Cook-Torrance BRDF
+        float NDF = DistributionGGX(N, H, roughness);
+        float G   = GeometrySmith(N, V, L, roughness);
+        vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
+        vec3 nominator    = NDF * G * F;
+        float denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001;// 0.001 to prevent divide by zero.
+        vec3 specular = nominator / denominator;
+
+        // kS is equal to Fresnel
+        vec3 kS = F;
+        // for energy conservation, the diffuse and specular light can't
+        // be above 1.0 (unless the surface emits light); to preserve this
+        // relationship the diffuse component (kD) should equal 1.0 - kS.
+        vec3 kD = vec3(1.0) - kS;
+        // multiply kD by the inverse metalness such that only non-metals
+        // have diffuse lighting, or a linear blend if partly metal (pure metals
+        // have no diffuse light).
+        kD *= 1.0 - metallic;
+
+        // scale light by NdotL
+        float NdotL = max(dot(N, L), 0.0);
+
+        // add to outgoing radiance Lo
+        Lo += (kD * albedo / PI + specular) * radiance * NdotL;// note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+    }
+    //方向光0
+    {
+        // calculate per-light radiance
+        vec3 L = ubobasedata.block.dirLight0.direction;
+        vec3 H = normalize(V + L);
+        vec3 radiance = ubobasedata.block.dirLight0.strength;
 
         // Cook-Torrance BRDF
         float NDF = DistributionGGX(N, H, roughness);

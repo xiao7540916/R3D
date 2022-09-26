@@ -31,17 +31,19 @@ int main() {
     MaterialManage &materialManage = *device->m_materialManage;
     Scene scene;
     scene.Init(device);
+    scene.m_dirLights[0].direction = glm::normalize(vec3(-1, 5, -1));
+    scene.m_dirLights[0].strength = vec3(1, 1, 1);
     Object *rootplane = new Object("rootplane", nullptr, vec3(0), 0, 0, 0, true);
     scene.SetRoot(rootplane);
     rootplane->SetMesh(meshManage->GetMesh("planemesh"));
-    rootplane->SetMaterial(materialManage.GetMaterial("metalpbr_bathroomtile"));
-    rootplane->SetUvConfig(vec2(0), vec2(16));
+    rootplane->SetMaterial(materialManage.GetMaterial("metalpbr_dirtground"));
+    rootplane->SetUvConfig(vec2(0), vec2(2));
     rootplane->Scale(16.0f);
     for (int i = 0;i < 4;++i) {
         Object *matballsub0 = new Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
         matballsub0->SetMesh(meshManage->GetMesh("matballmesh0"));
         matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_gold"));
-        matballsub0->RotationYaw(PI*0.75f);
+        matballsub0->RotationYaw(PI * 0.75f);
         matballsub0->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.0f, (i / 4 - 1.5) * 2.0f));
         Object *matballsub1 = new Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
         matballsub1->SetMesh(meshManage->GetMesh("matballmesh1"));
@@ -57,7 +59,7 @@ int main() {
     for (int i = 12;i < 16;++i) {
         Object *box = new Object("box" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
         box->SetMesh(meshManage->GetMesh("boxmesh"));
-        box->SetMaterial(materialManage.GetMaterial("phone_circlebox"));
+        box->SetMaterial(materialManage.GetMaterial("metalpbr_gold"));
         box->Scale(1.0f);
         box->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.5, (i / 4 - 1.5) * 2.0f));
     }
@@ -87,7 +89,7 @@ int main() {
         scene.MakeRenderList();
         scene.SortRenderList();
         optionConfig.OpaqueRenderCount = scene.m_opaqueList.m_objectList.size();
-        bufferManage->UpdataUniBaseBuf();
+        bufferManage->UpdataUniBaseBuf(scene);
         gui->Begin();
         guiMake();
         gui->End();
@@ -110,7 +112,7 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
         scene.m_opaqueList.Render();
-        if(optionConfig.SphereRender){
+        if (optionConfig.SphereRender) {
             scene.m_opaqueList.RenderBndSphere();
         }
         //windowframe
@@ -147,7 +149,7 @@ void guiMake() {
     }
     ImGui::Text("FPS:%d", int(100.0f / deltatime));
     ImGui::Text("OpaqueCount:%d", int(optionConfig.OpaqueRenderCount));
-    ImGui::Checkbox("SphereRender",&optionConfig.SphereRender);
+    ImGui::Checkbox("SphereRender", &optionConfig.SphereRender);
     ImGui::End();
     ImGui::Begin("DepthTex");
     //翻转y轴使图像于屏幕匹配

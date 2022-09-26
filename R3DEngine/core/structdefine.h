@@ -27,6 +27,10 @@
 #define OFFSET(structure, member) ((size_t)&((structure*)0)->member)
 #define ZERO(member) (abs(member)<EPSILON_E6)
 #define EVENT_COUNT_MAX 10
+#define DIRECTION_LIGHT_COUNT 4
+#define SPOT_LIGHT_COUNT 4
+#define POINT_LIGHT_COUNT 4096
+#define TILE_LIGHT_MAX 128
 namespace R3D {
     using glm::vec4;
     using glm::vec3;
@@ -109,12 +113,8 @@ namespace R3D {
         bool castShadow;//投射阴影
         bool receiveShadow;
     };
-    enum LightType {
-        LIGHT_AMBIENT = 0,
-        LIGHT_DIRECTION = 1,
-        LIGHT_POINT = 2,
-        LIGHT_SPOT = 3
-    };
+
+
 }
 template<>
 struct std::hash<R3D::VertexPosNorTanUv> {

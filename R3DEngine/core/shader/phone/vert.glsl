@@ -3,10 +3,20 @@ layout(location = 0) in vec3 vPosition;
 layout(location = 1) in vec3 vNormal;
 layout(location = 2) in vec3 vTangent;
 layout(location = 3) in vec2 vUv;
+struct DirLight {
+    vec3 direction;
+    float fill0;
+    vec3 strength;
+    float fill1;
+};
 struct UniformBlockBase {
     mat4 viewproj;
     vec3 camerapos;
     float fill0;
+    DirLight dirLight0;
+    DirLight dirLight1;
+    DirLight dirLight2;
+    DirLight dirLight3;
 };
 struct UniformBlockMesh{
     mat4 model;

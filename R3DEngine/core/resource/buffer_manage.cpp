@@ -4,6 +4,7 @@
 
 #include "buffer_manage.h"
 #include <device/device.h>
+#include <device/scene.h>
 namespace R3D {
     BufferManage::BufferManage() {
     }
@@ -30,11 +31,15 @@ namespace R3D {
     }
     void BufferManage::Release() {
     }
-    void BufferManage::UpdataUniBaseBuf() {
+    void BufferManage::UpdataUniBaseBuf(Scene &in_scene) {
         UniformBlockBase uniformBlockBase;
-        Camera& camera = *m_device->m_camera;
+        Camera &camera = *m_device->m_camera;
         uniformBlockBase.viewproj = camera.GetProjection() * camera.GetView();
         uniformBlockBase.camerapos = camera.GetPosition();
+        uniformBlockBase.dirLight0 = in_scene.m_dirLights[0];
+        uniformBlockBase.dirLight1 = in_scene.m_dirLights[1];
+        uniformBlockBase.dirLight2 = in_scene.m_dirLights[2];
+        uniformBlockBase.dirLight3 = in_scene.m_dirLights[3];
         glNamedBufferSubData(m_uniBlockBaseBuffer, 0, sizeof(UniformBlockBase), &uniformBlockBase);
     }
 }
