@@ -46,6 +46,16 @@ namespace R3D {
         }
         return in_path.substr(beg + 1, end - beg - 1);
     }
+    //从路径里截取文件名称，如果只有文件名则直接返回(不包含后缀)
+    inline string GetPathFromUrl(const string &in_path) {
+        size_t beg = in_path.find_last_of("\\/");
+        size_t end = in_path.find_last_of(".");
+        if (beg == string::npos) {
+            //处理只有文件名情况
+            beg = -1;
+        }
+        return in_path.substr(0,beg);
+    }
     //将给定字符串两端的空白字符删除
     inline string Trim(const string &in_str) {
         const static string SPACE_CHAR = "\t\f\v\n\r";

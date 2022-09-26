@@ -16,6 +16,7 @@ namespace R3D {
         GLuint VBO;
         GLuint EBO;
         int m_indiceSize;
+        int m_indeceStart = 0;
         VertexLayout m_vertexLayout;
         Sphere m_sphere;//模型空间的包围球
         void Render(Material *in_material);

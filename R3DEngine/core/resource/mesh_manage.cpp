@@ -42,6 +42,12 @@ namespace R3D {
         Mesh *spotmesh = new Mesh();
         MeshCreate::LoadObjToMesh(*spotmesh, CURRENT_SOURCE_DIR + "Data/model/spot/spot.obj", VERT_POS_NOR_TAN_UV);
         AddMesh("spotmesh", spotmesh);
+        vector<Mesh *> matballmesh;
+        MeshCreate::LoadObjToMeshes(matballmesh, CURRENT_SOURCE_DIR + "Data/model/matball/matball.obj",
+                                    VERT_POS_NOR_TAN_UV);
+        for (int i = 0;i < matballmesh.size();++i) {
+            AddMesh("matballmesh"+ IntToString(int(i)), matballmesh[i]);
+        }
     }
     void MeshManage::Release() {
         for (auto item = m_nameToMesh.begin();item != m_nameToMesh.end();item++) {

@@ -147,14 +147,12 @@ namespace R3D {
         m_transformation = GetTransformMatrixRelative();//获取相对变换矩阵
         Object *pNode = m_father;
         if (pNode) {
-            std::cout << pNode->m_name << std::endl;
+//            std::cout << pNode->m_name << std::endl;
         }
 
 //    递归乘以父节点变换矩阵
         while (pNode) {
-            PrintMat4(m_transformation);
             m_transformation = m_transformation * pNode->GetTransformMatrixRelative();
-            PrintMat4(m_transformation);
             pNode = pNode->m_father;
         }
         m_finalTransformMatrix = glm::scale(m_transformation, vec3(m_scale));

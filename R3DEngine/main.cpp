@@ -38,16 +38,19 @@ int main() {
     rootplane->SetUvConfig(vec2(0), vec2(16));
     rootplane->Scale(16.0f);
     for (int i = 0;i < 4;++i) {
-        Object *box = new Object("spot" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
-        box->Attach(rootplane);
-        box->SetMesh(meshManage->GetMesh("spotmesh"));
-        box->SetMaterial(materialManage.GetMaterial("metalpbr_spot"));
-        box->Scale(1.0f);
-        box->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.725, (i / 4 - 1.5) * 2.0f));
+        Object *matballsub0 = new Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
+        matballsub0->SetMesh(meshManage->GetMesh("matballmesh0"));
+        matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_gold"));
+        matballsub0->Scale(1.0f);
+        matballsub0->RotationYaw(PI*0.75f);
+        matballsub0->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.0f, (i / 4 - 1.5) * 2.0f));
+        Object *matballsub1 = new Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
+        matballsub1->SetMesh(meshManage->GetMesh("matballmesh1"));
+        matballsub1->SetMaterial(materialManage.GetMaterial("metalpbr_rusted_iron"));
+        matballsub1->Scale(1.0f);
     }
     for (int i = 4;i < 8;++i) {
         Object *box = new Object("box" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
-        box->Attach(rootplane);
         box->SetMesh(meshManage->GetMesh("boxmesh"));
         box->SetMaterial(materialManage.GetMaterial("metalpbr_rusted_iron"));
         box->Scale(1.0f);
@@ -55,7 +58,6 @@ int main() {
     }
     for (int i = 12;i < 16;++i) {
         Object *box = new Object("box" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
-        box->Attach(rootplane);
         box->SetMesh(meshManage->GetMesh("boxmesh"));
         box->SetMaterial(materialManage.GetMaterial("phone_circlebox"));
         box->Scale(1.0f);
@@ -63,7 +65,6 @@ int main() {
     }
     for (int i = 8;i < 12;++i) {
         Object *box = new Object("box" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
-        box->Attach(rootplane);
         box->SetMesh(meshManage->GetMesh("boxmesh"));
         box->SetMaterial(materialManage.GetMaterial("metalpbr_bathroomtile"));
         box->Scale(1.0f);
@@ -73,10 +74,6 @@ int main() {
     rootplane->UpdataBoundSphere(rootplane);
     scene.MakeRenderList();
     scene.m_opaqueList.Sort();
-    for (int i = 0;i < device->m_opaqueList.m_objectList.size();++i) {
-        cout << scene.m_opaqueList.m_objectList[i]->GetMaterial()->m_shader.ID << " ";
-    }
-    cout << endl;
     while (device->Run()) {
         //数据准备
         device->Tick();

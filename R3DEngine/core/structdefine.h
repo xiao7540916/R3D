@@ -8,6 +8,10 @@
 #include <unordered_map>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#ifndef GLM_ENABLE_EXPERIMENTAL
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
+#endif
 //数学常量
 #define PI 3.14159265f
 #define PI2 6.2831852f
@@ -82,6 +86,9 @@ namespace R3D {
         vec3 normal;
         vec3 tangent;
         vec2 uv;
+        bool operator==(const VertexPosNorTanUv &rhs) const {
+            return position == rhs.position && normal == rhs.normal && uv == rhs.uv;
+        }
     };
     enum SurfaceType {
         SURFACE_NULL = 0,
@@ -109,4 +116,11 @@ namespace R3D {
         LIGHT_SPOT = 3
     };
 }
+template<>
+struct std::hash<R3D::VertexPosNorTanUv> {
+    size_t operator()(R3D::VertexPosNorTanUv const &vertex) const {
+        return ((hash<glm::vec3>()(vertex.position) ^ (hash<glm::vec3>()(vertex.normal) << 1)) >> 1) ^
+               (hash<glm::vec2>()(vertex.uv) << 1);
+    }
+};
 #endif //R3D_STRUCTDEFINE_H

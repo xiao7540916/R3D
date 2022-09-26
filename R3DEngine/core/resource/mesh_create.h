@@ -19,7 +19,10 @@ namespace R3D {
         CreateBox(Mesh &in_mesh, float in_width, float in_height, float in_depth, VertexLayout in_vertexLayout);
         static void CreateGeosphere(Mesh &in_mesh, float in_radius, uint32_t in_numSubdivisions, VertexLayout in_vertexLayout);
         static void CreatePlane(Mesh& in_mesh,float in_x,float in_z,VertexLayout in_vertexLayout);
+        //加载单个网格obj文件，文件需支持uv
         static void LoadObjToMesh(Mesh& in_mesh,const string& in_url,VertexLayout in_vertexLayout);
+        //加载多个网格组成的模型
+        static void LoadObjToMeshes(vector<Mesh*>& in_meshes,const string& in_url,VertexLayout in_vertexLayout);
     };
 }
 

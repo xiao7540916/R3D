@@ -10,6 +10,6 @@ namespace R3D {
     void Mesh::Render(Material *in_material) {
         in_material->RenderPrepare();
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, m_indiceSize, GL_UNSIGNED_INT, nullptr);
+        glDrawElements(GL_TRIANGLES, m_indiceSize, GL_UNSIGNED_INT, (void*)(m_indeceStart*4));
     }
 }

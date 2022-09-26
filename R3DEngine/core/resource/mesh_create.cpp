@@ -7,7 +7,14 @@
 #include <vector>
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
+#include <util/r_log.h>
 namespace R3D {
+    using std::cout;
+    using std::endl;
+    struct SubMeshMtrIdInfo {
+        int startindex;
+        int count;
+    };
     using std::vector;
     void MeshCreate::GetTangent(VertexPosNorTanUv &v0, VertexPosNorTanUv &v1, VertexPosNorTanUv &v2) {
         vec3 POS1 = v1.position - v0.position;
@@ -373,54 +380,64 @@ namespace R3D {
             }
             case VERT_POS_NOR_TAN_UV: {
                 using namespace tinyobj;
-                vector<VertexPosNorTanUv> vertices;
-                vector<uint32_t> indices;
-                vec3 minpoint(99999);
-                vec3 maxpoint(-99999);
+                string basurl = GetPathFromUrl(in_url);
+                spdlog::info("文件夹：{}", basurl);
                 attrib_t attrib;
                 std::vector<shape_t> shapes;
                 std::vector<material_t> materials;
                 std::string warn, err;
-                if (!LoadObj(&attrib, &shapes, &materials, &warn, &err, in_url.c_str())) {
-                    using namespace std;
-                    throw runtime_error(warn + err);
+                bool b_read = LoadObj(&attrib, &shapes, &materials, &warn, &err, in_url.c_str(), basurl.c_str());
+                if (!b_read) {
+                    std::cout << "读取obj文件失败" << in_url << std::endl;
                 }
-                uint32_t indiceCount = shapes[0].mesh.indices.size();
-                in_mesh.m_indiceSize = int(indiceCount);
-                indices.resize(indiceCount);
-                for (int i = 0;i < indiceCount;++i) {
-                    indices[i] = shapes[0].mesh.indices[i].vertex_index;
-                }
-                uint32_t vertexCount = attrib.vertices.size() / 3;
-                vertices.resize(vertexCount);
-                for (int i = 0;i < vertexCount;++i) {
-                    vertices[i].position.x = attrib.vertices[i * 3 + 0];
-                    vertices[i].position.y = attrib.vertices[i * 3 + 1];
-                    vertices[i].position.z = attrib.vertices[i * 3 + 2];
-                    vertices[i].normal.x = attrib.normals[i * 3 + 0];
-                    vertices[i].normal.y = attrib.normals[i * 3 + 1];
-                    vertices[i].normal.z = attrib.normals[i * 3 + 2];
-                    vertices[i].tangent = vec3(1, 0, 0);
-                    vertices[i].uv.x = attrib.texcoords[i * 2 + 0];
-                    vertices[i].uv.y = 1.0f-attrib.texcoords[i * 2 + 1];
-                    minpoint.x = attrib.vertices[i * 3 + 0] < minpoint.x ? attrib.vertices[i * 3 + 0] : minpoint.x;
-                    minpoint.y = attrib.vertices[i * 3 + 0] < minpoint.y ? attrib.vertices[i * 3 + 1] : minpoint.y;
-                    minpoint.z = attrib.vertices[i * 3 + 0] < minpoint.z ? attrib.vertices[i * 3 + 2] : minpoint.z;
-                    maxpoint.x = attrib.vertices[i * 3 + 0] > maxpoint.x ? attrib.vertices[i * 3 + 0] : maxpoint.x;
-                    maxpoint.y = attrib.vertices[i * 3 + 0] > maxpoint.y ? attrib.vertices[i * 3 + 1] : maxpoint.y;
-                    maxpoint.z = attrib.vertices[i * 3 + 0] > maxpoint.z ? attrib.vertices[i * 3 + 2] : maxpoint.z;
+                spdlog::info("顶点数：{}", attrib.vertices.size() / 3);
+                spdlog::info("法线数：{}", attrib.normals.size() / 3);
+                spdlog::info("UV数：{}", attrib.texcoords.size() / 2);
+                spdlog::info("子模型数：{}", shapes.size());
+                spdlog::info("材质数：{}", materials.size());
+                std::unordered_map<VertexPosNorTanUv, uint32_t> uniqueVertices{};
+                vector<VertexPosNorTanUv> vertices;
+                vector<uint32_t> indices;
+                vec3 minpoint(99999);
+                vec3 maxpoint(-99999);
+                for (const auto &shape : shapes) {
+                    for (const auto &index : shape.mesh.indices) {
+                        VertexPosNorTanUv vertex;
+                        vertex.position.x = attrib.vertices[index.vertex_index * 3 + 0];
+                        vertex.position.y = attrib.vertices[index.vertex_index * 3 + 1];
+                        vertex.position.z = attrib.vertices[index.vertex_index * 3 + 2];
+                        vertex.normal.x = attrib.normals[index.normal_index * 3 + 0];
+                        vertex.normal.y = attrib.normals[index.normal_index * 3 + 1];
+                        vertex.normal.z = attrib.normals[index.normal_index * 3 + 2];
+                        vertex.tangent = vec3(1, 0, 0);
+                        vertex.uv.x = attrib.texcoords[index.texcoord_index * 2 + 0];
+                        vertex.uv.y = 1.0f - attrib.texcoords[index.texcoord_index * 2 + 1];
+                        if (uniqueVertices.count(vertex) == 0) {
+                            uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+                            vertices.push_back(vertex);
+                        }
+                        indices.push_back(uniqueVertices[vertex]);
+                        minpoint.x = vertex.position.x < minpoint.x ? vertex.position.x : minpoint.x;
+                        minpoint.y = vertex.position.y < minpoint.y ? vertex.position.y : minpoint.y;
+                        minpoint.z = vertex.position.z < minpoint.z ? vertex.position.z : minpoint.z;
+                        maxpoint.x = vertex.position.x > maxpoint.x ? vertex.position.x : maxpoint.x;
+                        maxpoint.y = vertex.position.y > maxpoint.y ? vertex.position.y : maxpoint.y;
+                        maxpoint.z = vertex.position.z > maxpoint.z ? vertex.position.z : maxpoint.z;
+                    }
                 }
                 vec3 midpoint = 0.5f * (minpoint + maxpoint);
                 float radius = 0.5f * glm::length(maxpoint - minpoint);
                 in_mesh.m_sphere.SetRadius(radius);
                 in_mesh.m_sphere.SetCenter(midpoint);
-                for (int j = 0;j < indices.size();j = j + 3) {
-                    GetTangent(vertices[indices[j]], vertices[indices[j + 1]],
-                               vertices[indices[j + 2]]);
-                    GetTangent(vertices[indices[j + 1]],
-                               vertices[indices[j + 2]], vertices[indices[j]]);
-                    GetTangent(vertices[indices[j + 2]], vertices[indices[j]],
-                               vertices[indices[j + 1]]);
+                in_mesh.m_indiceSize = indices.size();
+                int facecount = indices.size() / 3;
+                for (int j = 0;j < facecount;++j) {
+                    GetTangent(vertices[indices[3 * j]], vertices[indices[3 * j + 1]],
+                               vertices[indices[3 * j + 2]]);
+                    GetTangent(vertices[indices[3 * j + 1]],
+                               vertices[indices[3 * j + 2]], vertices[indices[3 * j]]);
+                    GetTangent(vertices[indices[3 * j + 2]], vertices[indices[3 * j]],
+                               vertices[indices[3 * j + 1]]);
                 }
                 glCreateVertexArrays(1, &in_mesh.VAO);
                 //定义顶点缓冲对象，将顶点数据复制到缓冲中
@@ -442,6 +459,136 @@ namespace R3D {
                 glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void *) (9 * sizeof(float)));
                 glEnableVertexAttribArray(3);
                 glBindVertexArray(0);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+    void MeshCreate::LoadObjToMeshes(vector<Mesh *> &in_meshes, const string &in_url, VertexLayout in_vertexLayout) {
+        switch (in_vertexLayout) {
+            case VERT_POS: {
+                break;
+            }
+            case VERT_POS_COL: {
+                break;
+            }
+            case VERT_POS_NOR: {
+                break;
+            }
+            case VERT_POS_NOR_UV: {
+                break;
+            }
+            case VERT_POS_NOR_TAN_UV: {
+                using namespace tinyobj;
+                string basurl = GetPathFromUrl(in_url);
+                spdlog::info("文件夹：{}", basurl);
+                attrib_t attrib;
+                std::vector<shape_t> shapes;
+                std::vector<material_t> materials;
+                std::string warn, err;
+                bool b_read = LoadObj(&attrib, &shapes, &materials, &warn, &err, in_url.c_str(), basurl.c_str());
+                if (!b_read) {
+                    std::cout << "读取obj文件失败" << in_url << std::endl;
+                }
+                spdlog::info("顶点数：{}", attrib.vertices.size() / 3);
+                spdlog::info("法线数：{}", attrib.normals.size() / 3);
+                spdlog::info("UV数：{}", attrib.texcoords.size() / 2);
+                spdlog::info("子模型数：{}", shapes.size());
+                spdlog::info("材质数：{}", materials.size());
+                vector<uint32_t> splitindex;
+                splitindex.push_back(-1);
+                for (int i = 0;i < shapes[0].mesh.material_ids.size() - 1;++i) {
+                    if (shapes[0].mesh.material_ids[i] != shapes[0].mesh.material_ids[i + 1]) {
+                        splitindex.push_back(i);
+                    }
+                }
+                splitindex.push_back(shapes[0].mesh.material_ids.size() - 1);
+                vector<SubMeshMtrIdInfo> subMeshMtrIdInfo;
+                subMeshMtrIdInfo.resize(splitindex.size() - 1);
+                for (int i = 0;i < subMeshMtrIdInfo.size();++i) {
+                    subMeshMtrIdInfo[i].startindex = splitindex[i] + 1;
+                    subMeshMtrIdInfo[i].count = splitindex[i + 1] - splitindex[i];
+                }
+                std::unordered_map<VertexPosNorTanUv, uint32_t> uniqueVertices{};
+                vector<VertexPosNorTanUv> vertices;
+                vector<uint32_t> indices;
+                vec3 minpoint(99999);
+                vec3 maxpoint(-99999);
+                for (int i = 0;i < subMeshMtrIdInfo.size();++i) {
+                    for (int j = subMeshMtrIdInfo[i].startindex*3;j < (subMeshMtrIdInfo[i].count+subMeshMtrIdInfo[i].startindex)*3;++j) {
+                        index_t index = shapes[0].mesh.indices[j];
+                        VertexPosNorTanUv vertex;
+                        vertex.position.x = attrib.vertices[index.vertex_index * 3 + 0];
+                        vertex.position.y = attrib.vertices[index.vertex_index * 3 + 1];
+                        vertex.position.z = attrib.vertices[index.vertex_index * 3 + 2];
+                        vertex.normal.x = attrib.normals[index.normal_index * 3 + 0];
+                        vertex.normal.y = attrib.normals[index.normal_index * 3 + 1];
+                        vertex.normal.z = attrib.normals[index.normal_index * 3 + 2];
+                        vertex.tangent = vec3(1, 0, 0);
+                        vertex.uv.x = attrib.texcoords[index.texcoord_index * 2 + 0];
+                        vertex.uv.y = 1.0f - attrib.texcoords[index.texcoord_index * 2 + 1];
+                        if (uniqueVertices.count(vertex) == 0) {
+                            uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+                            vertices.push_back(vertex);
+                        }
+                        indices.push_back(uniqueVertices[vertex]);
+
+                        minpoint.x = vertex.position.x < minpoint.x ? vertex.position.x : minpoint.x;
+                        minpoint.y = vertex.position.y < minpoint.y ? vertex.position.y : minpoint.y;
+                        minpoint.z = vertex.position.z < minpoint.z ? vertex.position.z : minpoint.z;
+                        maxpoint.x = vertex.position.x > maxpoint.x ? vertex.position.x : maxpoint.x;
+                        maxpoint.y = vertex.position.y > maxpoint.y ? vertex.position.y : maxpoint.y;
+                        maxpoint.z = vertex.position.z > maxpoint.z ? vertex.position.z : maxpoint.z;
+                    }
+                }
+                int facecount = indices.size() / 3;
+                for (int j = 0;j < facecount;++j) {
+                    GetTangent(vertices[indices[3 * j]], vertices[indices[3 * j + 1]],
+                               vertices[indices[3 * j + 2]]);
+                    GetTangent(vertices[indices[3 * j + 1]],
+                               vertices[indices[3 * j + 2]], vertices[indices[3 * j]]);
+                    GetTangent(vertices[indices[3 * j + 2]], vertices[indices[3 * j]],
+                               vertices[indices[3 * j + 1]]);
+                }
+                GLuint VBO;
+                GLuint EBO;
+                //定义顶点缓冲对象，将顶点数据复制到缓冲中
+                glCreateBuffers(1, &VBO);
+                glCreateBuffers(1, &EBO);
+                glNamedBufferStorage(VBO, (long long) (vertices.size() * sizeof(VertexPosNorTanUv)),
+                                     vertices.data(), 0);//创建缓冲并向其中写入数据
+                glNamedBufferStorage(EBO, (long long) (indices.size() * sizeof(uint32_t)), indices.data(),
+                                     0);
+                for (int i = 0;i < subMeshMtrIdInfo.size();++i) {
+                    Mesh* submesh = new Mesh();
+
+                    vec3 midpoint = 0.5f * (minpoint + maxpoint);
+                    float radius = 0.5f * glm::length(maxpoint - minpoint);
+                    submesh->m_sphere.SetRadius(radius);
+                    submesh->m_sphere.SetCenter(midpoint);
+                    submesh->m_indiceSize = subMeshMtrIdInfo[i].count * 3;
+                    submesh->m_indeceStart = subMeshMtrIdInfo[i].startindex * 3;
+
+                    submesh->m_vertexLayout = VERT_POS_NOR_TAN_UV;
+                    submesh->VBO = VBO;
+                    submesh->EBO = EBO;
+                    glCreateVertexArrays(1, &submesh->VAO);
+                    glBindVertexArray(submesh->VAO);//开始记录顶点信息
+                    glBindBuffer(GL_ARRAY_BUFFER, submesh->VBO);
+                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, submesh->EBO);
+                    //设置顶点缓冲的属性解释
+                    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void *) 0);
+                    glEnableVertexAttribArray(0);
+                    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void *) (3 * sizeof(float)));
+                    glEnableVertexAttribArray(1);
+                    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void *) (6 * sizeof(float)));
+                    glEnableVertexAttribArray(2);
+                    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void *) (9 * sizeof(float)));
+                    glEnableVertexAttribArray(3);
+                    glBindVertexArray(0);
+                    in_meshes.push_back(submesh);
+                }
                 break;
             }
             default:
