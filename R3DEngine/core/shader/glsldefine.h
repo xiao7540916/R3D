@@ -8,7 +8,10 @@ using glm::vec3;
 using glm::vec2;
 using glm::mat4;
 using glm::mat3;
-
+#define DIRECTION_LIGHT_COUNT 4
+#define SPOT_LIGHT_COUNT 4
+#define POINT_LIGHT_COUNT 1024
+#define TILE_LIGHT_MAX 128
 enum LightType {
     LIGHT_AMBIENT = 0,
     LIGHT_DIRECTION = 1,
@@ -21,14 +24,21 @@ struct DirLight {
     vec3 strength;
     float fill1;
 };
+struct PointLight {
+    vec3 position;
+    float constant;
+    vec3 strength;
+    float linear;
+    float quadratic;
+    float fill0;
+    float fill1;
+    float fill2;
+};
 struct UniformBlockBase {
     mat4 viewproj;
     vec3 camerapos;
     float fill0;
-    DirLight dirLight0;
-    DirLight dirLight1;
-    DirLight dirLight2;
-    DirLight dirLight3;
+    DirLight dirLights[DIRECTION_LIGHT_COUNT];
 };
 struct UniformBlockMesh {
     mat4 model;

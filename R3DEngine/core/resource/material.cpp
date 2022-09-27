@@ -15,7 +15,7 @@ namespace R3D {
     MaterialPhone::MaterialPhone() {
         m_mtrQueue = MTRQUEUE_GEOMETRY;
     }
-    void MaterialPhone::InitResource(GLint in_param,GLint in_mipmapinfo) {
+    void MaterialPhone::InitResource(GLint in_param, GLint in_mipmapinfo) {
         if (m_diffTexUrl.empty()) {
             m_diffTexUrl = CURRENT_SOURCE_DIR + "Data/image/white.png";
         }
@@ -28,10 +28,10 @@ namespace R3D {
         if (m_dumpTexUrl.empty()) {
             m_dumpTexUrl = CURRENT_SOURCE_DIR + "Data/image/black.png";
         }
-        m_textureManage->LoadTexture(m_diffTexUrl,in_param,in_mipmapinfo);
-        m_textureManage->LoadTexture(m_specTexUrl,in_param,in_mipmapinfo);
-        m_textureManage->LoadTexture(m_normalTexUrl,in_param,in_mipmapinfo);
-        m_textureManage->LoadTexture(m_dumpTexUrl,in_param,in_mipmapinfo);
+        m_textureManage->LoadTexture(m_diffTexUrl, in_param, in_mipmapinfo);
+        m_textureManage->LoadTexture(m_specTexUrl, in_param, in_mipmapinfo);
+        m_textureManage->LoadTexture(m_normalTexUrl, in_param, in_mipmapinfo);
+        m_textureManage->LoadTexture(m_dumpTexUrl, in_param, in_mipmapinfo);
         m_diffTex = m_textureManage->GetTextureByUrl(m_diffTexUrl);
         m_specTex = m_textureManage->GetTextureByUrl(m_specTexUrl);
         m_normalTex = m_textureManage->GetTextureByUrl(m_normalTexUrl);
@@ -67,7 +67,7 @@ namespace R3D {
     MaterialMetalPbr::MaterialMetalPbr() {
         m_mtrQueue = MTRQUEUE_GEOMETRY;
     }
-    void MaterialMetalPbr::InitResource(GLint in_param,GLint in_mipmapinfo) {
+    void MaterialMetalPbr::InitResource(GLint in_param, GLint in_mipmapinfo) {
         if (m_albedoTexUrl.empty()) {
             m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/white.png";
         }
@@ -83,11 +83,11 @@ namespace R3D {
         if (m_aoTexUrl.empty()) {
             m_aoTexUrl = CURRENT_SOURCE_DIR + "Data/image/white.png";
         }
-        m_textureManage->LoadTexture(m_albedoTexUrl,in_param,in_mipmapinfo);
-        m_textureManage->LoadTexture(m_normalTexUrl,in_param,in_mipmapinfo);
-        m_textureManage->LoadTexture(m_metallicTexUrl,in_param,in_mipmapinfo);
-        m_textureManage->LoadTexture(m_roughnessTexUrl,in_param,in_mipmapinfo);
-        m_textureManage->LoadTexture(m_aoTexUrl,in_param,in_mipmapinfo);
+        m_textureManage->LoadTexture(m_albedoTexUrl, in_param, in_mipmapinfo);
+        m_textureManage->LoadTexture(m_normalTexUrl, in_param, in_mipmapinfo);
+        m_textureManage->LoadTexture(m_metallicTexUrl, in_param, in_mipmapinfo);
+        m_textureManage->LoadTexture(m_roughnessTexUrl, in_param, in_mipmapinfo);
+        m_textureManage->LoadTexture(m_aoTexUrl, in_param, in_mipmapinfo);
         m_albedoTex = m_textureManage->GetTextureByUrl(m_albedoTexUrl);
         m_normalTex = m_textureManage->GetTextureByUrl(m_normalTexUrl);
         m_metallicTex = m_textureManage->GetTextureByUrl(m_metallicTexUrl);
@@ -127,7 +127,7 @@ namespace R3D {
     MaterialGreen::MaterialGreen() {
         m_mtrQueue = MTRQUEUE_GEOMETRY;
     }
-    void MaterialGreen::InitResource(GLint in_param,GLint in_mipmapinfo) {
+    void MaterialGreen::InitResource(GLint in_param, GLint in_mipmapinfo) {
     }
     void MaterialGreen::BindResource() {
     }
@@ -144,11 +144,31 @@ namespace R3D {
     MaterialDepth::MaterialDepth() {
         m_mtrQueue = MTRQUEUE_BACKGROUND;
     }
-    void MaterialDepth::InitResource(GLint in_param,GLint in_mipmapinfo) {
+    void MaterialDepth::InitResource(GLint in_param, GLint in_mipmapinfo) {
     }
     void MaterialDepth::BindResource() {
     }
     void MaterialDepth::RenderPrepare() {
+        if (RenderStateManage::GetInstance()->NeedChangeState(m_shader.ID)) {
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
+            glFrontFace(GL_CCW);
+            glCullFace(GL_BACK);
+            glDepthFunc(GL_LESS);
+            //注：此处GL_FRONT_AND_BACK对应恢复包围球pass中的状态，不可仅恢复FRONT状态，造成渲染错误
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            m_shader.use();
+        }
+    }
+    //----------------------------------------------
+    MaterialLight::MaterialLight() {
+        m_mtrQueue = MTRQUEUE_GEOMETRY;
+    }
+    void MaterialLight::InitResource(GLint in_param, GLint in_mipmapinfo) {
+    }
+    void MaterialLight::BindResource() {
+    }
+    void MaterialLight::RenderPrepare() {
         if (RenderStateManage::GetInstance()->NeedChangeState(m_shader.ID)) {
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
@@ -180,21 +200,6 @@ namespace R3D {
         phone_circlebox->InitResource();
         AddMaterial("phone_circlebox", phone_circlebox);
         //----------------------------------------------
-        MaterialMetalPbr *metalpbr_spot = new MaterialMetalPbr();
-        metalpbr_spot->m_shader = shaderCache.GetShader("metalpbr");
-        metalpbr_spot->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/phone/spot/diffuse.png";
-        metalpbr_spot->InitResource();
-        AddMaterial("metalpbr_spot", metalpbr_spot);
-        //----------------------------------------------
-        MaterialMetalPbr *metalpbr_bathroomtile = new MaterialMetalPbr();
-        metalpbr_bathroomtile->m_shader = shaderCache.GetShader("metalpbr");
-        metalpbr_bathroomtile->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/bathroomtile/albedo.png";
-        metalpbr_bathroomtile->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/bathroomtile/normal.png";
-        metalpbr_bathroomtile->m_roughnessTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/bathroomtile/roughness.png";
-        metalpbr_bathroomtile->m_aoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/bathroomtile/ao.png";
-        metalpbr_bathroomtile->InitResource();
-        AddMaterial("metalpbr_bathroomtile", metalpbr_bathroomtile);
-        //----------------------------------------------
         MaterialMetalPbr *metalpbr_rusted_iron = new MaterialMetalPbr();
         metalpbr_rusted_iron->m_shader = shaderCache.GetShader("metalpbr");
         metalpbr_rusted_iron->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/albedo.png";
@@ -223,6 +228,13 @@ namespace R3D {
         metalpbr_gold->InitResource();
         AddMaterial("metalpbr_gold", metalpbr_gold);
         //----------------------------------------------
+        MaterialMetalPbr *metalpbr_wood = new MaterialMetalPbr();
+        metalpbr_wood->m_shader = shaderCache.GetShader("metalpbr");
+        metalpbr_wood->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/wood/albedo.tga";
+        metalpbr_wood->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/wood/normal.tga";
+        metalpbr_wood->InitResource();
+        AddMaterial("metalpbr_wood", metalpbr_wood);
+        //----------------------------------------------
         MaterialMetalPbr *metalpbr_base = new MaterialMetalPbr();
         metalpbr_base->m_shader = shaderCache.GetShader("metalpbr");
         metalpbr_base->InitResource();
@@ -235,6 +247,10 @@ namespace R3D {
         MaterialDepth *depth = new MaterialDepth();
         depth->m_shader = shaderCache.GetShader("depth");
         AddMaterial("depth", depth);
+        //----------------------------------------------
+        MaterialDepth *light = new MaterialDepth();
+        light->m_shader = shaderCache.GetShader("light");
+        AddMaterial("light", light);
     }
     void MaterialManage::Release() {
         for (auto item = m_nameToMtr.begin();item != m_nameToMtr.end();item++) {

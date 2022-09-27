@@ -18,6 +18,9 @@ namespace R3D {
         Shader depth;
         depth.loadShader(SHADER_DIR + "depth/vert.glsl", SHADER_DIR + "depth/frag.glsl");
         m_shaders.insert({"depth", depth});
+        Shader light;
+        light.loadShader(SHADER_DIR + "light/vert.glsl", SHADER_DIR + "light/frag.glsl");
+        m_shaders.insert({"light", light});
     }
     Shader ShaderCache::GetShader(string in_shadertype) {
         if (m_shaders.find(in_shadertype) == m_shaders.end()) {

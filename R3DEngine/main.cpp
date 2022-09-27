@@ -20,7 +20,7 @@ OptionConfig optionConfig{};
 void guiMake();
 int main() {
     Device *device = Device::GetInstance();
-    device->Init("windowtest", 1200, 900, true);
+    device->Init("windowtest", 1600, 900, true);
     device->SetCamera(vec3(-8, 3, -8), vec3(0, 0, 0), radians(70.0f),
                       float(device->m_windowWidth) / float(device->m_windowHeight),
                       0.1f, 100.0f);
@@ -31,8 +31,21 @@ int main() {
     MaterialManage &materialManage = *device->m_materialManage;
     Scene scene;
     scene.Init(device);
-    scene.m_dirLights[0].direction = glm::normalize(vec3(-1, 5, -1));
+    scene.m_dirLights[0].direction = glm::normalize(vec3(-8, 3, -8));
     scene.m_dirLights[0].strength = vec3(1, 1, 1);
+    scene.m_dirLights[1].direction = glm::normalize(vec3(-1, 5, 1));
+    scene.m_dirLights[1].strength = vec3(0, 0, 0);
+    for (int i = 0;i < scene.m_pointLights.size();++i) {
+        scene.m_pointLights[i].position = vec3(RandomFloat(-8, 8), RandomFloat(0, 3), RandomFloat(-8, 8));
+        if(i%100 == 0){
+            scene.m_pointLights[i].strength = vec3(RandomFloat(0.0, 5), RandomFloat(0.0, 5), RandomFloat(0.0, 5));
+        } else{
+            scene.m_pointLights[i].strength = vec3(RandomFloat(0.0, 1), RandomFloat(0.0, 1), RandomFloat(0.0, 1));
+        }
+        scene.m_pointLights[i].constant = 1.0f;
+        scene.m_pointLights[i].linear = 0.5f;
+        scene.m_pointLights[i].quadratic = 0.2f;
+    }
     Object *rootplane = new Object("rootplane", nullptr, vec3(0), 0, 0, 0, true);
     scene.SetRoot(rootplane);
     rootplane->SetMesh(meshManage->GetMesh("planemesh"));
@@ -45,11 +58,12 @@ int main() {
         matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_gold"));
         matballsub0->RotationYaw(PI * 0.75f);
         matballsub0->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.0f, (i / 4 - 1.5) * 2.0f));
-        if(i==0){
-            matballsub0->SetActionFunc([&](){
+        if (i == 0) {
+            matballsub0->SetActionFunc([&]() {
                 static float subroty = 0.0f;
                 subroty = device->m_gameTime.TotalTime();
-                matballsub0->RotationYaw(subroty);});
+                matballsub0->RotationYaw(subroty);
+            });
         }
         Object *matballsub1 = new Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
         matballsub1->SetMesh(meshManage->GetMesh("matballmesh1"));
@@ -62,17 +76,10 @@ int main() {
         box->Scale(1.0f);
         box->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.5, (i / 4 - 1.5) * 2.0f));
     }
-    for (int i = 12;i < 16;++i) {
-        Object *box = new Object("box" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
-        box->SetMesh(meshManage->GetMesh("boxmesh"));
-        box->SetMaterial(materialManage.GetMaterial("metalpbr_gold"));
-        box->Scale(1.0f);
-        box->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.5, (i / 4 - 1.5) * 2.0f));
-    }
     for (int i = 8;i < 12;++i) {
         Object *box = new Object("box" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
         box->SetMesh(meshManage->GetMesh("boxmesh"));
-        box->SetMaterial(materialManage.GetMaterial("metalpbr_bathroomtile"));
+        box->SetMaterial(materialManage.GetMaterial("metalpbr_wood"));
         box->Scale(1.0f);
         box->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.5, (i / 4 - 1.5) * 2.0f));
     }
@@ -94,7 +101,7 @@ int main() {
         }
         EventInfo eventInfo{};
         eventInfo.type = EVENT_NONE;
-        scene.UpdataAnimate(device->m_gameTime.DeltaTime(),eventInfo);
+        scene.UpdataAnimate(device->m_gameTime.DeltaTime(), eventInfo);
         scene.UpdataTransBound();
         scene.MakeRenderList();
         scene.SortRenderList();
@@ -122,6 +129,7 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
         scene.m_opaqueList.Render();
+        scene.RenderLight();
         if (optionConfig.SphereRender) {
             scene.m_opaqueList.RenderBndSphere();
         }
@@ -163,12 +171,12 @@ void guiMake() {
     ImGui::End();
     ImGui::Begin("DepthTex");
     //翻转y轴使图像于屏幕匹配
-    ImGui::Image((ImTextureID) Device::GetInstance()->m_preDepthFBO.m_depthAttach, ImVec2(600, 450), ImVec2(0, 1),
+    ImGui::Image((ImTextureID) Device::GetInstance()->m_preDepthFBO.m_depthAttach, ImVec2(800, 450), ImVec2(0, 1),
                  ImVec2(1, 0));
     ImGui::End();
     ImGui::Begin("BackColTex");
     //翻转y轴使图像于屏幕匹配
-    ImGui::Image((ImTextureID) Device::GetInstance()->m_backHDRFBO.m_colorAttach0, ImVec2(600, 450), ImVec2(0, 1),
+    ImGui::Image((ImTextureID) Device::GetInstance()->m_backHDRFBO.m_colorAttach0, ImVec2(800, 450), ImVec2(0, 1),
                  ImVec2(1, 0));
     ImGui::End();
 };

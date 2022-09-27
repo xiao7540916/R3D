@@ -29,11 +29,13 @@ namespace R3D {
         void GatherDynamic(Object *in_object);//收集所有动态物体
         void MakeRenderList();
         void SortRenderList();
+        void RenderLight();
     public:
         RenderList m_opaqueList;
         RenderList m_transparent;
     public:
         array<DirLight, DIRECTION_LIGHT_COUNT> m_dirLights;
+        vector<PointLight> m_pointLights;
     private:
         Object *m_root;
         Device *m_device;

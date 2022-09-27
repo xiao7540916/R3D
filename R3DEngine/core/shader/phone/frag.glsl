@@ -4,20 +4,19 @@ layout(binding = 0)uniform sampler2D diffTex;
 layout(binding = 1)uniform sampler2D specTex;
 layout(binding = 2)uniform sampler2D normalTex;
 layout(binding = 3)uniform sampler2D dumpTex;
+#define DIRECTION_LIGHT_COUNT 4
 struct DirLight {
     vec3 direction;
     float fill0;
     vec3 strength;
     float fill1;
 };
+
 struct UniformBlockBase {
     mat4 viewproj;
     vec3 camerapos;
     float fill0;
-    DirLight dirLight0;
-    DirLight dirLight1;
-    DirLight dirLight2;
-    DirLight dirLight3;
+    DirLight dirLights[DIRECTION_LIGHT_COUNT];
 };
 layout(std140, binding = 0) uniform UniformBaseBuffer {
     UniformBlockBase block;
@@ -58,19 +57,20 @@ void main() {
         Lo+=diffuse;
         Lo+=specular;
     }
-    //方向光0
+    //方向光
+    for (int i = 0; i < DIRECTION_LIGHT_COUNT; ++i)
     {
         // diffuse
-        vec3 lightDir = ubobasedata.block.dirLight0.direction;
+        vec3 lightDir = ubobasedata.block.dirLights[i].direction;
         float diff = max(dot(lightDir, normal), 0.0);
-        vec3 diffuse = diff * color * ubobasedata.block.dirLight0.strength;
+        vec3 diffuse = diff * color * ubobasedata.block.dirLights[i].strength;
         // specular
         vec3 viewDir = normalize(ubobasedata.block.camerapos - fs_in.FragPos);
         vec3 reflectDir = reflect(-lightDir, normal);
         vec3 halfwayDir = normalize(lightDir + viewDir);
         float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
         float specstrength = texture(specTex, fs_in.TexCoords).r;
-        vec3 specular = vec3(specstrength) * spec * ubobasedata.block.dirLight0.strength;
+        vec3 specular = vec3(specstrength) * spec * ubobasedata.block.dirLights[i].strength;
         Lo+=diffuse;
         Lo+=specular;
     }

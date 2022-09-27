@@ -13,6 +13,7 @@ namespace R3D {
     public:
         GLuint m_uniBlockBaseBuffer;
         GLuint m_uniBlockMeshBuffer;
+        GLuint m_pointLightBuffer;
         ~BufferManage();
         BufferManage(const BufferManage &) = delete;
         BufferManage &operator=(const BufferManage &) = delete;

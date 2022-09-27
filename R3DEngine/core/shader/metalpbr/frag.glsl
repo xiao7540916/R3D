@@ -5,6 +5,8 @@ layout(binding = 1)uniform sampler2D normalTex;
 layout(binding = 2)uniform sampler2D metalTex;
 layout(binding = 3)uniform sampler2D roughnessTex;
 layout(binding = 4)uniform sampler2D aoTex;
+
+#define DIRECTION_LIGHT_COUNT 4
 struct DirLight {
     vec3 direction;
     float fill0;
@@ -16,14 +18,26 @@ struct UniformBlockBase {
     mat4 viewproj;
     vec3 camerapos;
     float fill0;
-    DirLight dirLight0;
-    DirLight dirLight1;
-    DirLight dirLight2;
-    DirLight dirLight3;
+    DirLight dirLights[DIRECTION_LIGHT_COUNT];
 };
 layout(std140, binding = 0) uniform UniformBaseBuffer {
     UniformBlockBase block;
 }ubobasedata;
+struct PointLight{
+    vec3 position;
+    float constant;
+    vec3 strength;
+    float linear;
+    float quadratic;
+    float fill0;
+    float fill1;
+    float fill2;
+};
+#define POINT_LIGHT_COUNT 4096
+#define TILE_LIGHT_MAX 128
+layout (std430, binding = 0) buffer PointLightBuffer {
+    PointLight pointLightData[POINT_LIGHT_COUNT];
+};
 in VS_OUT {
     vec3 FragPos;
     vec2 TexCoords;
@@ -35,7 +49,7 @@ vec3 GetNormalFromMap()
 {
     vec3 normal = texture(normalTex, fs_in.TexCoords).rgb;
     normal = normalize(normal * 2.0 - 1.0);
-    return normalize(normal = fs_in.TBN*normal);
+    return normalize(fs_in.TBN*normal);
 }
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
@@ -95,16 +109,15 @@ void main() {
     // reflectance equation
     vec3 Lo = vec3(0.0);
     //点光源
-    vec3 lightPositions[1] = { vec3(2, 2, -2) };
-    vec3 lightColors[1] = { vec3(0, 0, 0) };
-    for (int i = 0; i < 1; ++i)
+    for (int i = 0; i < 16; ++i)
     {
         // calculate per-light radiance
-        vec3 L = normalize(lightPositions[i] - WorldPos);
+        vec3 L = normalize(pointLightData[i].position - WorldPos);
         vec3 H = normalize(V + L);
-        float distance = length(lightPositions[i] - WorldPos);
-        float attenuation = 1.0 / (distance * distance);
-        vec3 radiance = lightColors[i] * attenuation;
+        float distance = length(pointLightData[i].position - WorldPos);
+        float attenuation = 1.0 / (pointLightData[i].constant + pointLightData[i].linear * distance +
+        pointLightData[i].quadratic * (distance * distance));
+        vec3 radiance = pointLightData[i].strength * attenuation;
 
         // Cook-Torrance BRDF
         float NDF = DistributionGGX(N, H, roughness);
@@ -132,12 +145,13 @@ void main() {
         // add to outgoing radiance Lo
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;// note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
     }
-    //方向光0
+    //方向光
+    for (int i = 0; i < 0; ++i)
     {
         // calculate per-light radiance
-        vec3 L = ubobasedata.block.dirLight0.direction;
+        vec3 L = ubobasedata.block.dirLights[i].direction;
         vec3 H = normalize(V + L);
-        vec3 radiance = ubobasedata.block.dirLight0.strength;
+        vec3 radiance = ubobasedata.block.dirLights[i].strength;
 
         // Cook-Torrance BRDF
         float NDF = DistributionGGX(N, H, roughness);
@@ -165,6 +179,7 @@ void main() {
         // add to outgoing radiance Lo
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;// note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
     }
+
 
     // ambient lighting (note that the next IBL tutorial will replace
     // this ambient lighting with environment lighting).
@@ -178,4 +193,5 @@ void main() {
     color = pow(color, vec3(1.0/2.2));
 
     FragColor = vec4(color, 1.0);
+//    FragColor = vec4(GetNormalFromMap(),1.0);
 }

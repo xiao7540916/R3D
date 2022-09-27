@@ -6,12 +6,17 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#define RAND_MAX 9999
 namespace R3D {
     using std::string;
     //生成范围内随机数
     inline int RandomInt(int from = 0, int to = 10) {
         int ran = rand() % (to - from + 1) + from;
         return ran;
+    }
+    inline float RandomFloat(float from = 0.0f, float to = 10.0f) {
+        float baserand = float(rand() % RAND_MAX) / (float(RAND_MAX + 1));
+        return from + baserand * (to - from);
     }
     //整数，浮点数转化为字符串
     inline string IntToString(float in_num) {
@@ -54,7 +59,7 @@ namespace R3D {
             //处理只有文件名情况
             beg = -1;
         }
-        return in_path.substr(0,beg);
+        return in_path.substr(0, beg);
     }
     //将给定字符串两端的空白字符删除
     inline string Trim(const string &in_str) {

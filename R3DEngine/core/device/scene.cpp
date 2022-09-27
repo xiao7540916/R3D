@@ -43,6 +43,14 @@ namespace R3D {
             m_dirLight.direction = vec3(0, 1, 0);
             m_dirLight.strength = vec3(0);
         }
+        m_pointLights.resize(POINT_LIGHT_COUNT);
+        for (auto &m_pointLight : m_pointLights) {
+            m_pointLight.position = vec3(0);
+            m_pointLight.strength = vec3(0);
+            m_pointLight.constant = 1;
+            m_pointLight.linear = 1;
+            m_pointLight.quadratic = 1;
+        }
     }
     void Scene::UpdataTransBound() {
         m_root->UpdataSubSceneGraph(true);
@@ -90,5 +98,13 @@ namespace R3D {
         sphere_view.SetCenter(spherecenter_view);
         sphere_view.SetRadius(in_sphere.GetRadius());
         return sphere_view.Intersects(in_camera.m_frustum);
+    }
+    void Scene::RenderLight() {
+        static Mesh *lightmesh = MeshManage::GetInstance()->GetMesh("lightmesh");
+        static Material *lightmaterial = MaterialManage::GetInstance()->GetMaterial("light");
+        lightmaterial->RenderPrepare();
+        glBindVertexArray(lightmesh->VAO);
+        glDrawElementsInstanced(GL_TRIANGLES, lightmesh->m_indiceSize, GL_UNSIGNED_INT,
+                                (void *) (lightmesh->m_indeceStart * 4), m_pointLights.size());
     }
 }

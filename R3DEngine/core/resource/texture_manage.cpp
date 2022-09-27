@@ -35,7 +35,7 @@ namespace R3D {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, in_mipmapinfo);//设置mipmap采样方式
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, in_mipmapinfo);
             int width, height, nrChannels;
-//            stbi_set_flip_vertically_on_load(true);//翻转y轴
+            stbi_set_flip_vertically_on_load(true);//翻转y轴
             unsigned char *data = stbi_load(in_url.c_str(), &width,
                                             &height, &nrChannels, 0);
             GLint format;

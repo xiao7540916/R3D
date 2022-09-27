@@ -18,6 +18,7 @@ namespace R3D {
     }
     Device *Device::Init(const char *in_appname, int in_width, int in_height, bool in_vsync) {
         static bool onceInit = true;
+        srand(time(nullptr));
         Device *device = GetInstance();
         if (onceInit) {
             RLog::Init();
@@ -206,14 +207,14 @@ namespace R3D {
     Device::SetCamera(vec3 in_position, vec3 in_target, float in_fovy, float in_aspect, float in_zn, float in_zf) {
         if (m_camera == nullptr) {
             m_camera = new Camera();
-            m_camera->SetLens(in_fovy, in_fovy, in_zn, in_zf);
+            m_camera->SetLens(in_fovy, in_aspect, in_zn, in_zf);
             m_camera->SetPosition(in_position);
             m_camera->LookAt(in_position, in_target, vec3(0, 1, 0));
             m_camera->UpdateViewMatrix();
         } else {
             delete m_camera;
             m_camera = new Camera();
-            m_camera->SetLens(in_fovy, in_fovy, in_zn, in_zf);
+            m_camera->SetLens(in_fovy, in_aspect, in_zn, in_zf);
             m_camera->SetPosition(in_position);
             m_camera->LookAt(in_position, in_target, vec3(0, 1, 0));
             m_camera->UpdateViewMatrix();

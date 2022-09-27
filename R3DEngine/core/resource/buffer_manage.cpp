@@ -28,6 +28,11 @@ namespace R3D {
         glNamedBufferData(m_uniBlockMeshBuffer, sizeof(UniformBlockMesh),
                           nullptr, GL_DYNAMIC_DRAW);
         glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_uniBlockMeshBuffer);
+        //点光源数据
+        glCreateBuffers(1, &m_pointLightBuffer);
+        glNamedBufferData(m_pointLightBuffer, sizeof(PointLight) * POINT_LIGHT_COUNT,
+                          nullptr, GL_DYNAMIC_DRAW);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_pointLightBuffer);
     }
     void BufferManage::Release() {
     }
@@ -36,10 +41,12 @@ namespace R3D {
         Camera &camera = *m_device->m_camera;
         uniformBlockBase.viewproj = camera.GetProjection() * camera.GetView();
         uniformBlockBase.camerapos = camera.GetPosition();
-        uniformBlockBase.dirLight0 = in_scene.m_dirLights[0];
-        uniformBlockBase.dirLight1 = in_scene.m_dirLights[1];
-        uniformBlockBase.dirLight2 = in_scene.m_dirLights[2];
-        uniformBlockBase.dirLight3 = in_scene.m_dirLights[3];
+        uniformBlockBase.dirLights[0] = in_scene.m_dirLights[0];
+        uniformBlockBase.dirLights[1] = in_scene.m_dirLights[1];
+        uniformBlockBase.dirLights[2] = in_scene.m_dirLights[2];
+        uniformBlockBase.dirLights[3] = in_scene.m_dirLights[3];
         glNamedBufferSubData(m_uniBlockBaseBuffer, 0, sizeof(UniformBlockBase), &uniformBlockBase);
+        glNamedBufferSubData(m_pointLightBuffer, 0, sizeof(PointLight) * POINT_LIGHT_COUNT,
+                             in_scene.m_pointLights.data());
     }
 }
