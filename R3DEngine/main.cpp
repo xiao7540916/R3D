@@ -45,6 +45,12 @@ int main() {
         matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_gold"));
         matballsub0->RotationYaw(PI * 0.75f);
         matballsub0->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.0f, (i / 4 - 1.5) * 2.0f));
+        if(i==0){
+            matballsub0->SetActionFunc([&](){
+                static float subroty = 0.0f;
+                subroty = device->m_gameTime.TotalTime();
+                matballsub0->RotationYaw(subroty);});
+        }
         Object *matballsub1 = new Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
         matballsub1->SetMesh(meshManage->GetMesh("matballmesh1"));
         matballsub1->SetMaterial(materialManage.GetMaterial("metalpbr_rusted_iron"));
@@ -72,6 +78,7 @@ int main() {
     }
     rootplane->UpdataSubSceneGraph(true);
     rootplane->UpdataBoundSphere(rootplane);
+    scene.GatherDynamic(rootplane);
     scene.MakeRenderList();
     scene.m_opaqueList.Sort();
     while (device->Run()) {
@@ -85,6 +92,9 @@ int main() {
             scene.UpdataAnimate(device->m_gameTime.DeltaTime(), eventInfo);
             device->m_eventInfo.pop();
         }
+        EventInfo eventInfo{};
+        eventInfo.type = EVENT_NONE;
+        scene.UpdataAnimate(device->m_gameTime.DeltaTime(),eventInfo);
         scene.UpdataTransBound();
         scene.MakeRenderList();
         scene.SortRenderList();
@@ -169,20 +179,3 @@ void guiMake() {
  *glActiveTexture(GL_TEXTURE1);
  *glBindTexture(GL_TEXTURE_2D, specularMap);
  * */
-
-
-/*
- *     Sphere sp(1,vec3(0,0,1.1));
-    Camera cam;
-    cam.SetLens(30,1,0.1,6);
-    vec3 campos = vec3(0,6,6);
-    vec3 target = vec3(0,0,0);
-    cam.SetPosition(campos);
-    cam.LookAt(campos, target, vec3(0, 1, 0));
-    cam.UpdateViewMatrix();
-
-    vec3 spcenterviewpos = cam.GetView()*vec4(sp.GetCenter(),1.0f);
-    PrintVec3(spcenterviewpos);
-    Sphere spview(sp.GetRadius(),spcenterviewpos);
-    cout<<spview.Intersects(cam.m_frustum)<<endl;
-    */

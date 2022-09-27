@@ -6,6 +6,7 @@
 #include <structdefine.h>
 #include <string>
 #include <math/sphere.h>
+#include <functional>
 namespace R3D {
     using std::string;
     class Mesh;
@@ -13,6 +14,7 @@ namespace R3D {
     class Object {
     public:
         Material *m_bndSphMaterial;
+        std::function<void()> m_acctionfunc = nullptr;
     protected:
         string m_name;//节点名字
         bool m_visible;//是否可见
@@ -42,6 +44,7 @@ namespace R3D {
         //取得名字
         inline const string &GetName() const {return m_name;}
         inline bool GetDynamic() const {return m_dynamic;}
+        inline void SetDynamic(bool in_dynamic) {m_dynamic = in_dynamic;}
         //获取当前位置(世界空间中)
         inline vec3 GetPosition() const {
             return vec3(m_transformation[3][0], m_transformation[3][1], m_transformation[3][2]);
@@ -145,6 +148,7 @@ namespace R3D {
         void SetUvConfig(const vec2 &in_uvoffset, const vec2 &in_uvscale);
         inline Material *GetMaterial() {return m_material;};
         void Updata(float in_deltaTime, EventInfo &in_eventInfo);
+        void SetActionFunc(std::function<void()> &&in_function);
     };
 }
 

@@ -92,7 +92,7 @@ namespace R3D {
             return;
         }
         mat4 I(1.0f);
-        I = glm::rotate(I, Rad_TO_Deg(in_radian), vec3(1, 0, 0));
+        I = glm::rotate(I, in_radian, vec3(1, 0, 0));
         m_rotateRelative = mat3(I);
         m_dirty = true;
         m_dirtyBB = true;
@@ -102,7 +102,7 @@ namespace R3D {
             return;
         }
         mat4 I(1.0f);
-        I = glm::rotate(I, Rad_TO_Deg(in_radian), vec3(0, 1, 0));
+        I = glm::rotate(I, in_radian, vec3(0, 1, 0));
         m_rotateRelative = mat3(I);
         m_dirty = true;
         m_dirtyBB = true;
@@ -112,16 +112,16 @@ namespace R3D {
             return;
         }
         mat4 I(1.0f);
-        I = glm::rotate(I, Rad_TO_Deg(in_radian), vec3(0, 0, 1));
+        I = glm::rotate(I, in_radian, vec3(0, 0, 1));
         m_rotateRelative = mat3(I);
         m_dirty = true;
         m_dirtyBB = true;
     }
     void Object::RotationPitchYawRool(float in_radianX, float in_radianY, float in_radianZ) {
         mat4 I(1.0f);
-        I = glm::rotate(I, Rad_TO_Deg(in_radianY), vec3(0, 1, 0));
-        I = glm::rotate(I, Rad_TO_Deg(in_radianX), vec3(1, 0, 0));
-        I = glm::rotate(I, Rad_TO_Deg(in_radianZ), vec3(0, 0, 1));
+        I = glm::rotate(I, in_radianY, vec3(0, 1, 0));
+        I = glm::rotate(I, in_radianX, vec3(1, 0, 0));
+        I = glm::rotate(I, in_radianZ, vec3(0, 0, 1));
         m_rotateRelative = mat3(I);
         m_dirty = true;
         m_dirtyBB = true;
@@ -350,6 +350,14 @@ namespace R3D {
         m_mesh->Render(depthMaterial);
     }
     void Object::Updata(float in_deltaTime, EventInfo &in_eventInfo) {
-        std::cout << m_name << std::endl;
+        if (in_eventInfo.type == EVENT_NONE) {
+            if (m_acctionfunc) {
+                m_acctionfunc();
+            };
+        }
+    }
+    void Object::SetActionFunc(std::function<void()> &&in_function) {
+        SetDynamic(true);
+        m_acctionfunc = in_function;
     }
 }
