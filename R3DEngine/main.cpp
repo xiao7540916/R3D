@@ -68,14 +68,14 @@ int main() {
         wall0->SetMaterial(materialManage.GetMaterial("metalpbr_check"));
         wall0->SetUvConfig(vec2(0), vec2(2));
         wall0->Scale(16.0f);
-        wall0->Move(vec3(0.0f,8.0f,7.98f));
+        wall0->Move(vec3(0.0f,8.0f,8.0f));
         Object *wall1 = new Object("wall1", rootplane, vec3(0), 0, 0, 0, true);
         wall1->SetMesh(meshManage->GetMesh("boxwallmesh"));
         wall1->SetMaterial(materialManage.GetMaterial("metalpbr_check"));
         wall1->SetUvConfig(vec2(0), vec2(2));
         wall1->Scale(16.0f);
         wall1->RotationYaw(PI_DIV_2);
-        wall1->Move(vec3(7.98f,8.0f,0.0f));
+        wall1->Move(vec3(8.0f,8.0f,0.0f));
     }
     {
         //i=0

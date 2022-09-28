@@ -92,7 +92,7 @@ namespace R3D {
         }
         mrv = glm::transpose(mrv);
         m_positionRelative +=  in_offset*mrv;*/
-        m_positionRelative +=  in_offset;
+        m_positionRelative += in_offset;
         m_dirty = true;
         m_dirtyBB = true;
     }
@@ -316,8 +316,10 @@ namespace R3D {
         uniformBlockMesh.invmodelt = glm::transpose(glm::inverse(GetFinalTransformMatrix()));
         uniformBlockMesh.uvoffset = m_uvoffset;
         uniformBlockMesh.uvscale = m_uvscale;
+        glBindBufferBase(GL_UNIFORM_BUFFER, 1, BufferManage::GetInstance()->m_uniBlockMeshBuffer);
         glNamedBufferSubData(BufferManage::GetInstance()->m_uniBlockMeshBuffer, 0, sizeof(UniformBlockMesh),
                              &uniformBlockMesh);
+        glUnmapBuffer(GL_UNIFORM_BUFFER);
         m_mesh->Render(m_material);
     }
     void Object::RenderBndSphere() {
@@ -327,8 +329,10 @@ namespace R3D {
             I = glm::translate(I, m_boundingSphere.GetCenter());
             I = glm::scale(I, vec3(m_boundingSphere.GetRadius()));
             uniformBlockMesh.model = I;
+            glBindBufferBase(GL_UNIFORM_BUFFER, 1, BufferManage::GetInstance()->m_uniBlockMeshBuffer);
             glNamedBufferSubData(BufferManage::GetInstance()->m_uniBlockMeshBuffer, 0, sizeof(UniformBlockMesh),
                                  &uniformBlockMesh);
+            glUnmapBuffer(GL_UNIFORM_BUFFER);
             MeshManage::GetInstance()->m_nameToMesh["geospheremesh"]->Render(m_bndSphMaterial);
         } else {
             std::cout << "no boundingsphere material" << std::endl;
@@ -341,8 +345,10 @@ namespace R3D {
             I = glm::translate(I, m_selfBoundingSphere.GetCenter());
             I = glm::scale(I, vec3(m_selfBoundingSphere.GetRadius()));
             uniformBlockMesh.model = I;
+            glBindBufferBase(GL_UNIFORM_BUFFER, 1, BufferManage::GetInstance()->m_uniBlockMeshBuffer);
             glNamedBufferSubData(BufferManage::GetInstance()->m_uniBlockMeshBuffer, 0, sizeof(UniformBlockMesh),
                                  &uniformBlockMesh);
+            glUnmapBuffer(GL_UNIFORM_BUFFER);
             MeshManage::GetInstance()->m_nameToMesh["geospheremesh"]->Render(m_bndSphMaterial);
         } else {
             std::cout << "no boundingsphere material" << std::endl;
@@ -360,8 +366,10 @@ namespace R3D {
         uniformBlockMesh.invmodelt = glm::transpose(glm::inverse(GetFinalTransformMatrix()));
         uniformBlockMesh.uvoffset = m_uvoffset;
         uniformBlockMesh.uvscale = m_uvscale;
+        glBindBufferBase(GL_UNIFORM_BUFFER, 1, BufferManage::GetInstance()->m_uniBlockMeshBuffer);
         glNamedBufferSubData(BufferManage::GetInstance()->m_uniBlockMeshBuffer, 0, sizeof(UniformBlockMesh),
                              &uniformBlockMesh);
+        glUnmapBuffer(GL_UNIFORM_BUFFER);
         m_mesh->Render(depthMaterial);
     }
     void Object::Updata(float in_deltaTime, EventInfo &in_eventInfo) {

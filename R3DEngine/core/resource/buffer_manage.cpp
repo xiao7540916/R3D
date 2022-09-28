@@ -23,7 +23,7 @@ namespace R3D {
         m_device = in_device;
         glCreateBuffers(1, &m_uniBlockBaseBuffer);
         glNamedBufferData(m_uniBlockBaseBuffer, sizeof(UniformBlockBase),
-                          nullptr, GL_DYNAMIC_DRAW);
+                          nullptr, GL_DYNAMIC_DRAW);//DRAW代表会被用于GPU
         glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_uniBlockBaseBuffer);
         //模型数据
         glCreateBuffers(1, &m_uniBlockMeshBuffer);
@@ -47,8 +47,12 @@ namespace R3D {
         uniformBlockBase.dirLights[1] = in_scene.m_dirLights[1];
         uniformBlockBase.dirLights[2] = in_scene.m_dirLights[2];
         uniformBlockBase.dirLights[3] = in_scene.m_dirLights[3];
+        glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_uniBlockBaseBuffer);
         glNamedBufferSubData(m_uniBlockBaseBuffer, 0, sizeof(UniformBlockBase), &uniformBlockBase);
+        glUnmapBuffer(GL_UNIFORM_BUFFER);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_pointLightBuffer);
         glNamedBufferSubData(m_pointLightBuffer, 0, sizeof(PointLight) * POINT_LIGHT_COUNT,
                              in_scene.m_pointLights.data());
+        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
     }
 }
