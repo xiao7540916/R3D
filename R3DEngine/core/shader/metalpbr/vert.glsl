@@ -10,12 +10,15 @@ struct DirLight {
     vec3 strength;
     float fill1;
 };
-
 struct UniformBlockBase {
     mat4 viewproj;
     vec3 camerapos;
-    float fill0;
+    int dirlightenable;
     DirLight dirLights[DIRECTION_LIGHT_COUNT];
+    int pointlightenable;
+    int tilepointlightmax;
+    float fill1;
+    float fill2;
 };
 struct UniformBlockMesh{
     mat4 model;

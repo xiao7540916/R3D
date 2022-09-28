@@ -47,6 +47,9 @@ namespace R3D {
         uniformBlockBase.dirLights[1] = in_scene.m_dirLights[1];
         uniformBlockBase.dirLights[2] = in_scene.m_dirLights[2];
         uniformBlockBase.dirLights[3] = in_scene.m_dirLights[3];
+        uniformBlockBase.dirlightenable = in_scene.m_dirLightEnable;
+        uniformBlockBase.pointlightenable = in_scene.m_pointLightEnable;
+        uniformBlockBase.tilepointlightmax = in_scene.m_tilePointLightMax;
         glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_uniBlockBaseBuffer);
         glNamedBufferSubData(m_uniBlockBaseBuffer, 0, sizeof(UniformBlockBase), &uniformBlockBase);
         glUnmapBuffer(GL_UNIFORM_BUFFER);

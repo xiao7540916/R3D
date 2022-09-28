@@ -115,4 +115,9 @@ namespace R3D {
         glDrawElementsInstanced(GL_TRIANGLES, lightradiusmesh->m_indiceSize, GL_UNSIGNED_INT,
                                 (void *) (lightradiusmesh->m_indeceStart * 4), m_pointLights.size());
     }
+    void Scene::SetLightCount(int in_dir, int in_point, int in_tilepoint) {
+        m_dirLightEnable = in_dir;
+        m_pointLightEnable = in_point;
+        m_tilePointLightMax = in_tilepoint;
+    }
 }

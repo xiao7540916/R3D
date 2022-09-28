@@ -13,12 +13,15 @@ struct DirLight {
     vec3 strength;
     float fill1;
 };
-
 struct UniformBlockBase {
     mat4 viewproj;
     vec3 camerapos;
-    float fill0;
+    int dirlightenable;
     DirLight dirLights[DIRECTION_LIGHT_COUNT];
+    int pointlightenable;
+    int tilepointlightmax;
+    float fill1;
+    float fill2;
 };
 layout(std140, binding = 0) uniform UniformBaseBuffer {
     UniformBlockBase block;
@@ -146,7 +149,7 @@ void main() {
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;// note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
     }
     //方向光
-    for (int i = 0; i < 0; ++i)
+    for (int i = 0; i < ubobasedata.block.dirlightenable; ++i)
     {
         // calculate per-light radiance
         vec3 L = ubobasedata.block.dirLights[i].direction;
@@ -193,5 +196,5 @@ void main() {
     color = pow(color, vec3(1.0/2.2));
 
     FragColor = vec4(color, 1.0);
-//    FragColor = vec4(GetNormalFromMap(),1.0);
+    //    FragColor = vec4(GetNormalFromMap(),1.0);
 }

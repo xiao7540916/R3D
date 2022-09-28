@@ -22,6 +22,7 @@ namespace R3D {
     public:
         void Init(Device *in_device);
         void SetRoot(Object *in_root);
+        void SetLightCount(int in_dir,int in_point,int in_tilepoint);//设置场景支持的灯光最大数目
         void UpdataAnimate(float in_deltaTime, EventInfo &in_eventInfo);//更新动态数据
         void UpdataTransBound();
         void ClearDynamic();
@@ -37,6 +38,9 @@ namespace R3D {
     public:
         array<DirLight, DIRECTION_LIGHT_COUNT> m_dirLights;
         vector<PointLight> m_pointLights;
+        int m_dirLightEnable = 0;
+        int m_pointLightEnable = 0;
+        int m_tilePointLightMax = 0;
     private:
         Object *m_root;
         Device *m_device;

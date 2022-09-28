@@ -3,10 +3,22 @@ layout(location = 0) in vec3 vPosition;
 layout(location = 1) in vec3 vNormal;
 layout(location = 2) in vec3 vTangent;
 layout(location = 3) in vec2 vUv;
+#define DIRECTION_LIGHT_COUNT 4
+struct DirLight {
+    vec3 direction;
+    float fill0;
+    vec3 strength;
+    float fill1;
+};
 struct UniformBlockBase {
     mat4 viewproj;
     vec3 camerapos;
-    float fill0;
+    int dirlightenable;
+    DirLight dirLights[DIRECTION_LIGHT_COUNT];
+    int pointlightenable;
+    int tilepointlightmax;
+    float fill1;
+    float fill2;
 };
 struct UniformBlockMesh{
     mat4 model;

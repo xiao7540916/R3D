@@ -29,7 +29,7 @@
 #define EVENT_COUNT_MAX 10
 #define DIRECTION_LIGHT_COUNT 4
 #define SPOT_LIGHT_COUNT 4
-#define POINT_LIGHT_COUNT 4096
+#define POINT_LIGHT_COUNT 1024
 #define TILE_LIGHT_MAX 128
 namespace R3D {
     using glm::vec4;

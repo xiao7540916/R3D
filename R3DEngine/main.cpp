@@ -22,7 +22,7 @@ OptionConfig optionConfig{};
 void guiMake();
 int main() {
     Device *device = Device::GetInstance();
-    device->Init("windowtest", 1600, 900, false);
+    device->Init("windowtest", 1600, 900, true);
     device->SetCamera(vec3(-8, 3, -8), vec3(0, 0, 0), radians(70.0f),
                       float(device->m_windowWidth) / float(device->m_windowHeight),
                       0.1f, 100.0f);
@@ -33,8 +33,9 @@ int main() {
     MaterialManage &materialManage = *device->m_materialManage;
     Scene scene;
     scene.Init(device);
+    scene.SetLightCount(1,POINT_LIGHT_COUNT,TILE_LIGHT_MAX);
     scene.m_dirLights[0].direction = glm::normalize(vec3(-8, 3, -8));
-    scene.m_dirLights[0].strength = vec3(1, 1, 1);
+    scene.m_dirLights[0].strength = vec3(10, 10, 10);
     scene.m_dirLights[1].direction = glm::normalize(vec3(-1, 5, 1));
     scene.m_dirLights[1].strength = vec3(0, 0, 0);
     for (int i = 0;i < scene.m_pointLights.size();++i) {
