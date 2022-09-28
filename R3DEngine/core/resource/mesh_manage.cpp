@@ -39,6 +39,9 @@ namespace R3D {
         Mesh *lightmesh = new Mesh();
         MeshCreate::CreateGeosphere(*lightmesh, 0.02, 2, VERT_POS_NOR_TAN_UV);
         AddMesh("lightmesh", lightmesh);
+        Mesh *lightradiusmesh = new Mesh();
+        MeshCreate::CreateGeosphere(*lightradiusmesh, 1, 3, VERT_POS_NOR_TAN_UV);
+        AddMesh("lightradiusmesh", lightradiusmesh);
         Mesh *planemesh = new Mesh();
         MeshCreate::CreatePlane(*planemesh, 1, 1, VERT_POS_NOR_TAN_UV);
         AddMesh("planemesh", planemesh);

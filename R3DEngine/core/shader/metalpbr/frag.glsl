@@ -29,7 +29,7 @@ struct PointLight{
     vec3 strength;
     float linear;
     float quadratic;
-    float fill0;
+    float radius;
     float fill1;
     float fill2;
 };

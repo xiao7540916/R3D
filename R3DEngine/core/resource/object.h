@@ -148,7 +148,7 @@ namespace R3D {
         void SetUvConfig(const vec2 &in_uvoffset, const vec2 &in_uvscale);
         inline Material *GetMaterial() {return m_material;};
         void Updata(float in_deltaTime, EventInfo &in_eventInfo);
-        void SetActionFunc(std::function<void()> &&in_function);
+        void SetActionFunc(const std::function<void()> &in_function);
     };
 }
 

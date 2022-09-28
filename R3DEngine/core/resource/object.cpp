@@ -43,7 +43,15 @@ namespace R3D {
     const mat4 &Object::GetTransformMatrixRelative() const {
         static mat4 m;
         //旋转
-        m = m_rotateRelative;
+        m[0][0] = m_rotateRelative[0][0];
+        m[0][1] = m_rotateRelative[0][1];
+        m[0][2] = m_rotateRelative[0][2];
+        m[1][0] = m_rotateRelative[1][0];
+        m[1][1] = m_rotateRelative[1][1];
+        m[1][2] = m_rotateRelative[1][2];
+        m[2][0] = m_rotateRelative[2][0];
+        m[2][1] = m_rotateRelative[2][1];
+        m[2][2] = m_rotateRelative[2][2];
         //平移
         m[3][0] = m_positionRelative.x;
         m[3][1] = m_positionRelative.y;
@@ -74,18 +82,23 @@ namespace R3D {
         return nullptr;
     }
     void Object::Move(const vec3 &in_offset) {
-        static mat3 mrv;
+        if (ZERO(in_offset.x) && ZERO(in_offset.y) && ZERO(in_offset.z)) {
+            return;
+        }
+/*        static mat3 mrv;
         mrv = mat3(1);
         if (m_father) {
             mrv = mat3(m_father->m_transformation);
         }
         mrv = glm::transpose(mrv);
-        m_positionRelative += in_offset * mrv;
+        m_positionRelative +=  in_offset*mrv;*/
+        m_positionRelative +=  in_offset;
         m_dirty = true;
         m_dirtyBB = true;
     }
     void Object::MoveTo(const vec3 &in_newPos) {
-        Move(in_newPos - GetPosition());
+//        PrintVec3(in_newPos - GetPosition());
+        Move(in_newPos - GetPositionRelative());
     }
     void Object::RotationPitch(float in_radian) {
         if (EqualFloat(in_radian, 0.0f)) {
@@ -356,7 +369,7 @@ namespace R3D {
             };
         }
     }
-    void Object::SetActionFunc(std::function<void()> &&in_function) {
+    void Object::SetActionFunc(const std::function<void()> &in_function) {
         SetDynamic(true);
         m_acctionfunc = in_function;
     }

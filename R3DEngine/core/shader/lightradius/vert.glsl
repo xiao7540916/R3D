@@ -46,6 +46,10 @@ layout (std430, binding = 0) buffer PointLightBuffer {
 };
 out vec3 lightcolor;
 void main() {
-    gl_Position = ubobasedata.block.viewproj*vec4(vPosition+pointLightData[gl_InstanceID].position, 1.0);
+    gl_Position = ubobasedata.block.viewproj*vec4((pointLightData[gl_InstanceID].radius)*vPosition+pointLightData[gl_InstanceID].position, 1.0);
     lightcolor = pointLightData[gl_InstanceID].strength;
+    float lightcolormax = max(max(lightcolor.r, lightcolor.g), lightcolor.b);
+    if (lightcolormax>1.0f){
+        lightcolor = lightcolor/lightcolormax;
+    }
 }

@@ -30,6 +30,7 @@ namespace R3D {
         void MakeRenderList();
         void SortRenderList();
         void RenderLight();
+        void RenderLightRadius();
     public:
         RenderList m_opaqueList;
         RenderList m_transparent;

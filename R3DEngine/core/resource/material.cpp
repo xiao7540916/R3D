@@ -181,6 +181,26 @@ namespace R3D {
         }
     }
     //----------------------------------------------
+    MaterialLightRadius::MaterialLightRadius() {
+        m_mtrQueue = MTRQUEUE_GEOMETRY;
+    }
+    void MaterialLightRadius::InitResource(GLint in_param, GLint in_mipmapinfo) {
+    }
+    void MaterialLightRadius::BindResource() {
+    }
+    void MaterialLightRadius::RenderPrepare() {
+        if (RenderStateManage::GetInstance()->NeedChangeState(m_shader.ID)) {
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
+            glFrontFace(GL_CCW);
+            glCullFace(GL_BACK);
+            glDepthFunc(GL_LESS);
+            //注：此处GL_FRONT_AND_BACK对应恢复包围球pass中的状态，不可仅恢复FRONT状态，造成渲染错误
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            m_shader.use();
+        }
+    }
+    //----------------------------------------------
     MaterialManage::MaterialManage() {
     }
     MaterialManage *MaterialManage::m_materialManage = nullptr;
@@ -248,9 +268,13 @@ namespace R3D {
         depth->m_shader = shaderCache.GetShader("depth");
         AddMaterial("depth", depth);
         //----------------------------------------------
-        MaterialDepth *light = new MaterialDepth();
+        MaterialLight *light = new MaterialLight();
         light->m_shader = shaderCache.GetShader("light");
         AddMaterial("light", light);
+        //----------------------------------------------
+        MaterialLightRadius *lightradius = new MaterialLightRadius();
+        lightradius->m_shader = shaderCache.GetShader("lightradius");
+        AddMaterial("lightradius", lightradius);
     }
     void MaterialManage::Release() {
         for (auto item = m_nameToMtr.begin();item != m_nameToMtr.end();item++) {

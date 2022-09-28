@@ -15,6 +15,8 @@ struct OptionConfig {
     uint32_t FPS;
     uint32_t OpaqueRenderCount;
     bool SphereRender = false;
+    bool LightRender = false;
+    bool LightRadiusRender = false;
 };
 OptionConfig optionConfig{};
 void guiMake();
@@ -36,15 +38,22 @@ int main() {
     scene.m_dirLights[1].direction = glm::normalize(vec3(-1, 5, 1));
     scene.m_dirLights[1].strength = vec3(0, 0, 0);
     for (int i = 0;i < scene.m_pointLights.size();++i) {
-        scene.m_pointLights[i].position = vec3(RandomFloat(-8, 8), RandomFloat(0, 3), RandomFloat(-8, 8));
-        if(i%100 == 0){
-            scene.m_pointLights[i].strength = vec3(RandomFloat(0.0, 5), RandomFloat(0.0, 5), RandomFloat(0.0, 5));
-        } else{
-            scene.m_pointLights[i].strength = vec3(RandomFloat(0.0, 1), RandomFloat(0.0, 1), RandomFloat(0.0, 1));
+        PointLight *pointLight = &scene.m_pointLights[0];
+        pointLight[i].position = vec3(RandomFloat(-8, 8), RandomFloat(0, 3), RandomFloat(-8, 8));
+        if (i % 100 == 0) {
+            pointLight[i].strength = vec3(RandomFloat(0.0, 5), RandomFloat(0.0, 5), RandomFloat(0.0, 5));
+        } else {
+            pointLight[i].strength = vec3(RandomFloat(0.0, 2), RandomFloat(0.0, 2), RandomFloat(0.0, 2));
         }
-        scene.m_pointLights[i].constant = 1.0f;
-        scene.m_pointLights[i].linear = 0.5f;
-        scene.m_pointLights[i].quadratic = 0.2f;
+        pointLight[i].constant = 1.0f;
+        pointLight[i].linear = 1.0f;
+        pointLight[i].quadratic = 1.0f;
+        float bright = glm::dot(vec3(0.3, 0.6, 0.1), pointLight[i].strength);
+        float minbright = 0.1f;
+        float a = pointLight[i].quadratic;
+        float b = pointLight[i].linear;
+        float c = pointLight[i].constant - bright / minbright;
+        pointLight[i].radius = 0.5f * (sqrt(b * b - 4.0f * a * c) - b) / a;
     }
     Object *rootplane = new Object("rootplane", nullptr, vec3(0), 0, 0, 0, true);
     scene.SetRoot(rootplane);
@@ -52,22 +61,67 @@ int main() {
     rootplane->SetMaterial(materialManage.GetMaterial("metalpbr_dirtground"));
     rootplane->SetUvConfig(vec2(0), vec2(2));
     rootplane->Scale(16.0f);
-    for (int i = 0;i < 4;++i) {
-        Object *matballsub0 = new Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
-        matballsub0->SetMesh(meshManage->GetMesh("matballmesh0"));
-        matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_gold"));
-        matballsub0->RotationYaw(PI * 0.75f);
-        matballsub0->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.0f, (i / 4 - 1.5) * 2.0f));
-        if (i == 0) {
+    {
+        //i=0
+        {
+            int i = 0;
+            Object *matballsub0 = new Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
+            matballsub0->SetMesh(meshManage->GetMesh("matballmesh0"));
+            matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_gold"));
+            matballsub0->RotationYaw(PI * 0.75f);
+            matballsub0->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.0f, (i / 4 - 1.5) * 2.0f));
             matballsub0->SetActionFunc([&]() {
-                static float subroty = 0.0f;
-                subroty = device->m_gameTime.TotalTime();
-                matballsub0->RotationYaw(subroty);
+                matballsub0->RotationYaw(device->m_gameTime.TotalTime());
             });
+            Object *matballsub1 = new Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
+            matballsub1->SetMesh(meshManage->GetMesh("matballmesh1"));
+            matballsub1->SetMaterial(materialManage.GetMaterial("metalpbr_rusted_iron"));
         }
-        Object *matballsub1 = new Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
-        matballsub1->SetMesh(meshManage->GetMesh("matballmesh1"));
-        matballsub1->SetMaterial(materialManage.GetMaterial("metalpbr_rusted_iron"));
+        //i=1
+        {
+            int i = 1;
+            Object *matballsub0 = new Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
+            matballsub0->SetMesh(meshManage->GetMesh("matballmesh0"));
+            matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_gold"));
+            matballsub0->RotationYaw(PI * 0.75f);
+            matballsub0->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.0f, (i / 4 - 1.5) * 2.0f));
+            matballsub0->SetActionFunc([&]() {
+                matballsub0->RotationYaw(device->m_gameTime.TotalTime()*0.5f);
+            });
+            Object *matballsub1 = new Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
+            matballsub1->SetMesh(meshManage->GetMesh("matballmesh1"));
+            matballsub1->SetMaterial(materialManage.GetMaterial("metalpbr_rusted_iron"));
+        }
+        //i=2
+        {
+            int i = 2;
+            Object *matballsub0 = new Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
+            matballsub0->SetMesh(meshManage->GetMesh("matballmesh0"));
+            matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_gold"));
+            matballsub0->RotationYaw(PI * 0.75f);
+            matballsub0->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.0f, (i / 4 - 1.5) * 2.0f));
+            matballsub0->SetActionFunc([&]() {
+                matballsub0->RotationYaw(device->m_gameTime.TotalTime()*0.25f);
+            });
+            Object *matballsub1 = new Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
+            matballsub1->SetMesh(meshManage->GetMesh("matballmesh1"));
+            matballsub1->SetMaterial(materialManage.GetMaterial("metalpbr_rusted_iron"));
+        }
+        //i=3
+        {
+            int i = 3;
+            Object *matballsub0 = new Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
+            matballsub0->SetMesh(meshManage->GetMesh("matballmesh0"));
+            matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_gold"));
+            matballsub0->RotationYaw(PI * 0.75f);
+            matballsub0->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.0f, (i / 4 - 1.5) * 2.0f));
+            matballsub0->SetActionFunc([&]() {
+                matballsub0->RotationYaw(device->m_gameTime.TotalTime()*0.125f);
+            });
+            Object *matballsub1 = new Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
+            matballsub1->SetMesh(meshManage->GetMesh("matballmesh1"));
+            matballsub1->SetMaterial(materialManage.GetMaterial("metalpbr_rusted_iron"));
+        }
     }
     for (int i = 4;i < 8;++i) {
         Object *box = new Object("box" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
@@ -83,6 +137,23 @@ int main() {
         box->Scale(1.0f);
         box->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.5, (i / 4 - 1.5) * 2.0f));
     }
+    //体现父子关系的球绕立方体运动
+    {
+        Object *boxfather0 = new Object("boxfather0", rootplane, vec3(0), 0, 0, 0, true);
+        boxfather0->SetMesh(meshManage->GetMesh("boxmesh"));
+        boxfather0->SetMaterial(materialManage.GetMaterial("metalpbr_gold"));
+        Object *spherechild0 = new Object("spherechild0", boxfather0, vec3(2, 0, 0), 0, 0, 0, true);
+        boxfather0->MoveTo(vec3(0.0f, 2.0f, 0.0f));
+        boxfather0->SetActionFunc([&]() {
+            spherechild0->MoveTo(vec3(sinf(device->m_gameTime.TotalTime())*3.0f,0,0));
+            boxfather0->RotationYaw(device->m_gameTime.TotalTime());
+        });
+        spherechild0->SetMesh(meshManage->GetMesh("geospheremesh"));
+        spherechild0->SetMaterial(materialManage.GetMaterial("metalpbr_rusted_iron"));
+        spherechild0->Scale(0.4f);
+    }
+
+    //----------------
     rootplane->UpdataSubSceneGraph(true);
     rootplane->UpdataBoundSphere(rootplane);
     scene.GatherDynamic(rootplane);
@@ -129,7 +200,12 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
         scene.m_opaqueList.Render();
-        scene.RenderLight();
+        if (optionConfig.LightRender) {
+            scene.RenderLight();
+        }
+        if (optionConfig.LightRadiusRender) {
+            scene.RenderLightRadius();
+        }
         if (optionConfig.SphereRender) {
             scene.m_opaqueList.RenderBndSphere();
         }
@@ -168,6 +244,8 @@ void guiMake() {
     ImGui::Text("FPS:%d", int(100.0f / deltatime));
     ImGui::Text("OpaqueCount:%d", int(optionConfig.OpaqueRenderCount));
     ImGui::Checkbox("SphereRender", &optionConfig.SphereRender);
+    ImGui::Checkbox("LightRender", &optionConfig.LightRender);
+    ImGui::Checkbox("LightRadiusRender", &optionConfig.LightRadiusRender);
     ImGui::End();
     ImGui::Begin("DepthTex");
     //翻转y轴使图像于屏幕匹配

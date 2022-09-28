@@ -107,4 +107,12 @@ namespace R3D {
         glDrawElementsInstanced(GL_TRIANGLES, lightmesh->m_indiceSize, GL_UNSIGNED_INT,
                                 (void *) (lightmesh->m_indeceStart * 4), m_pointLights.size());
     }
+    void Scene::RenderLightRadius() {
+        static Mesh *lightradiusmesh = MeshManage::GetInstance()->GetMesh("lightradiusmesh");
+        static Material *lightradiusmaterial = MaterialManage::GetInstance()->GetMaterial("lightradius");
+        lightradiusmaterial->RenderPrepare();
+        glBindVertexArray(lightradiusmesh->VAO);
+        glDrawElementsInstanced(GL_TRIANGLES, lightradiusmesh->m_indiceSize, GL_UNSIGNED_INT,
+                                (void *) (lightradiusmesh->m_indeceStart * 4), m_pointLights.size());
+    }
 }

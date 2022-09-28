@@ -21,6 +21,9 @@ namespace R3D {
         Shader light;
         light.loadShader(SHADER_DIR + "light/vert.glsl", SHADER_DIR + "light/frag.glsl");
         m_shaders.insert({"light", light});
+        Shader lightradius;
+        lightradius.loadShader(SHADER_DIR + "lightradius/vert.glsl", SHADER_DIR + "lightradius/frag.glsl");
+        m_shaders.insert({"lightradius", lightradius});
     }
     Shader ShaderCache::GetShader(string in_shadertype) {
         if (m_shaders.find(in_shadertype) == m_shaders.end()) {
