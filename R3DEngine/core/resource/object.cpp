@@ -131,8 +131,7 @@ namespace R3D {
         m_dirtyBB = true;
     }
     void Object::RotationPitchYawRool(float in_radianX, float in_radianY, float in_radianZ) {
-        static mat4 I;
-        I = mat4(1.0f);
+        mat4 I = mat4(1.0f);
         I = glm::rotate(I, in_radianY, vec3(0, 1, 0));
         I = glm::rotate(I, in_radianX, vec3(1, 0, 0));
         I = glm::rotate(I, in_radianZ, vec3(0, 0, 1));
@@ -311,7 +310,7 @@ namespace R3D {
     }
     void Object::Render() {
         //更新uniform缓冲
-        static UniformBlockMesh uniformBlockMesh;
+        UniformBlockMesh uniformBlockMesh;
         uniformBlockMesh.model = GetFinalTransformMatrix();
         uniformBlockMesh.invmodelt = glm::transpose(glm::inverse(GetFinalTransformMatrix()));
         uniformBlockMesh.uvoffset = m_uvoffset;
@@ -323,7 +322,7 @@ namespace R3D {
         m_mesh->Render(m_material);
     }
     void Object::RenderBndSphere() {
-        static UniformBlockMesh uniformBlockMesh;
+        UniformBlockMesh uniformBlockMesh;
         if (m_bndSphMaterial) {
             mat4 I(1.0f);
             I = glm::translate(I, m_boundingSphere.GetCenter());
@@ -339,7 +338,7 @@ namespace R3D {
         }
     }
     void Object::RenderSlfBndSphere() {
-        static UniformBlockMesh uniformBlockMesh;
+        UniformBlockMesh uniformBlockMesh;
         if (m_bndSphMaterial) {
             mat4 I(1.0f);
             I = glm::translate(I, m_selfBoundingSphere.GetCenter());
@@ -359,9 +358,9 @@ namespace R3D {
         m_uvscale = in_uvscale;
     }
     void Object::RenderDepth() {
-        static Material *depthMaterial = MaterialManage::GetInstance()->GetMaterial("depth");
+        Material *depthMaterial = MaterialManage::GetInstance()->GetMaterial("depth");
         //更新uniform缓冲
-        static UniformBlockMesh uniformBlockMesh;
+        UniformBlockMesh uniformBlockMesh;
         uniformBlockMesh.model = GetFinalTransformMatrix();
         uniformBlockMesh.invmodelt = glm::transpose(glm::inverse(GetFinalTransformMatrix()));
         uniformBlockMesh.uvoffset = m_uvoffset;

@@ -22,7 +22,7 @@ OptionConfig optionConfig{};
 void guiMake();
 int main() {
     Device *device = Device::GetInstance();
-    device->Init("windowtest", 1600, 900, true);
+    device->Init("windowtest", 1600, 900, false);
     device->SetCamera(vec3(-8, 3, -8), vec3(0, 0, 0), radians(70.0f),
                       float(device->m_windowWidth) / float(device->m_windowHeight),
                       0.1f, 100.0f);
@@ -161,12 +161,14 @@ int main() {
         Object *spherechild0 = new Object("spherechild0", boxfather0, vec3(2, 0, 0), 0, 0, 0, true);
         boxfather0->MoveTo(vec3(0.0f, 2.0f, 0.0f));
         boxfather0->SetActionFunc([&]() {
-            spherechild0->MoveTo(vec3(sinf(device->m_gameTime.TotalTime())*3.0f,0,0));
             boxfather0->RotationYaw(device->m_gameTime.TotalTime()*0.25f);
         });
         spherechild0->SetMesh(meshManage->GetMesh("geospheremesh"));
         spherechild0->SetMaterial(materialManage.GetMaterial("metalpbr_rusted_iron"));
         spherechild0->Scale(0.4f);
+        spherechild0->SetActionFunc([&](){
+            spherechild0->MoveTo(vec3(0.9f+abs(sinf(device->m_gameTime.TotalTime()))*2.0f,0,0));
+        });
     }
 
     //----------------
