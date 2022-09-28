@@ -61,6 +61,22 @@ int main() {
     rootplane->SetMaterial(materialManage.GetMaterial("metalpbr_dirtground"));
     rootplane->SetUvConfig(vec2(0), vec2(2));
     rootplane->Scale(16.0f);
+    //墙面
+    {
+        Object *wall0 = new Object("wall0", rootplane, vec3(0), 0, 0, 0, true);
+        wall0->SetMesh(meshManage->GetMesh("boxwallmesh"));
+        wall0->SetMaterial(materialManage.GetMaterial("metalpbr_check"));
+        wall0->SetUvConfig(vec2(0), vec2(2));
+        wall0->Scale(16.0f);
+        wall0->Move(vec3(0.0f,8.0f,7.98f));
+        Object *wall1 = new Object("wall1", rootplane, vec3(0), 0, 0, 0, true);
+        wall1->SetMesh(meshManage->GetMesh("boxwallmesh"));
+        wall1->SetMaterial(materialManage.GetMaterial("metalpbr_check"));
+        wall1->SetUvConfig(vec2(0), vec2(2));
+        wall1->Scale(16.0f);
+        wall1->RotationYaw(PI_DIV_2);
+        wall1->Move(vec3(7.98f,8.0f,0.0f));
+    }
     {
         //i=0
         {
@@ -86,7 +102,7 @@ int main() {
             matballsub0->RotationYaw(PI * 0.75f);
             matballsub0->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.0f, (i / 4 - 1.5) * 2.0f));
             matballsub0->SetActionFunc([&]() {
-                matballsub0->RotationYaw(device->m_gameTime.TotalTime()*0.5f);
+                matballsub0->RotationYaw(-device->m_gameTime.TotalTime()*0.5f);
             });
             Object *matballsub1 = new Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
             matballsub1->SetMesh(meshManage->GetMesh("matballmesh1"));
@@ -116,7 +132,7 @@ int main() {
             matballsub0->RotationYaw(PI * 0.75f);
             matballsub0->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.0f, (i / 4 - 1.5) * 2.0f));
             matballsub0->SetActionFunc([&]() {
-                matballsub0->RotationYaw(device->m_gameTime.TotalTime()*0.125f);
+                matballsub0->RotationYaw(-device->m_gameTime.TotalTime()*0.125f);
             });
             Object *matballsub1 = new Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
             matballsub1->SetMesh(meshManage->GetMesh("matballmesh1"));
@@ -146,7 +162,7 @@ int main() {
         boxfather0->MoveTo(vec3(0.0f, 2.0f, 0.0f));
         boxfather0->SetActionFunc([&]() {
             spherechild0->MoveTo(vec3(sinf(device->m_gameTime.TotalTime())*3.0f,0,0));
-            boxfather0->RotationYaw(device->m_gameTime.TotalTime());
+            boxfather0->RotationYaw(device->m_gameTime.TotalTime()*0.25f);
         });
         spherechild0->SetMesh(meshManage->GetMesh("geospheremesh"));
         spherechild0->SetMaterial(materialManage.GetMaterial("metalpbr_rusted_iron"));
@@ -187,7 +203,6 @@ int main() {
         glClear(GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
         scene.m_opaqueList.RenderDepth();
-
         //拷贝pre深度缓冲到后台缓冲，使用深度相等渲染
         glBindFramebuffer(GL_READ_FRAMEBUFFER, device->m_preDepthFBO.m_frameBuffer);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, device->m_backHDRFBO.m_frameBuffer);

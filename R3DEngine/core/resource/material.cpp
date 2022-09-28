@@ -255,6 +255,12 @@ namespace R3D {
         metalpbr_wood->InitResource();
         AddMaterial("metalpbr_wood", metalpbr_wood);
         //----------------------------------------------
+        MaterialMetalPbr *metalpbr_check = new MaterialMetalPbr();
+        metalpbr_check->m_shader = shaderCache.GetShader("metalpbr");
+        metalpbr_check->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/check/albedo.png";
+        metalpbr_check->InitResource();
+        AddMaterial("metalpbr_check", metalpbr_check);
+        //----------------------------------------------
         MaterialMetalPbr *metalpbr_base = new MaterialMetalPbr();
         metalpbr_base->m_shader = shaderCache.GetShader("metalpbr");
         metalpbr_base->InitResource();

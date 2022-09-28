@@ -33,6 +33,9 @@ namespace R3D {
         Mesh *boxmesh = new Mesh();
         MeshCreate::CreateBox(*boxmesh, 1, 1, 1, VERT_POS_NOR_TAN_UV);
         AddMesh("boxmesh", boxmesh);
+        Mesh *boxwallmesh = new Mesh();
+        MeshCreate::CreateBox(*boxwallmesh, 1, 1, 0.01, VERT_POS_NOR_TAN_UV);
+        AddMesh("boxwallmesh", boxwallmesh);
         Mesh *geospheremesh = new Mesh();
         MeshCreate::CreateGeosphere(*geospheremesh, 1, 3, VERT_POS_NOR_TAN_UV);
         AddMesh("geospheremesh", geospheremesh);

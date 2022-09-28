@@ -6,6 +6,8 @@
 #include <device/device.h>
 #include <device/scene.h>
 namespace R3D {
+    using std::cout;
+    using std::endl;
     BufferManage::BufferManage() {
     }
     BufferManage::~BufferManage() {

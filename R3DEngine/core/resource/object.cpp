@@ -131,10 +131,12 @@ namespace R3D {
         m_dirtyBB = true;
     }
     void Object::RotationPitchYawRool(float in_radianX, float in_radianY, float in_radianZ) {
-        mat4 I(1.0f);
+        static mat4 I;
+        I = mat4(1.0f);
         I = glm::rotate(I, in_radianY, vec3(0, 1, 0));
         I = glm::rotate(I, in_radianX, vec3(1, 0, 0));
         I = glm::rotate(I, in_radianZ, vec3(0, 0, 1));
+        PrintMat4(I);
         m_rotateRelative = mat3(I);
         m_dirty = true;
         m_dirtyBB = true;
