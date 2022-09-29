@@ -24,9 +24,10 @@ namespace R3D {
         //翻转y方向
         float a = 1.0f / (TEX1.x * TEX2.y - TEX2.x * TEX1.y);
         vec3 tanu;
-        tanu.x = a * (TEX2.y * POS1.x - TEX1.y * POS2.x);
-        tanu.y = a * (TEX2.y * POS1.y - TEX1.y * POS2.y);
-        tanu.z = a * (TEX2.y * POS1.z - TEX1.y * POS2.z);
+//        tanu.x = a * (TEX2.y * POS1.x - TEX1.y * POS2.x);
+//        tanu.y = a * (TEX2.y * POS1.y - TEX1.y * POS2.y);
+//        tanu.z = a * (TEX2.y * POS1.z - TEX1.y * POS2.z);
+        tanu = (POS1 * TEX2.y - POS2 * TEX1.y) * a;//与上式等价
         v0.tangent = normalize(tanu);
     }
     VertexPosNorTanUv MeshCreate::MidPoint(const VertexPosNorTanUv &v0, const VertexPosNorTanUv &v1) {
@@ -117,47 +118,36 @@ namespace R3D {
                         {{-0.5f, -0.5f, -0.5f}, {0.0f,  0.0f,  -1.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
                         {{0.5f,  -0.5f, -0.5f}, {0.0f,  0.0f,  -1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
                         {{0.5f,  0.5f,  -0.5f}, {0.0f,  0.0f,  -1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
-
                         {{0.5f,  0.5f,  -0.5f}, {0.0f,  0.0f,  -1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
                         {{-0.5f, 0.5f,  -0.5f}, {0.0f,  0.0f,  -1.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},
                         {{-0.5f, -0.5f, -0.5f}, {0.0f,  0.0f,  -1.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-
                         {{-0.5f, -0.5f, 0.5f},  {0.0f,  0.0f,  1.0f},  {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
                         {{0.5f,  -0.5f, 0.5f},  {0.0f,  0.0f,  1.0f},  {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
                         {{0.5f,  0.5f,  0.5f},  {0.0f,  0.0f,  1.0f},  {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},
-
                         {{0.5f,  0.5f,  0.5f},  {0.0f,  0.0f,  1.0f},  {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},
                         {{-0.5f, 0.5f,  0.5f},  {0.0f,  0.0f,  1.0f},  {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
                         {{-0.5f, -0.5f, 0.5f},  {0.0f,  0.0f,  1.0f},  {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-
                         {{-0.5f, 0.5f,  0.5f},  {-1.0f, 0.0f,  0.0f},  {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
                         {{-0.5f, 0.5f,  -0.5f}, {-1.0f, 0.0f,  0.0f},  {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
                         {{-0.5f, -0.5f, -0.5f}, {-1.0f, 0.0f,  0.0f},  {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-
                         {{-0.5f, -0.5f, -0.5f}, {-1.0f, 0.0f,  0.0f},  {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
                         {{-0.5f, -0.5f, 0.5f},  {-1.0f, 0.0f,  0.0f},  {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
                         {{-0.5f, 0.5f,  0.5f},  {-1.0f, 0.0f,  0.0f},  {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
-
                         {{0.5f,  0.5f,  0.5f},  {1.0f,  0.0f,  0.0f},  {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
                         {{0.5f,  0.5f,  -0.5f}, {1.0f,  0.0f,  0.0f},  {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
                         {{0.5f,  -0.5f, -0.5f}, {1.0f,  0.0f,  0.0f},  {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-
                         {{0.5f,  -0.5f, -0.5f}, {1.0f,  0.0f,  0.0f},  {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
                         {{0.5f,  -0.5f, 0.5f},  {1.0f,  0.0f,  0.0f},  {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
                         {{0.5f,  0.5f,  0.5f},  {1.0f,  0.0f,  0.0f},  {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
-
                         {{-0.5f, -0.5f, -0.5f}, {0.0f,  -1.0f, 0.0f},  {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
                         {{0.5f,  -0.5f, -0.5f}, {0.0f,  -1.0f, 0.0f},  {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
                         {{0.5f,  -0.5f, 0.5f},  {0.0f,  -1.0f, 0.0f},  {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},
-
                         {{0.5f,  -0.5f, 0.5f},  {0.0f,  -1.0f, 0.0f},  {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},
                         {{-0.5f, -0.5f, 0.5f},  {0.0f,  -1.0f, 0.0f},  {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
                         {{-0.5f, -0.5f, -0.5f}, {0.0f,  -1.0f, 0.0f},  {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-
                         {{-0.5f, 0.5f,  -0.5f}, {0.0f,  1.0f,  0.0f},  {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
                         {{0.5f,  0.5f,  -0.5f}, {0.0f,  1.0f,  0.0f},  {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},
                         {{0.5f,  0.5f,  0.5f},  {0.0f,  1.0f,  0.0f},  {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-
                         {{0.5f,  0.5f,  0.5f},  {0.0f,  1.0f,  0.0f},  {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
                         {{-0.5f, 0.5f,  0.5f},  {0.0f,  1.0f,  0.0f},  {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
                         {{-0.5f, 0.5f,  -0.5f}, {0.0f,  1.0f,  0.0f},  {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}}
@@ -530,7 +520,8 @@ namespace R3D {
                 for (int i = 0;i < subMeshMtrIdInfo.size();++i) {
                     vec3 minpoint(99999);
                     vec3 maxpoint(-99999);
-                    for (int j = subMeshMtrIdInfo[i].startindex*3;j < (subMeshMtrIdInfo[i].count+subMeshMtrIdInfo[i].startindex)*3;++j) {
+                    for (int j = subMeshMtrIdInfo[i].startindex * 3;
+                         j < (subMeshMtrIdInfo[i].count + subMeshMtrIdInfo[i].startindex) * 3;++j) {
                         index_t index = shapes[0].mesh.indices[j];
                         VertexPosNorTanUv vertex;
                         vertex.position.x = attrib.vertices[index.vertex_index * 3 + 0];
@@ -547,7 +538,6 @@ namespace R3D {
                             vertices.push_back(vertex);
                         }
                         indices.push_back(uniqueVertices[vertex]);
-
                         minpoint.x = vertex.position.x < minpoint.x ? vertex.position.x : minpoint.x;
                         minpoint.y = vertex.position.y < minpoint.y ? vertex.position.y : minpoint.y;
                         minpoint.z = vertex.position.z < minpoint.z ? vertex.position.z : minpoint.z;
@@ -577,15 +567,13 @@ namespace R3D {
                 glNamedBufferStorage(EBO, (long long) (indices.size() * sizeof(uint32_t)), indices.data(),
                                      0);
                 for (int i = 0;i < subMeshMtrIdInfo.size();++i) {
-                    Mesh* submesh = new Mesh();
-
+                    Mesh *submesh = new Mesh();
                     vec3 midpoint = 0.5f * (minpoints[i] + maxpoints[i]);
                     float radius = 0.5f * glm::length(maxpoints[i] - minpoints[i]);
                     submesh->m_sphere.SetRadius(radius);
                     submesh->m_sphere.SetCenter(midpoint);
                     submesh->m_indiceSize = subMeshMtrIdInfo[i].count * 3;
                     submesh->m_indeceStart = subMeshMtrIdInfo[i].startindex * 3;
-
                     submesh->m_vertexLayout = VERT_POS_NOR_TAN_UV;
                     submesh->VBO = VBO;
                     submesh->EBO = EBO;

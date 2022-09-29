@@ -212,13 +212,13 @@ namespace R3D {
     }
     void MaterialManage::Init() {
         ShaderCache &shaderCache = Device::GetInstance()->m_shaderCache;
-        MaterialPhone *phone_circlebox = new MaterialPhone();
+/*        MaterialPhone *phone_circlebox = new MaterialPhone();
         phone_circlebox->m_shader = shaderCache.GetShader("phone");
         phone_circlebox->m_diffTexUrl = CURRENT_SOURCE_DIR + "Data/image/phone/circlebox/diffuse.png";
         phone_circlebox->m_specTexUrl = CURRENT_SOURCE_DIR + "Data/image/phone/circlebox/spec.png";
         phone_circlebox->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/phone/circlebox/normal.png";
         phone_circlebox->InitResource();
-        AddMaterial("phone_circlebox", phone_circlebox);
+        AddMaterial("phone_circlebox", phone_circlebox);*/
         //----------------------------------------------
         MaterialMetalPbr *metalpbr_rusted_iron = new MaterialMetalPbr();
         metalpbr_rusted_iron->m_shader = shaderCache.GetShader("metalpbr");
@@ -230,14 +230,6 @@ namespace R3D {
         metalpbr_rusted_iron->InitResource(GL_CLAMP_TO_EDGE);
         AddMaterial("metalpbr_rusted_iron", metalpbr_rusted_iron);
         //----------------------------------------------
-        MaterialMetalPbr *metalpbr_dirtground = new MaterialMetalPbr();
-        metalpbr_dirtground->m_shader = shaderCache.GetShader("metalpbr");
-        metalpbr_dirtground->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/dirtground/albedo.png";
-        metalpbr_dirtground->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/dirtground/normal.png";
-        metalpbr_dirtground->m_roughnessTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/dirtground/roughness.png";
-        metalpbr_dirtground->InitResource();
-        AddMaterial("metalpbr_dirtground", metalpbr_dirtground);
-        //----------------------------------------------
         MaterialMetalPbr *metalpbr_gold = new MaterialMetalPbr();
         metalpbr_gold->m_shader = shaderCache.GetShader("metalpbr");
         metalpbr_gold->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/gold/albedo.png";
@@ -248,12 +240,53 @@ namespace R3D {
         metalpbr_gold->InitResource();
         AddMaterial("metalpbr_gold", metalpbr_gold);
         //----------------------------------------------
-        MaterialMetalPbr *metalpbr_wood = new MaterialMetalPbr();
-        metalpbr_wood->m_shader = shaderCache.GetShader("metalpbr");
-        metalpbr_wood->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/wood/albedo.tga";
-        metalpbr_wood->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/wood/normal.tga";
-        metalpbr_wood->InitResource();
-        AddMaterial("metalpbr_wood", metalpbr_wood);
+        MaterialMetalPbr *metalpbr_forestbrown = new MaterialMetalPbr();
+        metalpbr_forestbrown->m_shader = shaderCache.GetShader("metalpbr");
+        metalpbr_forestbrown->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/forestbrown/albedo.png";
+        metalpbr_forestbrown->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/forestbrown/normal.png";
+        metalpbr_forestbrown->m_metallicTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/forestbrown/metallic.png";
+        metalpbr_forestbrown->m_roughnessTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/forestbrown/roughness.png";
+        metalpbr_forestbrown->m_aoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/forestbrown/ao.png";
+        metalpbr_forestbrown->InitResource();
+        AddMaterial("metalpbr_forestbrown", metalpbr_forestbrown);
+        //----------------------------------------------
+        MaterialMetalPbr *metalpbr_silver = new MaterialMetalPbr();
+        metalpbr_silver->m_shader = shaderCache.GetShader("metalpbr");
+        metalpbr_silver->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/silver/albedo.jpg";
+        metalpbr_silver->m_metallicTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/silver/metallic.jpg";
+        metalpbr_silver->m_roughnessTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/silver/roughness.jpg";
+        metalpbr_silver->InitResource();
+        AddMaterial("metalpbr_silver", metalpbr_silver);
+        //----------------------------------------------
+        MaterialMetalPbr *metalpbr_aluminiumfoil = new MaterialMetalPbr();
+        metalpbr_aluminiumfoil->m_shader = shaderCache.GetShader("metalpbr");
+        metalpbr_aluminiumfoil->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/aluminiumfoil/albedo.png";
+        metalpbr_aluminiumfoil->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/aluminiumfoil/normal.png";
+        metalpbr_aluminiumfoil->m_metallicTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/aluminiumfoil/metallic.png";
+        metalpbr_aluminiumfoil->m_roughnessTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/aluminiumfoil/roughness.png";
+        metalpbr_aluminiumfoil->m_aoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/aluminiumfoil/ao.png";
+        metalpbr_aluminiumfoil->InitResource();
+        AddMaterial("metalpbr_aluminiumfoil", metalpbr_aluminiumfoil);
+        //----------------------------------------------
+        MaterialMetalPbr *metalpbr_stonewall = new MaterialMetalPbr();
+        metalpbr_stonewall->m_shader = shaderCache.GetShader("metalpbr");
+        metalpbr_stonewall->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/stonewall/albedo.png";
+        metalpbr_stonewall->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/stonewall/normal.png";
+        metalpbr_stonewall->m_metallicTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/stonewall/metallic.png";
+        metalpbr_stonewall->m_roughnessTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/stonewall/roughness.png";
+        metalpbr_stonewall->m_aoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/stonewall/ao.png";
+        metalpbr_stonewall->InitResource();
+        AddMaterial("metalpbr_stonewall", metalpbr_stonewall);
+        //----------------------------------------------
+        MaterialMetalPbr *metalpbr_floor = new MaterialMetalPbr();
+        metalpbr_floor->m_shader = shaderCache.GetShader("metalpbr");
+        metalpbr_floor->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/floor/albedo.png";
+        metalpbr_floor->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/floor/normal.png";
+        metalpbr_floor->m_metallicTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/floor/metallic.png";
+        metalpbr_floor->m_roughnessTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/floor/roughness.png";
+        metalpbr_floor->m_aoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/floor/ao.png";
+        metalpbr_floor->InitResource();
+        AddMaterial("metalpbr_floor", metalpbr_floor);
         //----------------------------------------------
         MaterialMetalPbr *metalpbr_check = new MaterialMetalPbr();
         metalpbr_check->m_shader = shaderCache.GetShader("metalpbr");

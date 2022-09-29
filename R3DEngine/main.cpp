@@ -17,6 +17,7 @@ struct OptionConfig {
     bool SphereRender = false;
     bool LightRender = false;
     bool LightRadiusRender = false;
+    int PointLightCount = POINT_LIGHT_COUNT;
 };
 OptionConfig optionConfig{};
 void guiMake();
@@ -33,8 +34,8 @@ int main() {
     MaterialManage &materialManage = *device->m_materialManage;
     Scene scene;
     scene.Init(device);
-    scene.SetLightCount(1,POINT_LIGHT_COUNT,TILE_LIGHT_MAX);
-    scene.m_dirLights[0].direction = glm::normalize(vec3(-8, 3, -8));
+    scene.SetLightCount(0, optionConfig.PointLightCount, TILE_LIGHT_MAX);
+    scene.m_dirLights[0].direction = glm::normalize(vec3(-8, 16, -8));
     scene.m_dirLights[0].strength = vec3(10, 10, 10);
     scene.m_dirLights[1].direction = glm::normalize(vec3(-1, 5, 1));
     scene.m_dirLights[1].strength = vec3(0, 0, 0);
@@ -59,24 +60,24 @@ int main() {
     Object *rootplane = new Object("rootplane", nullptr, vec3(0), 0, 0, 0, true);
     scene.SetRoot(rootplane);
     rootplane->SetMesh(meshManage->GetMesh("planemesh"));
-    rootplane->SetMaterial(materialManage.GetMaterial("metalpbr_dirtground"));
-    rootplane->SetUvConfig(vec2(0), vec2(2));
+    rootplane->SetMaterial(materialManage.GetMaterial("metalpbr_floor"));
+    rootplane->SetUvConfig(vec2(0), vec2(16));
     rootplane->Scale(16.0f);
     //墙面
     {
         Object *wall0 = new Object("wall0", rootplane, vec3(0), 0, 0, 0, true);
         wall0->SetMesh(meshManage->GetMesh("boxwallmesh"));
-        wall0->SetMaterial(materialManage.GetMaterial("metalpbr_check"));
+        wall0->SetMaterial(materialManage.GetMaterial("metalpbr_stonewall"));
         wall0->SetUvConfig(vec2(0), vec2(2));
         wall0->Scale(16.0f);
-        wall0->Move(vec3(0.0f,8.0f,8.0f));
+        wall0->Move(vec3(0.0f, 8.0f, 8.0f));
         Object *wall1 = new Object("wall1", rootplane, vec3(0), 0, 0, 0, true);
         wall1->SetMesh(meshManage->GetMesh("boxwallmesh"));
-        wall1->SetMaterial(materialManage.GetMaterial("metalpbr_check"));
+        wall1->SetMaterial(materialManage.GetMaterial("metalpbr_stonewall"));
         wall1->SetUvConfig(vec2(0), vec2(2));
         wall1->Scale(16.0f);
         wall1->RotationYaw(PI_DIV_2);
-        wall1->Move(vec3(8.0f,8.0f,0.0f));
+        wall1->Move(vec3(8.0f, 8.0f, 0.0f));
     }
     {
         //i=0
@@ -84,7 +85,7 @@ int main() {
             int i = 0;
             Object *matballsub0 = new Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
             matballsub0->SetMesh(meshManage->GetMesh("matballmesh0"));
-            matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_gold"));
+            matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_silver"));
             matballsub0->RotationYaw(PI * 0.75f);
             matballsub0->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.0f, (i / 4 - 1.5) * 2.0f));
             matballsub0->SetActionFunc([&]() {
@@ -99,76 +100,70 @@ int main() {
             int i = 1;
             Object *matballsub0 = new Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
             matballsub0->SetMesh(meshManage->GetMesh("matballmesh0"));
-            matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_gold"));
+            matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_silver"));
             matballsub0->RotationYaw(PI * 0.75f);
             matballsub0->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.0f, (i / 4 - 1.5) * 2.0f));
             matballsub0->SetActionFunc([&]() {
-                matballsub0->RotationYaw(-device->m_gameTime.TotalTime()*0.5f);
+                matballsub0->RotationYaw(-device->m_gameTime.TotalTime() * 0.5f);
             });
             Object *matballsub1 = new Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
             matballsub1->SetMesh(meshManage->GetMesh("matballmesh1"));
-            matballsub1->SetMaterial(materialManage.GetMaterial("metalpbr_rusted_iron"));
+            matballsub1->SetMaterial(materialManage.GetMaterial("metalpbr_forestbrown"));
         }
         //i=2
         {
             int i = 2;
             Object *matballsub0 = new Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
             matballsub0->SetMesh(meshManage->GetMesh("matballmesh0"));
-            matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_gold"));
+            matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_rusted_iron"));
             matballsub0->RotationYaw(PI * 0.75f);
             matballsub0->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.0f, (i / 4 - 1.5) * 2.0f));
             matballsub0->SetActionFunc([&]() {
-                matballsub0->RotationYaw(device->m_gameTime.TotalTime()*0.25f);
+                matballsub0->RotationYaw(device->m_gameTime.TotalTime() * 0.25f);
             });
             Object *matballsub1 = new Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
             matballsub1->SetMesh(meshManage->GetMesh("matballmesh1"));
-            matballsub1->SetMaterial(materialManage.GetMaterial("metalpbr_rusted_iron"));
+            matballsub1->SetMaterial(materialManage.GetMaterial("metalpbr_gold"));
         }
         //i=3
         {
             int i = 3;
             Object *matballsub0 = new Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
             matballsub0->SetMesh(meshManage->GetMesh("matballmesh0"));
-            matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_gold"));
+            matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_forestbrown"));
             matballsub0->RotationYaw(PI * 0.75f);
             matballsub0->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.0f, (i / 4 - 1.5) * 2.0f));
             matballsub0->SetActionFunc([&]() {
-                matballsub0->RotationYaw(-device->m_gameTime.TotalTime()*0.125f);
+                matballsub0->RotationYaw(-device->m_gameTime.TotalTime() * 0.125f);
             });
             Object *matballsub1 = new Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
             matballsub1->SetMesh(meshManage->GetMesh("matballmesh1"));
-            matballsub1->SetMaterial(materialManage.GetMaterial("metalpbr_rusted_iron"));
+            matballsub1->SetMaterial(materialManage.GetMaterial("metalpbr_silver"));
         }
     }
     for (int i = 4;i < 8;++i) {
         Object *box = new Object("box" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
         box->SetMesh(meshManage->GetMesh("boxmesh"));
-        box->SetMaterial(materialManage.GetMaterial("metalpbr_rusted_iron"));
+        box->SetMaterial(materialManage.GetMaterial("metalpbr_aluminiumfoil"));
         box->Scale(1.0f);
-        box->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.5, (i / 4 - 1.5) * 2.0f));
-    }
-    for (int i = 8;i < 12;++i) {
-        Object *box = new Object("box" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
-        box->SetMesh(meshManage->GetMesh("boxmesh"));
-        box->SetMaterial(materialManage.GetMaterial("metalpbr_wood"));
-        box->Scale(1.0f);
-        box->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.5, (i / 4 - 1.5) * 2.0f));
+        box->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.5, (i / 4 - 0.5) * 2.0f));
     }
     //体现父子关系的球绕立方体运动
     {
         Object *boxfather0 = new Object("boxfather0", rootplane, vec3(0), 0, 0, 0, true);
         boxfather0->SetMesh(meshManage->GetMesh("boxmesh"));
-        boxfather0->SetMaterial(materialManage.GetMaterial("metalpbr_gold"));
+        boxfather0->SetMaterial(materialManage.GetMaterial("metalpbr_floor"));
         Object *spherechild0 = new Object("spherechild0", boxfather0, vec3(2, 0, 0), 0, 0, 0, true);
         boxfather0->MoveTo(vec3(0.0f, 2.0f, 0.0f));
         boxfather0->SetActionFunc([&]() {
-            boxfather0->RotationYaw(device->m_gameTime.TotalTime()*0.25f);
+            boxfather0->MoveTo(vec3(0, 2, sinf(device->m_gameTime.TotalTime()) * 2.0f));
+            boxfather0->RotationYaw(device->m_gameTime.TotalTime() * 0.5f);
         });
         spherechild0->SetMesh(meshManage->GetMesh("geospheremesh"));
-        spherechild0->SetMaterial(materialManage.GetMaterial("metalpbr_rusted_iron"));
+        spherechild0->SetMaterial(materialManage.GetMaterial("metalpbr_gold"));
         spherechild0->Scale(0.4f);
-        spherechild0->SetActionFunc([&](){
-            spherechild0->MoveTo(vec3(0.9f+abs(sinf(device->m_gameTime.TotalTime()))*2.0f,0,0));
+        spherechild0->SetActionFunc([&]() {
+            spherechild0->MoveTo(vec3(0.9f + abs(sinf(device->m_gameTime.TotalTime() * 2.0f)) * 2.0f, 0, 0));
         });
     }
 
@@ -192,6 +187,7 @@ int main() {
         EventInfo eventInfo{};
         eventInfo.type = EVENT_NONE;
         scene.UpdataAnimate(device->m_gameTime.DeltaTime(), eventInfo);
+        scene.SetLightCount(0, optionConfig.PointLightCount, TILE_LIGHT_MAX);
         scene.UpdataTransBound();
         scene.MakeRenderList();
         scene.SortRenderList();
@@ -264,6 +260,7 @@ void guiMake() {
     ImGui::Checkbox("SphereRender", &optionConfig.SphereRender);
     ImGui::Checkbox("LightRender", &optionConfig.LightRender);
     ImGui::Checkbox("LightRadiusRender", &optionConfig.LightRadiusRender);
+    ImGui::SliderInt("PointLightCount", &optionConfig.PointLightCount, 0, 1024);
     ImGui::End();
     ImGui::Begin("DepthTex");
     //翻转y轴使图像于屏幕匹配

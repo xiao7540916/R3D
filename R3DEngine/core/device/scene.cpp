@@ -105,7 +105,7 @@ namespace R3D {
         lightmaterial->RenderPrepare();
         glBindVertexArray(lightmesh->VAO);
         glDrawElementsInstanced(GL_TRIANGLES, lightmesh->m_indiceSize, GL_UNSIGNED_INT,
-                                (void *) (lightmesh->m_indeceStart * 4), m_pointLights.size());
+                                (void *) (lightmesh->m_indeceStart * 4), m_pointLightEnable);
     }
     void Scene::RenderLightRadius() {
         static Mesh *lightradiusmesh = MeshManage::GetInstance()->GetMesh("lightradiusmesh");
@@ -113,7 +113,7 @@ namespace R3D {
         lightradiusmaterial->RenderPrepare();
         glBindVertexArray(lightradiusmesh->VAO);
         glDrawElementsInstanced(GL_TRIANGLES, lightradiusmesh->m_indiceSize, GL_UNSIGNED_INT,
-                                (void *) (lightradiusmesh->m_indeceStart * 4), m_pointLights.size());
+                                (void *) (lightradiusmesh->m_indeceStart * 4), m_pointLightEnable);
     }
     void Scene::SetLightCount(int in_dir, int in_point, int in_tilepoint) {
         m_dirLightEnable = in_dir;
