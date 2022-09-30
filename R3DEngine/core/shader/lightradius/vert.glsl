@@ -11,12 +11,19 @@ struct DirLight {
     float fill1;
 };
 struct UniformBlockBase {
+    mat4 view;
+    mat4 proj;
+    mat4 invproj;
     mat4 viewproj;
     vec3 camerapos;
-    int dirlightenable;
+    int dirlightactivenum;
     DirLight dirLights[DIRECTION_LIGHT_COUNT];
-    int pointlightenable;
+    int pointlightactivenum;
     int tilepointlightmax;
+    float windowwidth;
+    float windowheight;
+    int workgroup_x;
+    float fill0;
     float fill1;
     float fill2;
 };

@@ -161,14 +161,14 @@ namespace R3D {
         }
     }
     //----------------------------------------------
-    MaterialLight::MaterialLight() {
+    MaterialLightShow::MaterialLightShow() {
         m_mtrQueue = MTRQUEUE_GEOMETRY;
     }
-    void MaterialLight::InitResource(GLint in_param, GLint in_mipmapinfo) {
+    void MaterialLightShow::InitResource(GLint in_param, GLint in_mipmapinfo) {
     }
-    void MaterialLight::BindResource() {
+    void MaterialLightShow::BindResource() {
     }
-    void MaterialLight::RenderPrepare() {
+    void MaterialLightShow::RenderPrepare() {
         if (RenderStateManage::GetInstance()->NeedChangeState(m_shader.ID)) {
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
@@ -307,9 +307,9 @@ namespace R3D {
         depth->m_shader = shaderCache.GetShader("depth");
         AddMaterial("depth", depth);
         //----------------------------------------------
-        MaterialLight *light = new MaterialLight();
-        light->m_shader = shaderCache.GetShader("light");
-        AddMaterial("light", light);
+        MaterialLightShow *lightshow = new MaterialLightShow();
+        lightshow->m_shader = shaderCache.GetShader("lightshow");
+        AddMaterial("lightshow", lightshow);
         //----------------------------------------------
         MaterialLightRadius *lightradius = new MaterialLightRadius();
         lightradius->m_shader = shaderCache.GetShader("lightradius");

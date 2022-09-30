@@ -24,32 +24,36 @@ namespace R3D {
         glCreateBuffers(1, &m_uniBlockBaseBuffer);
         glNamedBufferData(m_uniBlockBaseBuffer, sizeof(UniformBlockBase),
                           nullptr, GL_DYNAMIC_DRAW);//DRAW代表会被用于GPU
-        glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_uniBlockBaseBuffer);
         //模型数据
         glCreateBuffers(1, &m_uniBlockMeshBuffer);
         glNamedBufferData(m_uniBlockMeshBuffer, sizeof(UniformBlockMesh),
                           nullptr, GL_DYNAMIC_DRAW);
-        glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_uniBlockMeshBuffer);
         //点光源数据
         glCreateBuffers(1, &m_pointLightBuffer);
         glNamedBufferData(m_pointLightBuffer, sizeof(PointLight) * POINT_LIGHT_COUNT,
                           nullptr, GL_DYNAMIC_DRAW);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_pointLightBuffer);
+        CreateTileLightBuffer(in_device->m_windowWidth, in_device->m_windowHeight, TILE_SIZE);
     }
     void BufferManage::Release() {
     }
     void BufferManage::UpdataUniBaseBuf(Scene &in_scene) {
         UniformBlockBase uniformBlockBase;
         Camera &camera = *m_device->m_camera;
+        uniformBlockBase.view = camera.GetView();
+        uniformBlockBase.proj = camera.GetProjection();
+        uniformBlockBase.invproj = glm::inverse(camera.GetProjection());
         uniformBlockBase.viewproj = camera.GetProjection() * camera.GetView();
         uniformBlockBase.camerapos = camera.GetPosition();
         uniformBlockBase.dirLights[0] = in_scene.m_dirLights[0];
         uniformBlockBase.dirLights[1] = in_scene.m_dirLights[1];
         uniformBlockBase.dirLights[2] = in_scene.m_dirLights[2];
         uniformBlockBase.dirLights[3] = in_scene.m_dirLights[3];
-        uniformBlockBase.dirlightenable = in_scene.m_dirLightEnable;
-        uniformBlockBase.pointlightenable = in_scene.m_pointLightEnable;
+        uniformBlockBase.dirlightactivenum = in_scene.m_dirLightActiveNum;
+        uniformBlockBase.pointlightactivenum = in_scene.m_pointLightActiveNum;
         uniformBlockBase.tilepointlightmax = in_scene.m_tilePointLightMax;
+        uniformBlockBase.workgroup_x =
+                (m_device->m_windowWidth % TILE_SIZE) == 0 ? (m_device->m_windowWidth / TILE_SIZE) : (
+                        m_device->m_windowWidth / TILE_SIZE + 1);
         glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_uniBlockBaseBuffer);
         glNamedBufferSubData(m_uniBlockBaseBuffer, 0, sizeof(UniformBlockBase), &uniformBlockBase);
         glUnmapBuffer(GL_UNIFORM_BUFFER);
@@ -57,5 +61,55 @@ namespace R3D {
         glNamedBufferSubData(m_pointLightBuffer, 0, sizeof(PointLight) * POINT_LIGHT_COUNT,
                              in_scene.m_pointLights.data());
         glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+    }
+    void BufferManage::CreateTileLightBuffer(int in_windowwidth, int in_windowheight, int in_tilesize) {
+        int workgroup_x = (in_windowwidth % TILE_SIZE) == 0 ? (in_windowwidth / TILE_SIZE) : (
+                in_windowwidth / TILE_SIZE + 1);
+        int workgroup_y = (in_windowheight % TILE_SIZE) == 0 ? (in_windowheight / TILE_SIZE) : (
+                in_windowheight / TILE_SIZE + 1);
+        //点光源数据
+        glCreateBuffers(1, &m_tileLightsIdxBuffer);
+        glNamedBufferData(m_tileLightsIdxBuffer, sizeof(uint32_t) * TILE_LIGHT_MAX * workgroup_x * workgroup_y,
+                          nullptr, GL_STATIC_DRAW);
+        glCreateBuffers(1, &m_tileLightsNumBuffer);
+        glNamedBufferData(m_tileLightsNumBuffer, sizeof(uint32_t) * workgroup_x * workgroup_y,
+                          nullptr, GL_DYNAMIC_DRAW);
+    }
+    void
+    BufferManage::CreateTileClipBuffer(Camera &in_camera, int in_windowwidth, int in_windowheight, int in_tilesize) {
+        int workgroup_x = (in_windowwidth % TILE_SIZE) == 0 ? (in_windowwidth / TILE_SIZE) : (
+                in_windowwidth / TILE_SIZE + 1);
+        int workgroup_y = (in_windowheight % TILE_SIZE) == 0 ? (in_windowheight / TILE_SIZE) : (
+                in_windowheight / TILE_SIZE + 1);
+        //tile截面
+        glCreateBuffers(1, &m_tileClipPlaneBuffer);
+        glNamedBufferData(m_tileClipPlaneBuffer, sizeof(mat4) * workgroup_x * workgroup_y,
+                          nullptr, GL_STATIC_DRAW);
+        vector<vec4> clipPlaneData;
+        clipPlaneData.resize(4 * workgroup_x * workgroup_y);
+        mat4 invproj = glm::inverse(in_camera.GetProjection());
+        float zfar = in_camera.GetFarZ();
+        for (int i = 0;i < workgroup_y;++i) {
+            for (int j = 0;j < workgroup_x;++j) {
+                vec2 tilepixelmin = vec2(in_tilesize * j, in_tilesize * i);
+                vec3 clipmin = vec3((tilepixelmin / vec2(in_windowwidth, in_windowheight)) * 2.0f - vec2(1.0f), 1.0f) *
+                               zfar;
+                vec4 viewmin = invproj * (vec4(clipmin, clipmin.z));
+                vec2 tilepixelmax = vec2(in_tilesize * (j + 1), in_tilesize * (i + 1));
+                vec3 clipmax = vec3((tilepixelmax / vec2(in_windowwidth, in_windowheight)) * 2.0f - vec2(1.0f), 1.0f) *
+                               zfar;
+                vec4 viewmax = invproj * (vec4(clipmax, clipmax.z));
+                clipPlaneData[4 * (j + i * workgroup_x) + 0] = vec4(
+                        normalize(vec3(0.0, -zfar, -viewmax.y)), 0.0f);//上
+                clipPlaneData[4 * (j + i * workgroup_x) + 1] = vec4(
+                        normalize(vec3(0.0, zfar, viewmin.y)), 0.0f);;//下
+                clipPlaneData[4 * (j + i * workgroup_x) + 2] = vec4(
+                        normalize(vec3(zfar, 0.0, viewmin.x)), 0.0f);//左
+                clipPlaneData[4 * (j + i * workgroup_x) + 3] = vec4(
+                        normalize(vec3(-zfar, 0.0, -viewmax.x)), 0.0f);//右
+            }
+        }
+        glNamedBufferSubData(m_tileClipPlaneBuffer, 0, sizeof(mat4) * workgroup_x * workgroup_y, clipPlaneData.data());
+        glUnmapNamedBuffer(m_tileClipPlaneBuffer);
     }
 }

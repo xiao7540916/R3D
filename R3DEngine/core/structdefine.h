@@ -31,6 +31,7 @@
 #define SPOT_LIGHT_COUNT 4
 #define POINT_LIGHT_COUNT 1024
 #define TILE_LIGHT_MAX 128
+#define TILE_SIZE 16
 namespace R3D {
     using glm::vec4;
     using glm::vec3;

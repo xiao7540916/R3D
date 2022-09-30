@@ -18,12 +18,16 @@ namespace R3D {
         Shader depth;
         depth.loadShader(SHADER_DIR + "depth/vert.glsl", SHADER_DIR + "depth/frag.glsl");
         m_shaders.insert({"depth", depth});
-        Shader light;
-        light.loadShader(SHADER_DIR + "light/vert.glsl", SHADER_DIR + "light/frag.glsl");
-        m_shaders.insert({"light", light});
+        Shader lightshow;
+        lightshow.loadShader(SHADER_DIR + "lightshow/vert.glsl", SHADER_DIR + "lightshow/frag.glsl");
+        m_shaders.insert({"lightshow", lightshow});
         Shader lightradius;
         lightradius.loadShader(SHADER_DIR + "lightradius/vert.glsl", SHADER_DIR + "lightradius/frag.glsl");
         m_shaders.insert({"lightradius", lightradius});
+        Shader lightcull;
+        vector<ShaderCreateDesc> lightculldesc = {{SHADER_DIR + "lightcull/lightcull.comp",GL_COMPUTE_SHADER}};
+        lightcull.loadShader(lightculldesc);
+        m_shaders.insert({"lightcull", lightcull});
     }
     Shader ShaderCache::GetShader(string in_shadertype) {
         if (m_shaders.find(in_shadertype) == m_shaders.end()) {

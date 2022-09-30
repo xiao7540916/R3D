@@ -99,13 +99,13 @@ namespace R3D {
         sphere_view.SetRadius(in_sphere.GetRadius());
         return sphere_view.Intersects(in_camera.m_frustum);
     }
-    void Scene::RenderLight() {
+    void Scene::RenderLightShow() {
         static Mesh *lightmesh = MeshManage::GetInstance()->GetMesh("lightmesh");
-        static Material *lightmaterial = MaterialManage::GetInstance()->GetMaterial("light");
-        lightmaterial->RenderPrepare();
+        static Material *lightshowmaterial = MaterialManage::GetInstance()->GetMaterial("lightshow");
+        lightshowmaterial->RenderPrepare();
         glBindVertexArray(lightmesh->VAO);
         glDrawElementsInstanced(GL_TRIANGLES, lightmesh->m_indiceSize, GL_UNSIGNED_INT,
-                                (void *) (lightmesh->m_indeceStart * 4), m_pointLightEnable);
+                                (void *) (lightmesh->m_indeceStart * 4), m_pointLightActiveNum);
     }
     void Scene::RenderLightRadius() {
         static Mesh *lightradiusmesh = MeshManage::GetInstance()->GetMesh("lightradiusmesh");
@@ -113,11 +113,27 @@ namespace R3D {
         lightradiusmaterial->RenderPrepare();
         glBindVertexArray(lightradiusmesh->VAO);
         glDrawElementsInstanced(GL_TRIANGLES, lightradiusmesh->m_indiceSize, GL_UNSIGNED_INT,
-                                (void *) (lightradiusmesh->m_indeceStart * 4), m_pointLightEnable);
+                                (void *) (lightradiusmesh->m_indeceStart * 4), m_pointLightActiveNum);
     }
     void Scene::SetLightCount(int in_dir, int in_point, int in_tilepoint) {
-        m_dirLightEnable = in_dir;
-        m_pointLightEnable = in_point;
+        m_dirLightActiveNum = in_dir;
+        m_pointLightActiveNum = in_point;
         m_tilePointLightMax = in_tilepoint;
+    }
+    void Scene::CullLight() {
+        ShaderCache &shaderCache = Device::GetInstance()->m_shaderCache;
+        shaderCache.GetShader("lightcull").use();
+        glBindBufferBase(GL_UNIFORM_BUFFER, 0, BufferManage::GetInstance()->m_uniBlockBaseBuffer);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, BufferManage::GetInstance()->m_pointLightBuffer);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, BufferManage::GetInstance()->m_tileLightsIdxBuffer);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, BufferManage::GetInstance()->m_tileLightsNumBuffer);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, BufferManage::GetInstance()->m_tileClipPlaneBuffer);
+        glBindTextureUnit(0, m_device->m_preDepthFBO.m_depthAttach);
+        int workgroup_x = (m_device->m_windowWidth % TILE_SIZE) == 0 ? (m_device->m_windowWidth / TILE_SIZE) : (
+                m_device->m_windowWidth / TILE_SIZE + 1);
+        int workgroup_y = (m_device->m_windowHeight % TILE_SIZE) == 0 ? (m_device->m_windowHeight / TILE_SIZE) : (
+                m_device->m_windowHeight / TILE_SIZE + 1);
+        glDispatchCompute(workgroup_x, workgroup_y, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     }
 }

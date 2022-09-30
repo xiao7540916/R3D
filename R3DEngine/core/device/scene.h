@@ -30,7 +30,8 @@ namespace R3D {
         void GatherDynamic(Object *in_object);//收集所有动态物体
         void MakeRenderList();
         void SortRenderList();
-        void RenderLight();
+        void CullLight();
+        void RenderLightShow();
         void RenderLightRadius();
     public:
         RenderList m_opaqueList;
@@ -38,8 +39,8 @@ namespace R3D {
     public:
         array<DirLight, DIRECTION_LIGHT_COUNT> m_dirLights;
         vector<PointLight> m_pointLights;
-        int m_dirLightEnable = 0;
-        int m_pointLightEnable = 0;
+        int m_dirLightActiveNum = 0;
+        int m_pointLightActiveNum = 0;
         int m_tilePointLightMax = 0;
     private:
         Object *m_root;

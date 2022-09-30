@@ -64,9 +64,9 @@ namespace R3D {
         void BindResource() override;
         void RenderPrepare() override;
     };
-    class MaterialLight : public Material {
+    class MaterialLightShow : public Material {
     public:
-        MaterialLight();
+        MaterialLightShow();
         void InitResource(GLint in_param = GL_REPEAT,GLint in_mipmapinfo = GL_LINEAR_MIPMAP_LINEAR) override;
         void BindResource() override;
         void RenderPrepare() override;

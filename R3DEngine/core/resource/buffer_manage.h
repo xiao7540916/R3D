@@ -9,16 +9,22 @@
 namespace R3D {
     class Device;
     class Scene;
+    class Camera;
     class BufferManage {
     public:
         GLuint m_uniBlockBaseBuffer;
         GLuint m_uniBlockMeshBuffer;
         GLuint m_pointLightBuffer;
+        GLuint m_tileLightsIdxBuffer;
+        GLuint m_tileLightsNumBuffer;
+        GLuint m_tileClipPlaneBuffer;
         ~BufferManage();
         BufferManage(const BufferManage &) = delete;
         BufferManage &operator=(const BufferManage &) = delete;
         static BufferManage *GetInstance();
         void Init(Device *in_device);
+        void CreateTileLightBuffer(int in_windowwidth,int in_windowheight,int in_tilesize);
+        void CreateTileClipBuffer(Camera& in_camera,int in_windowwidth,int in_windowheight,int in_tilesize);
         void Release();
         void UpdataUniBaseBuf(Scene &in_scene);
     private:

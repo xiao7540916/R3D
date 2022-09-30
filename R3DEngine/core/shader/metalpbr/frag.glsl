@@ -1,4 +1,8 @@
 #version 460
+#define DIRECTION_LIGHT_COUNT 4
+#define POINT_LIGHT_COUNT 1024
+#define TILE_SIZE 16
+#define TILE_LIGHT_MAX 128
 layout(location = 0)out vec4 FragColor;
 layout(binding = 0)uniform sampler2D albedoTex;
 layout(binding = 1)uniform sampler2D normalTex;
@@ -6,7 +10,6 @@ layout(binding = 2)uniform sampler2D metalTex;
 layout(binding = 3)uniform sampler2D roughnessTex;
 layout(binding = 4)uniform sampler2D aoTex;
 
-#define DIRECTION_LIGHT_COUNT 4
 struct DirLight {
     vec3 direction;
     float fill0;
@@ -14,12 +17,19 @@ struct DirLight {
     float fill1;
 };
 struct UniformBlockBase {
+    mat4 view;
+    mat4 proj;
+    mat4 invproj;
     mat4 viewproj;
     vec3 camerapos;
-    int dirlightenable;
+    int dirlightactivenum;
     DirLight dirLights[DIRECTION_LIGHT_COUNT];
-    int pointlightenable;
+    int pointlightactivenum;
     int tilepointlightmax;
+    float windowwidth;
+    float windowheight;
+    int workgroup_x;
+    float fill0;
     float fill1;
     float fill2;
 };
@@ -36,11 +46,16 @@ struct PointLight{
     float fill1;
     float fill2;
 };
-#define POINT_LIGHT_COUNT 4096
-#define TILE_LIGHT_MAX 128
 layout (std430, binding = 0) buffer PointLightBuffer {
     PointLight pointLightData[POINT_LIGHT_COUNT];
 };
+layout (std430, binding = 1) readonly buffer visible_lights_indices {
+    uint lights_indices[];
+};
+layout (std430, binding = 2) readonly buffer visible_lights_count {
+    uint lights_count[];
+};
+
 in VS_OUT {
     vec3 FragPos;
     vec2 TexCoords;
@@ -111,16 +126,22 @@ void main() {
 
     // reflectance equation
     vec3 Lo = vec3(0.0);
+    ivec2 loc = ivec2(gl_FragCoord.xy);
+    ivec2 tileID = loc / ivec2(TILE_SIZE, TILE_SIZE);
+    uint index = tileID.y * ubobasedata.block.workgroup_x + tileID.x;
+    uint lightcount = lights_count[index];
+    uint offset = index * TILE_LIGHT_MAX;
     //点光源
-    for (int i = 0; i < 16; ++i)
+    for (int i = 0; i < lightcount; ++i)
     {
+        uint lightindex = lights_indices[offset + i];
         // calculate per-light radiance
-        vec3 L = normalize(pointLightData[i].position - WorldPos);
+        vec3 L = normalize(pointLightData[lightindex].position - WorldPos);
         vec3 H = normalize(V + L);
-        float distance = length(pointLightData[i].position - WorldPos);
-        float attenuation = 1.0 / (pointLightData[i].constant + pointLightData[i].linear * distance +
-        pointLightData[i].quadratic * (distance * distance));
-        vec3 radiance = pointLightData[i].strength * attenuation;
+        float distance = length(pointLightData[lightindex].position - WorldPos);
+        float attenuation = 1.0 / (pointLightData[lightindex].constant + pointLightData[lightindex].linear * distance +
+        pointLightData[lightindex].quadratic * (distance * distance));
+        vec3 radiance = pointLightData[lightindex].strength * attenuation;
 
         // Cook-Torrance BRDF
         float NDF = DistributionGGX(N, H, roughness);
@@ -149,7 +170,7 @@ void main() {
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;// note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
     }
     //方向光
-    for (int i = 0; i < ubobasedata.block.dirlightenable; ++i)
+    for (int i = 0; i < ubobasedata.block.dirlightactivenum; ++i)
     {
         // calculate per-light radiance
         vec3 L = ubobasedata.block.dirLights[i].direction;
@@ -191,10 +212,10 @@ void main() {
     vec3 color = ambient + Lo;
 
     // HDR tonemapping
-    color = color / (color + vec3(1.0));
+//    color = color / (color + vec3(1.0));
     // gamma correct
     color = pow(color, vec3(1.0/2.2));
 
     FragColor = vec4(color, 1.0);
-//        FragColor = vec4(GetNormalFromMap(),1.0);
+//    FragColor = vec4(vec2(gl_FragCoord.xy/1600.0f),0.0, 1.0);
 }
