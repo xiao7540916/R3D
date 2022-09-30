@@ -51,6 +51,8 @@ namespace R3D {
         uniformBlockBase.dirlightactivenum = in_scene.m_dirLightActiveNum;
         uniformBlockBase.pointlightactivenum = in_scene.m_pointLightActiveNum;
         uniformBlockBase.tilepointlightmax = in_scene.m_tilePointLightMax;
+        uniformBlockBase.windowwidth = m_device->m_windowWidth;
+        uniformBlockBase.windowheight = m_device->m_windowHeight;
         uniformBlockBase.workgroup_x =
                 (m_device->m_windowWidth % TILE_SIZE) == 0 ? (m_device->m_windowWidth / TILE_SIZE) : (
                         m_device->m_windowWidth / TILE_SIZE + 1);
@@ -92,6 +94,7 @@ namespace R3D {
         for (int i = 0;i < workgroup_y;++i) {
             for (int j = 0;j < workgroup_x;++j) {
                 vec2 tilepixelmin = vec2(in_tilesize * j, in_tilesize * i);
+//                NDC空间vec3(x,y,z)中z为1时对应为zfar，ndc空间xyz*zfar得到裁剪空间。组成四维向量，经过投影矩阵逆变换，得到相机空间坐标
                 vec3 clipmin = vec3((tilepixelmin / vec2(in_windowwidth, in_windowheight)) * 2.0f - vec2(1.0f), 1.0f) *
                                zfar;
                 vec4 viewmin = invproj * (vec4(clipmin, clipmin.z));

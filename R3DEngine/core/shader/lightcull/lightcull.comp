@@ -56,11 +56,12 @@ layout (binding = 0) uniform sampler2D depthTex;
 
 shared uint min_depth;
 shared uint max_depth;
+shared uint min_depth_view;
 shared vec4 frustum_planes[6];
 shared uint group_light_count;
 shared uint group_light_index[TILE_LIGHT_MAX];//用于临时存储tile中的光源
 
-layout(local_size_x = TILE_SIZE, local_size_y = TILE_SIZE) in;
+layout(local_size_x = 16, local_size_y = 16) in;
 /*in uvec3 gl_NumWorkGroups;
 in uvec3 gl_WorkGroupID;
 in uvec3 gl_LocalInvocationID;
@@ -95,24 +96,30 @@ vec3 screen_to_view_at_zfar(in uvec2 GroupID){
     viewatzfar = view.xyz;
     return viewatzfar;
 }
+//深度转换到视空间z
 float depthToViewZ(float in_depth, float in_znear, float in_zfar){
     float NDCZ = in_depth*2.0f-1.0f;
     float VZ = 2.0f*in_zfar*in_znear/((in_zfar+in_znear)-NDCZ*(in_zfar-in_znear));
-    return VZ;
+    return -VZ;
 }
 void main() {
     //获取tile索引
     ivec2 tile_id = ivec2(gl_WorkGroupID.xy);
     //初始化所需数据
     if (gl_LocalInvocationIndex == 0) {
-        min_depth = 0xFFFFFFFF;
+        min_depth = 0x7F7FFFFF;
         max_depth = 0x0;
         group_light_count = 0;
+        vec2 screen_uv = vec2(float(gl_GlobalInvocationID.x)/float(ubobasedata.block.windowwidth), float(gl_GlobalInvocationID.y)/float(ubobasedata.block.windowheight));
+        float depth = texture(depthTex, screen_uv).r;
+        float depthview = depthToViewZ(depth, 0.1f, 100.0f);
+        min_depth_view = uint(-depthview);
+        min_depth_view = uint(ubobasedata.block.windowwidth);
     }
     barrier();
 
     //计算工作组对应的tile最大和最小深度
-    vec2 screen_uv = gl_GlobalInvocationID.xy / vec2(ubobasedata.block.windowwidth, ubobasedata.block.windowheight);
+    vec2 screen_uv = vec2(float(gl_GlobalInvocationID.x)/float(ubobasedata.block.windowwidth), float(gl_GlobalInvocationID.y)/float(ubobasedata.block.windowheight));
     float depth = texture(depthTex, screen_uv).r;
     //将float转化为uint，以便使用原子操作
     uint depth_uint = floatBitsToUint(depth);
@@ -126,50 +133,36 @@ void main() {
         float min_group_depth = uintBitsToFloat(min_depth);
         float max_group_depth = uintBitsToFloat(max_depth);
         //计算相机空间下的最大最小深度
-        //        vec4 vs_min_depth = (ubobasedata.block.invproj * vec4(0.0, 0.0, (2.0 * min_group_depth - 1.0), 1.0));
-        //        vec4 vs_max_depth = (ubobasedata.block.invproj * vec4(0.0, 0.0, (2.0 * max_group_depth - 1.0), 1.0));
-        //        vs_min_depth /= vs_min_depth.w;
-        //        vs_max_depth /= vs_max_depth.w;
-        //        min_group_depth = vs_min_depth.z;
-        //        max_group_depth = vs_max_depth.z;
+/*
+//使用投影矩阵的逆矩阵
+        vec4 vs_min_depth = (ubobasedata.block.invproj * vec4(0.0, 0.0, (2.0 * min_group_depth - 1.0), 1.0));
+        vec4 vs_max_depth = (ubobasedata.block.invproj * vec4(0.0, 0.0, (2.0 * max_group_depth - 1.0), 1.0));
+        vs_min_depth /= vs_min_depth.w;
+        vs_max_depth /= vs_max_depth.w;
+        min_group_depth = vs_min_depth.z;
+        max_group_depth = vs_max_depth.z;*/
+        //使用公式推导
         min_group_depth = depthToViewZ(min_group_depth, 0.1f, 100.0f);
         max_group_depth = depthToViewZ(max_group_depth, 0.1f, 100.0f);
 
-
+/*
+//使用实时计算获得裁剪面
         vec3 minTileViewAtZfar = screen_to_view_at_zfar(uvec2(gl_WorkGroupID.x, gl_WorkGroupID.y));
         vec3 maxTileViewAtZfar = screen_to_view_at_zfar(uvec2(gl_WorkGroupID.x+1, gl_WorkGroupID.y+1));
-
-
-        //        frustum_planes[0] = vec4(normalize(vec3(0.0, -100.0f, -maxTileViewAtZfar.y)), 0.0f);//上
-        //        frustum_planes[1] = vec4(normalize(vec3(0.0, 100.0f, minTileViewAtZfar.y)), 0.0f);//下
-        //        frustum_planes[2] = vec4(normalize(vec3(-100.0f, 0.0, -maxTileViewAtZfar.x)), 0.0f);//右
-        //        frustum_planes[3] = vec4(normalize(vec3(100.0f, 0.0, minTileViewAtZfar.x)), 0.0f);//左
-        //        frustum_planes[4] = vec4(0.0, 0.0, 1.0, -max_group_depth);
-        //        frustum_planes[5] = vec4(0.0, 0.0, -1.0, min_group_depth);
+        frustum_planes[0] = vec4(normalize(vec3(0.0, -100.0f, -maxTileViewAtZfar.y)), 0.0f);//上
+        frustum_planes[1] = vec4(normalize(vec3(0.0, 100.0f, minTileViewAtZfar.y)), 0.0f);//下
+        frustum_planes[2] = vec4(normalize(vec3(-100.0f, 0.0, -maxTileViewAtZfar.x)), 0.0f);//右
+        frustum_planes[3] = vec4(normalize(vec3(100.0f, 0.0, minTileViewAtZfar.x)), 0.0f);//左
+        frustum_planes[4] = vec4(0.0, 0.0, 1.0, -max_group_depth);
+        frustum_planes[5] = vec4(0.0, 0.0, -1.0, min_group_depth);*/
+        //从预计算的buffer中获取裁剪面，窗口调整时需要重建buffer
         uint baseplaneindex = 4*(gl_WorkGroupID.y * gl_NumWorkGroups.x + gl_WorkGroupID.x);
         frustum_planes[0] = clip_plane[baseplaneindex+0];//上
         frustum_planes[1] = clip_plane[baseplaneindex+1];//下
         frustum_planes[2] = clip_plane[baseplaneindex+2];//左
         frustum_planes[3] = clip_plane[baseplaneindex+3];//右
-        frustum_planes[4] = vec4(0.0, 0.0, 1.0, -min_group_depth);
-        frustum_planes[5] = vec4(0.0, 0.0, -1.0, max_group_depth);
-
-        //设置裁剪平面，坐标基于摄像机坐标系
-        //        vec3 normalT = normalize(vec3(0, -1.0f, -tan(0.5f * radians(70.0f))));
-        //        vec3 normalB = normalize(vec3(0, 1.0f, -tan(0.5f * radians(70.0f))));
-        //        vec3 normalL = normalize(vec3(1.0f, 0, -tan(0.5f * radians(70.0f)) * 16.0f/9.0f));
-        //        vec3 normalR = normalize(vec3(-1.0f, 0, -tan(0.5f * radians(70.0f)) * 16.0f/9.0f));
-        //        frustum_planes[0] = vec4(normalT, 0);
-        //        frustum_planes[1] = vec4(normalB, 0);
-        //        frustum_planes[2] = vec4(normalL, 0);
-        //        frustum_planes[3] = vec4(normalR, 0);
-        frustum_planes[4] = vec4(0.0, 0.0, 1.0, 100);
-        frustum_planes[5] = vec4(0.0, 0.0, -1.0, -0.1);
-
-        //归一化平面法线
-        /*//        for (uint i = 0; i < 4; i++) {
-        //            frustum_planes[i] *= 1.0f / length(frustum_planes[i].xyz);
-        //        }*/
+        frustum_planes[4] = vec4(0.0, 0.0, 1.0, -max_group_depth);
+        frustum_planes[5] = vec4(0.0, 0.0, -1.0, min_group_depth);
     }
 
     barrier();

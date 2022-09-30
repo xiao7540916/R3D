@@ -80,16 +80,15 @@ int main() {
         } else {
             pointLight[i].strength = vec3(RandomFloat(0.0, 2), RandomFloat(0.0, 2), RandomFloat(0.0, 2));
         }
-        pointLight[i].constant = 1.0f;
-        pointLight[i].linear = 1.0f;
-        pointLight[i].quadratic = 3.0f;
+        pointLight[i].constant = 4.0f;
+        pointLight[i].linear = 4.0f;
+        pointLight[i].quadratic = 4.0f;
         float bright = glm::dot(vec3(0.3, 0.6, 0.1), pointLight[i].strength);
         float minbright = 0.01f;
         float a = pointLight[i].quadratic;
         float b = pointLight[i].linear;
         float c = pointLight[i].constant - bright / minbright;
         pointLight[i].radius = 0.5f * (sqrt(b * b - 4.0f * a * c) - b) / a;
-//        pointLight[i].radius = 0.5f;
     }
     Object *rootplane = new Object("rootplane", nullptr, vec3(0), 0, 0, 0, true);
     scene.SetRoot(rootplane);
@@ -241,7 +240,7 @@ int main() {
 /*        void *lightcountptr = glMapNamedBuffer(bufferManage->m_tileLightsNumBuffer, GL_READ_ONLY);
         uint32_t *lightcount = (uint32_t *) (lightcountptr);
         for (int i = 0;i < 10;++i) {
-            cout<<lightcount[i*100]<<" ";
+            cout<<lightcount[i]<<" ";
         }        cout << endl;
         glUnmapNamedBuffer(bufferManage->m_tileLightsNumBuffer);*/
         //拷贝pre深度缓冲到后台缓冲，使用深度相等渲染
