@@ -22,43 +22,13 @@ struct OptionConfig {
 OptionConfig optionConfig{};
 void guiMake();
 int main() {
-    Camera cam;
-    cam.SetLens(glm::radians(70.0f), 1, 0.1, 100);
-    {
-        vec2 viewatznear;
-        vec2 screenpixel = vec2(16,16);
-        vec3 clip = vec3((screenpixel/vec2(1600, 900))*2.0f-vec2(1.0f), 1.0f)*100.0f;
-        vec4 view = glm::inverse(cam.GetProjection())*(vec4(clip, clip.z));
-        int a = 1;
-    }
-   /* for (int x = 0;x < 3;++x) {
-        for (int y = 0;y < 3;++y) {
-            vec4 frustum_planes[6];
-            //计算缩放平移量
-            vec2 tile_scale = vec2(48,48) / float(TILE_SIZE);
-            vec2 tile_bias = tile_scale - 1.0f - 2.0f *vec2(x,y);
-            mat4 proj = cam.GetProjection();
-            vec4 col1 = vec4(-proj[0][0] * tile_scale.x, proj[0][1], tile_bias.x, proj[0][3]);
-            vec4 col2 = vec4(proj[1][0], -proj[1][1] * tile_scale.y, tile_bias.y, proj[1][3]);
-            vec4 col4 = vec4(proj[3][0], proj[3][1], -1.0, proj[3][3]);
-
-            frustum_planes[0] = col4 - col1;
-            frustum_planes[1] = col4 + col1;
-            frustum_planes[2] = col4 - col2;
-            frustum_planes[3] = col4 + col2;
-            //归一化平面法线
-            for (uint32_t i = 0;i < 4;i++) {
-                frustum_planes[i] *= 1.0f / glm::length(vec3(frustum_planes[i]));
-            }
-            int a = 100;
-        }
-    }*/
     Device *device = Device::GetInstance();
     device->Init("windowtest", 1600, 900, true);
     device->SetCamera(vec3(-8, 3, -8), vec3(0, 0, 0), radians(70.0f),
                       float(device->m_windowWidth) / float(device->m_windowHeight),
                       0.1f, 100.0f);
-    BufferManage::GetInstance()->CreateTileClipBuffer(*device->m_camera,device->m_windowWidth,device->m_windowHeight,TILE_SIZE);
+    BufferManage::GetInstance()->CreateTileClipBuffer(*device->m_camera, device->m_windowWidth, device->m_windowHeight,
+                                                      TILE_SIZE);
     Gui *gui = Gui::GetInstance();
     BufferManage *bufferManage = BufferManage::GetInstance();
     MeshManage *meshManage = MeshManage::GetInstance();
@@ -73,22 +43,24 @@ int main() {
     scene.m_dirLights[1].strength = vec3(0, 0, 0);
     for (int i = 0;i < scene.m_pointLights.size();++i) {
         PointLight *pointLight = &scene.m_pointLights[0];
-        pointLight[i].position = vec3(RandomFloat(-8, 8), RandomFloat(0, 3), RandomFloat(-8, 8));
-//        pointLight[i].position = vec3(0);
+        pointLight[i].position = vec3(RandomFloat(-16, 16), RandomFloat(0, 16), RandomFloat(-16, 16));
         if (i % 100 == 0) {
-            pointLight[i].strength = vec3(RandomFloat(0.0, 5), RandomFloat(0.0, 5), RandomFloat(0.0, 5));
+            pointLight[i].strength = vec3(RandomFloat(0.0, 8), RandomFloat(0.0, 8), RandomFloat(0.0, 8));
         } else {
-            pointLight[i].strength = vec3(RandomFloat(0.0, 2), RandomFloat(0.0, 2), RandomFloat(0.0, 2));
+            pointLight[i].strength = vec3(RandomFloat(0.0, 3), RandomFloat(0.0, 3), RandomFloat(0.0, 3));
         }
-        pointLight[i].constant = 4.0f;
-        pointLight[i].linear = 4.0f;
-        pointLight[i].quadratic = 4.0f;
-        float bright = glm::dot(vec3(0.3, 0.6, 0.1), pointLight[i].strength);
-        float minbright = 0.01f;
+        pointLight[i].constant = 2.0f;
+        pointLight[i].linear = 2.0f;
+        pointLight[i].quadratic = 2.0f;
+//        float bright = glm::dot(vec3(0.3, 0.6, 0.1), pointLight[i].strength);
+        float bright = glm::dot(vec3(0.33, 0.33, 0.33), pointLight[i].strength);
+        /*float minbright = 0.001f;
         float a = pointLight[i].quadratic;
         float b = pointLight[i].linear;
         float c = pointLight[i].constant - bright / minbright;
-        pointLight[i].radius = 0.5f * (sqrt(b * b - 4.0f * a * c) - b) / a;
+        pointLight[i].radius = 0.5f * (sqrt(b * b - 4.0f * a * c) - b) / a;*/
+        pointLight[i].radius = bright*3;
+        pointLight[i].cutoff = pointLight[i].radius*0.2f;
     }
     Object *rootplane = new Object("rootplane", nullptr, vec3(0), 0, 0, 0, true);
     scene.SetRoot(rootplane);

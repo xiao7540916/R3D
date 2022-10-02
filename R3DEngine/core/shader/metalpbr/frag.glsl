@@ -2,7 +2,7 @@
 #define DIRECTION_LIGHT_COUNT 4
 #define POINT_LIGHT_COUNT 1024
 #define TILE_SIZE 16
-#define TILE_LIGHT_MAX 128
+#define TILE_LIGHT_MAX 256
 layout(location = 0)out vec4 FragColor;
 layout(binding = 0)uniform sampler2D albedoTex;
 layout(binding = 1)uniform sampler2D normalTex;
@@ -43,7 +43,7 @@ struct PointLight{
     float linear;
     float quadratic;
     float radius;
-    float fill1;
+    float cutoff;
     float fill2;
 };
 layout (std430, binding = 0) buffer PointLightBuffer {
@@ -108,6 +108,9 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
 }
+float getAttenuation(float radius,float cutoff,float distance){
+    return smoothstep(radius,cutoff,distance);
+}
 void main() {
     vec3 albedo     = pow(texture(albedoTex, fs_in.TexCoords).rgb, vec3(2.2));//转到线性空间
     float metallic  = texture(metalTex, fs_in.TexCoords).r;
@@ -139,8 +142,9 @@ void main() {
         vec3 L = normalize(pointLightData[lightindex].position - WorldPos);
         vec3 H = normalize(V + L);
         float distance = length(pointLightData[lightindex].position - WorldPos);
-        float attenuation = 1.0 / (pointLightData[lightindex].constant + pointLightData[lightindex].linear * distance +
-        pointLightData[lightindex].quadratic * (distance * distance));
+//        float attenuation = 1.0 / (pointLightData[lightindex].constant + pointLightData[lightindex].linear * distance +
+//        pointLightData[lightindex].quadratic * (distance * distance));
+        float attenuation = getAttenuation(pointLightData[lightindex].radius,pointLightData[lightindex].cutoff,distance);
         vec3 radiance = pointLightData[lightindex].strength * attenuation;
 
         // Cook-Torrance BRDF
@@ -212,7 +216,7 @@ void main() {
     vec3 color = ambient + Lo;
 
     // HDR tonemapping
-//    color = color / (color + vec3(1.0));
+    color = color / (color + vec3(1.0));
     // gamma correct
     color = pow(color, vec3(1.0/2.2));
 

@@ -11,7 +11,7 @@ using glm::mat3;
 #define DIRECTION_LIGHT_COUNT 4
 #define SPOT_LIGHT_COUNT 4
 #define POINT_LIGHT_COUNT 1024
-#define TILE_LIGHT_MAX 128
+#define TILE_LIGHT_MAX 256
 enum LightType {
     LIGHT_AMBIENT = 0,
     LIGHT_DIRECTION = 1,
@@ -31,7 +31,7 @@ struct PointLight {
     float linear;
     float quadratic;
     float radius;
-    float fill1;
+    float cutoff;
     float fill2;
 };
 struct UniformBlockBase {
