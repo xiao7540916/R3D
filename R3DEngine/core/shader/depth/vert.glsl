@@ -39,7 +39,8 @@ layout(std140, binding = 0) uniform UniformBaseBuffer {
 layout(std140, binding = 1) uniform UniformMeshBuffer {
     UniformBlockMesh block;
 }ubomeshdata;
-
+out vec3 viewnormal;
 void main() {
     gl_Position = ubobasedata.block.viewproj*ubomeshdata.block.model*vec4(vPosition, 1.0);
+    viewnormal = normalize(mat3(ubobasedata.block.view)*(ubomeshdata.block.invmodelt*vec4(vNormal, 1.0)).xyz);
 }

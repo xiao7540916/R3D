@@ -30,6 +30,9 @@ namespace R3D {
         }
     }
     void MeshManage::Init() {
+        Mesh *screenbackmesh = new Mesh();
+        MeshCreate::CreateScreenBack(*screenbackmesh, VERT_POS_NOR_TAN_UV);
+        AddMesh("screenbackmesh", screenbackmesh);
         Mesh *boxmesh = new Mesh();
         MeshCreate::CreateBox(*boxmesh, 1, 1, 1, VERT_POS_NOR_TAN_UV);
         AddMesh("boxmesh", boxmesh);
@@ -55,7 +58,7 @@ namespace R3D {
         MeshCreate::LoadObjToMeshes(matballmesh, CURRENT_SOURCE_DIR + "Data/model/matball/matball.obj",
                                     VERT_POS_NOR_TAN_UV);
         for (int i = 0;i < matballmesh.size();++i) {
-            AddMesh("matballmesh"+ IntToString(int(i)), matballmesh[i]);
+            AddMesh("matballmesh" + IntToString(int(i)), matballmesh[i]);
         }
     }
     void MeshManage::Release() {

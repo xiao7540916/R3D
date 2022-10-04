@@ -57,3 +57,28 @@ struct UniformBlockMesh {
     vec2 uvoffset;
     vec2 uvscale;
 };
+struct AOConfig {
+    float radiusScale;//采样周围多大的距离
+    float angleBias;
+    int dirCount;//trace光线在周围的切分数量
+    int stepCount;//采样所需距离的步数
+    float attenuation;
+    float scaleAO;
+    int blurPass;
+    float bfSpace;
+    float bfRang;
+    float fill0;
+    float fill1;
+    float fill2;
+    vec4 projInfo;
+    vec2 InvFullResolution;
+    float R;
+    float NegInvR2;
+    vec2 InvQuarterResolution;
+    float RadiusToScreen;
+    float PowExponent;
+    float NDotVBias;
+    float AOMultiplier;
+    float fill3;
+    float fill4;
+};

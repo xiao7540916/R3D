@@ -5,6 +5,7 @@
 #include "scene.h"
 #include <device/device.h>
 #include <resource/object.h>
+extern string CURRENT_SOURCE_DIR;
 namespace R3D {
     void Scene::SetRoot(Object *in_root) {
         m_root = in_root;
@@ -135,5 +136,18 @@ namespace R3D {
                 m_device->m_windowHeight / TILE_SIZE + 1);
         glDispatchCompute(workgroup_x, workgroup_y, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    }
+    void Scene::MakeAO() {
+        static Mesh *screenbackmesh = MeshManage::GetInstance()->GetMesh("screenbackmesh");
+        ShaderCache &shaderCache = Device::GetInstance()->m_shaderCache;
+        shaderCache.GetShader("gtao").use();
+        glBindBufferBase(GL_UNIFORM_BUFFER, 0, BufferManage::GetInstance()->m_uniBlockBaseBuffer);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 1, BufferManage::GetInstance()->m_uniBlockAoCfgBuffer);
+        glBindTextureUnit(0, m_device->m_preDepthFBO.m_depthAttach);
+        glBindTextureUnit(1, m_device->m_preDepthFBO.m_normalAttach);
+        glBindTextureUnit(2, TextureManage::GetInstance()->GetTextureByUrl(
+                "noiseTexture"));
+        glBindVertexArray(screenbackmesh->VAO);
+        glDrawElements(GL_TRIANGLES, screenbackmesh->m_indiceSize, GL_UNSIGNED_INT, nullptr);
     }
 }

@@ -56,6 +56,7 @@ namespace R3D {
         delete m_materialManage;
         m_preDepthFBO.Release();
         m_backHDRFBO.Release();
+        m_AOFBO.Release();
     }
     GLFWwindow *Device::GetWindow() {
         return m_window;
@@ -202,6 +203,7 @@ namespace R3D {
     void Device::InitFrameBuffers(int in_width, int in_height) {
         m_preDepthFBO.Init(in_width, in_height);
         m_backHDRFBO.Init(in_width, in_height);
+        m_AOFBO.Init(in_width,in_height);
     }
     void
     Device::SetCamera(vec3 in_position, vec3 in_target, float in_fovy, float in_aspect, float in_zn, float in_zf) {

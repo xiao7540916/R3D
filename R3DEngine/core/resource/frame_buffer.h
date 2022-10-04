@@ -15,9 +15,22 @@ namespace R3D {
         void Init(int in_width, int in_height);
         void Release();
     };
+    class FrameBufferDepthNormal : public FrameBuffer {
+    public:
+        GLuint m_depthAttach = 0;
+        GLuint m_normalAttach = 0;//视空间normal
+        void Init(int in_width, int in_height);
+        void Release();
+    };
     class FrameBufferColDepthHDR : public FrameBuffer {
     public:
         GLuint m_depthAttach = 0;
+        GLuint m_colorAttach0 = 0;
+        void Init(int in_width, int in_height);
+        void Release();
+    };
+    class FrameBufferAO : public FrameBuffer {
+    public:
         GLuint m_colorAttach0 = 0;
         void Init(int in_width, int in_height);
         void Release();

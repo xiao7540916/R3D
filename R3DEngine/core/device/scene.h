@@ -31,6 +31,7 @@ namespace R3D {
         void MakeRenderList();
         void SortRenderList();
         void CullLight();
+        void MakeAO();
         void RenderLightShow();
         void RenderLightRadius();
     public:

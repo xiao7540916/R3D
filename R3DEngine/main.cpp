@@ -11,14 +11,6 @@ using namespace std;
 using namespace R3D;
 string CURRENT_SOURCE_DIR = "../../";
 string SHADER_DIR = "../../R3DEngine/core/shader/";
-struct OptionConfig {
-    uint32_t FPS;
-    uint32_t OpaqueRenderCount;
-    bool SphereRender = false;
-    bool LightShowRender = false;
-    bool LightRadiusRender = false;
-    int PointLightCount = POINT_LIGHT_COUNT;
-};
 OptionConfig optionConfig{};
 void guiMake();
 int main() {
@@ -59,8 +51,8 @@ int main() {
         float b = pointLight[i].linear;
         float c = pointLight[i].constant - bright / minbright;
         pointLight[i].radius = 0.5f * (sqrt(b * b - 4.0f * a * c) - b) / a;*/
-        pointLight[i].radius = bright*3;
-        pointLight[i].cutoff = pointLight[i].radius*0.2f;
+        pointLight[i].radius = bright * 3;
+        pointLight[i].cutoff = pointLight[i].radius * 0.2f;
     }
     Object *rootplane = new Object("rootplane", nullptr, vec3(0), 0, 0, 0, true);
     scene.SetRoot(rootplane);
@@ -204,11 +196,14 @@ int main() {
         //渲染开始
         //深度预渲染
         glBindFramebuffer(GL_FRAMEBUFFER, device->m_preDepthFBO.m_frameBuffer);
-        glClear(GL_DEPTH_BUFFER_BIT);
+        glClearColor(-1,0,0,1);
+        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
         scene.m_opaqueList.RenderDepth();
         //光源剔除
         scene.CullLight();
+        glBindFramebuffer(GL_FRAMEBUFFER, device->m_AOFBO.m_frameBuffer);
+        scene.MakeAO();
 /*        void *lightcountptr = glMapNamedBuffer(bufferManage->m_tileLightsNumBuffer, GL_READ_ONLY);
         uint32_t *lightcount = (uint32_t *) (lightcountptr);
         for (int i = 0;i < 10;++i) {
@@ -280,10 +275,30 @@ void guiMake() {
     ImGui::Image((ImTextureID) Device::GetInstance()->m_preDepthFBO.m_depthAttach, ImVec2(800, 450), ImVec2(0, 1),
                  ImVec2(1, 0));
     ImGui::End();
+    ImGui::Begin("ViewNormalTex");
+    //翻转y轴使图像于屏幕匹配
+    ImGui::Image((ImTextureID) Device::GetInstance()->m_preDepthFBO.m_normalAttach, ImVec2(800, 450), ImVec2(0, 1),
+                 ImVec2(1, 0));
+    ImGui::End();
     ImGui::Begin("BackColTex");
     //翻转y轴使图像于屏幕匹配
     ImGui::Image((ImTextureID) Device::GetInstance()->m_backHDRFBO.m_colorAttach0, ImVec2(800, 450), ImVec2(0, 1),
                  ImVec2(1, 0));
+    ImGui::End();
+    ImGui::Begin("AOTex");
+    //翻转y轴使图像于屏幕匹配
+    ImGui::Image((ImTextureID) Device::GetInstance()->m_AOFBO.m_colorAttach0, ImVec2(800, 450), ImVec2(0, 1),
+                 ImVec2(1, 0));
+    ImGui::End();
+    ImGui::Begin("AO Config");
+    ImGui::SliderFloat("RadiusScale", &optionConfig.radiusScale, 0.01, 1.0);
+    ImGui::SliderFloat("AngleBias", &optionConfig.angleBias, 0.1, 90.0);
+    ImGui::SliderInt("DirCount", &optionConfig.dirCount, 2, 20);
+    ImGui::SliderInt("StepCount", &optionConfig.stepCount, 3, 10);
+    ImGui::SliderFloat("Attenuation", &optionConfig.attenuation, 0.1, 2.0);
+    ImGui::SliderFloat("SaleAO", &optionConfig.scaleAO, 0.1, 2.0);
+    ImGui::SliderFloat("PowExponent", &optionConfig.powExponent, 0.1, 2.0);
+    ImGui::SliderFloat("NDotVBias", &optionConfig.nDotVBias, 0.01, 0.5);
     ImGui::End();
 };
 

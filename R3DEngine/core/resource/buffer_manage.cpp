@@ -5,6 +5,7 @@
 #include "buffer_manage.h"
 #include <device/device.h>
 #include <device/scene.h>
+extern OptionConfig optionConfig;
 namespace R3D {
     using std::cout;
     using std::endl;
@@ -33,6 +34,10 @@ namespace R3D {
         glNamedBufferData(m_pointLightBuffer, sizeof(PointLight) * POINT_LIGHT_COUNT,
                           nullptr, GL_DYNAMIC_DRAW);
         CreateTileLightBuffer(in_device->m_windowWidth, in_device->m_windowHeight, TILE_SIZE);
+        //AO设置
+        glCreateBuffers(1, &m_uniBlockAoCfgBuffer);
+        glNamedBufferData(m_uniBlockAoCfgBuffer, sizeof(AOConfig),
+                          nullptr, GL_DYNAMIC_DRAW);
     }
     void BufferManage::Release() {
     }
@@ -63,6 +68,34 @@ namespace R3D {
         glNamedBufferSubData(m_pointLightBuffer, 0, sizeof(PointLight) * POINT_LIGHT_COUNT,
                              in_scene.m_pointLights.data());
         glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        //AO----------------------------------------------------------------------
+        AOConfig aoConfig{};
+        aoConfig.angleBias = optionConfig.angleBias;
+        aoConfig.attenuation = optionConfig.attenuation;
+        aoConfig.bfRang = optionConfig.bfRang;
+        aoConfig.bfSpace = optionConfig.bfSpace;
+        aoConfig.blurPass = optionConfig.blurPass;
+        aoConfig.dirCount = optionConfig.dirCount;
+        aoConfig.radiusScale = optionConfig.radiusScale;
+        aoConfig.scaleAO = optionConfig.scaleAO;
+        aoConfig.stepCount = optionConfig.stepCount;
+        //新增
+        //hbao uniforms
+        aoConfig.projInfo = vec4(2.0f / camera.GetProjection()[0][0], 2.0f / camera.GetProjection()[1][1], -1.0f / camera.GetProjection()[0][0], -1.0f / camera.GetProjection()[1][1]);
+        aoConfig.InvFullResolution = vec2(1.0f / float(m_device->m_windowWidth), 1.0f / float(m_device->m_windowHeight));
+
+        aoConfig.InvQuarterResolution = vec2(1.0f / float((m_device->m_windowWidth+3)/4), 1.0f / float((m_device->m_windowHeight+3)/4));
+
+        aoConfig.R = optionConfig.radiusScale;
+        aoConfig.NegInvR2 = -1.0f / (optionConfig.radiusScale * optionConfig.radiusScale);
+        aoConfig.RadiusToScreen = optionConfig.radiusScale * 0.5f * m_device->m_windowHeight / (tanf(camera.GetFovY() * 0.5f) * 2.0f);
+        aoConfig.PowExponent = optionConfig.powExponent;
+        aoConfig.NDotVBias = optionConfig.nDotVBias;
+        aoConfig.AOMultiplier = 1.0f / (1.0f - aoConfig.NDotVBias);
+
+        glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_uniBlockAoCfgBuffer);
+        glNamedBufferSubData(m_uniBlockAoCfgBuffer, 0, sizeof(AOConfig), &aoConfig);
+        glUnmapBuffer(GL_UNIFORM_BUFFER);
     }
     void BufferManage::CreateTileLightBuffer(int in_windowwidth, int in_windowheight, int in_tilesize) {
         int workgroup_x = (in_windowwidth % TILE_SIZE) == 0 ? (in_windowwidth / TILE_SIZE) : (

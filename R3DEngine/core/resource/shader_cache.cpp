@@ -25,9 +25,12 @@ namespace R3D {
         lightradius.loadShader(SHADER_DIR + "lightradius/vert.glsl", SHADER_DIR + "lightradius/frag.glsl");
         m_shaders.insert({"lightradius", lightradius});
         Shader lightcull;
-        vector<ShaderCreateDesc> lightculldesc = {{SHADER_DIR + "lightcull/lightcull.comp",GL_COMPUTE_SHADER}};
+        vector<ShaderCreateDesc> lightculldesc = {{SHADER_DIR + "lightcull/lightcull.comp", GL_COMPUTE_SHADER}};
         lightcull.loadShader(lightculldesc);
         m_shaders.insert({"lightcull", lightcull});
+        Shader gtao;
+        gtao.loadShader(SHADER_DIR + "gtao/vert.glsl", SHADER_DIR + "gtao/frag.glsl");
+        m_shaders.insert({"gtao", gtao});
     }
     Shader ShaderCache::GetShader(string in_shadertype) {
         if (m_shaders.find(in_shadertype) == m_shaders.end()) {

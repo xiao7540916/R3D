@@ -9,6 +9,7 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <random>
 extern string CURRENT_SOURCE_DIR;
 namespace R3D {
     TextureManage::~TextureManage() {
@@ -87,6 +88,27 @@ namespace R3D {
         LoadTexture(CURRENT_SOURCE_DIR + "Data/image/black.png");
         LoadTexture(CURRENT_SOURCE_DIR + "Data/image/white.png");
         LoadTexture(CURRENT_SOURCE_DIR + "Data/image/normal.png");
+        LoadTexture(CURRENT_SOURCE_DIR + "Data/image/bluenoise.png");
+        // Noise texture
+        std::vector<glm::vec3> ssaoNoise;
+        int noiseSize = 256;
+        ssaoNoise.resize(noiseSize*noiseSize);
+        std::uniform_real_distribution<GLfloat> randomFloats(0.0, 1.0);
+        std::default_random_engine generator;
+        for (GLuint i = 0;i < ssaoNoise.size();i++) {
+            glm::vec3 noise(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0,
+                            randomFloats(generator)); // rotate around z-axis (in tangent space)
+            ssaoNoise[i] = noise;
+        }
+        GLuint noiseTexture;
+        glGenTextures(1, &noiseTexture);
+        glBindTexture(GL_TEXTURE_2D, noiseTexture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, noiseSize, noiseSize, 0, GL_RGB, GL_FLOAT, ssaoNoise.data());
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        m_urlToTexture.insert({"noiseTexture", noiseTexture});
     }
     GLuint TextureManage::GetTextureByUrl(const string &in_url) {
         return m_urlToTexture[in_url];
