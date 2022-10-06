@@ -132,8 +132,8 @@ struct OptionConfig {
     bool LightShowRender = false;
     bool LightRadiusRender = false;
     int PointLightCount = POINT_LIGHT_COUNT;
-    float radiusScale = 0.4f;//采样周围多大的距离
-    float angleBias = 20.0f;
+    float radiusScale = 1.5f;//采样周围多大的距离
+    float angleBias = 30.0f;
     int dirCount = 10;//trace光线在周围的切分数量
     int stepCount = 5;//采样所需距离的步数
     float attenuation = 0.64f;
@@ -141,7 +141,7 @@ struct OptionConfig {
     int blurPass = 1;
     float bfSpace = 2.0f;
     float bfRang = 1.0f;
-    float powExponent = 1.0f;
+    float powExponent = 2.0f;
     float nDotVBias = 0.1f;
 };
 #endif //R3D_STRUCTDEFINE_H

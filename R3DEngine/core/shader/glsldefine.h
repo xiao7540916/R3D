@@ -72,9 +72,9 @@ struct AOConfig {
     float fill2;
     vec4 projInfo;
     vec2 InvFullResolution;
+    vec2 InvQuarterResolution;
     float R;
     float NegInvR2;
-    vec2 InvQuarterResolution;
     float RadiusToScreen;
     float PowExponent;
     float NDotVBias;

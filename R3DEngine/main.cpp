@@ -196,8 +196,8 @@ int main() {
         //渲染开始
         //深度预渲染
         glBindFramebuffer(GL_FRAMEBUFFER, device->m_preDepthFBO.m_frameBuffer);
-        glClearColor(-1,0,0,1);
-        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+        glClearColor(-1, 0, 0, 1);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
         scene.m_opaqueList.RenderDepth();
         //光源剔除
@@ -287,18 +287,12 @@ void guiMake() {
     ImGui::End();
     ImGui::Begin("AOTex");
     //翻转y轴使图像于屏幕匹配
-    ImGui::Image((ImTextureID) Device::GetInstance()->m_AOFBO.m_colorAttach0, ImVec2(800, 450), ImVec2(0, 1),
+    ImGui::Image((ImTextureID) Device::GetInstance()->m_AOFBO.m_blurDstTexture, ImVec2(800, 450), ImVec2(0, 1),
                  ImVec2(1, 0));
     ImGui::End();
     ImGui::Begin("AO Config");
-    ImGui::SliderFloat("RadiusScale", &optionConfig.radiusScale, 0.01, 1.0);
-    ImGui::SliderFloat("AngleBias", &optionConfig.angleBias, 0.1, 90.0);
-    ImGui::SliderInt("DirCount", &optionConfig.dirCount, 2, 20);
-    ImGui::SliderInt("StepCount", &optionConfig.stepCount, 3, 10);
-    ImGui::SliderFloat("Attenuation", &optionConfig.attenuation, 0.1, 2.0);
-    ImGui::SliderFloat("SaleAO", &optionConfig.scaleAO, 0.1, 2.0);
-    ImGui::SliderFloat("PowExponent", &optionConfig.powExponent, 0.1, 2.0);
-    ImGui::SliderFloat("NDotVBias", &optionConfig.nDotVBias, 0.01, 0.5);
+    ImGui::SliderFloat("RadiusScale", &optionConfig.radiusScale, 0.01, 2.0);
+    ImGui::SliderFloat("PowExponent", &optionConfig.powExponent, 0.1, 3.0);
     ImGui::End();
 };
 

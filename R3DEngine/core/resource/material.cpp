@@ -110,6 +110,7 @@ namespace R3D {
         if (m_textureManage->m_textureBindCache[4] != m_aoTex) {
             glBindTextureUnit(4, m_aoTex);
         }
+        glBindTextureUnit(5, Device::GetInstance()->m_AOFBO.m_colorAttach0);
     }
     void MaterialMetalPbr::RenderPrepare() {
         if (RenderStateManage::GetInstance()->NeedChangeState(m_shader.ID)) {

@@ -9,6 +9,7 @@ layout(binding = 1)uniform sampler2D normalTex;
 layout(binding = 2)uniform sampler2D metalTex;
 layout(binding = 3)uniform sampler2D roughnessTex;
 layout(binding = 4)uniform sampler2D aoTex;
+layout(binding = 5)uniform sampler2D globalAoTex;
 
 struct DirLight {
     vec3 direction;
@@ -108,8 +109,8 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
 }
-float getAttenuation(float radius,float cutoff,float distance){
-    return smoothstep(radius,cutoff,distance);
+float getAttenuation(float radius, float cutoff, float distance){
+    return smoothstep(radius, cutoff, distance);
 }
 void main() {
     vec3 albedo     = pow(texture(albedoTex, fs_in.TexCoords).rgb, vec3(2.2));//转到线性空间
@@ -142,9 +143,9 @@ void main() {
         vec3 L = normalize(pointLightData[lightindex].position - WorldPos);
         vec3 H = normalize(V + L);
         float distance = length(pointLightData[lightindex].position - WorldPos);
-//        float attenuation = 1.0 / (pointLightData[lightindex].constant + pointLightData[lightindex].linear * distance +
-//        pointLightData[lightindex].quadratic * (distance * distance));
-        float attenuation = getAttenuation(pointLightData[lightindex].radius,pointLightData[lightindex].cutoff,distance);
+        //        float attenuation = 1.0 / (pointLightData[lightindex].constant + pointLightData[lightindex].linear * distance +
+        //        pointLightData[lightindex].quadratic * (distance * distance));
+        float attenuation = getAttenuation(pointLightData[lightindex].radius, pointLightData[lightindex].cutoff, distance);
         vec3 radiance = pointLightData[lightindex].strength * attenuation;
 
         // Cook-Torrance BRDF
@@ -214,12 +215,13 @@ void main() {
     vec3 ambient = vec3(0.0) * albedo * ao;
 
     vec3 color = ambient + Lo;
-
+    float globalao = texture(globalAoTex, vec2(gl_FragCoord.xy)/vec2(ubobasedata.block.windowwidth, ubobasedata.block.windowheight)).r;
+    color*=globalao;
     // HDR tonemapping
     color = color / (color + vec3(1.0));
     // gamma correct
     color = pow(color, vec3(1.0/2.2));
 
     FragColor = vec4(color, 1.0);
-//    FragColor = vec4(vec2(gl_FragCoord.xy/1600.0f),0.0, 1.0);
+    //    FragColor = vec4(vec2(gl_FragCoord.xy/1600.0f),0.0, 1.0);
 }

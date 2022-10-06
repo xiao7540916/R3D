@@ -32,6 +32,7 @@ namespace R3D {
     class FrameBufferAO : public FrameBuffer {
     public:
         GLuint m_colorAttach0 = 0;
+        GLuint m_blurDstTexture = 0;
         void Init(int in_width, int in_height);
         void Release();
     };

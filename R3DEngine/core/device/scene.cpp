@@ -149,5 +149,20 @@ namespace R3D {
                 "noiseTexture"));
         glBindVertexArray(screenbackmesh->VAO);
         glDrawElements(GL_TRIANGLES, screenbackmesh->m_indiceSize, GL_UNSIGNED_INT, nullptr);
+        shaderCache.GetShader("blur").use();
+        shaderCache.GetShader("blur").setInt("blurMode",0);
+        glBindTextureUnit(0, m_device->m_AOFBO.m_colorAttach0);
+        glBindImageTexture(1,m_device->m_AOFBO.m_blurDstTexture,0, true,0,GL_WRITE_ONLY,GL_R16F);
+        int workgroup_x = (m_device->m_windowWidth % TILE_SIZE) == 0 ? (m_device->m_windowWidth / TILE_SIZE) : (
+                m_device->m_windowWidth / TILE_SIZE + 1);
+        int workgroup_y = (m_device->m_windowHeight % TILE_SIZE) == 0 ? (m_device->m_windowHeight / TILE_SIZE) : (
+                m_device->m_windowHeight / TILE_SIZE + 1);
+        glDispatchCompute(workgroup_x, workgroup_y, 1);
+        glTextureBarrier();
+        shaderCache.GetShader("blur").setInt("blurMode",1);
+        glBindTextureUnit(0, m_device->m_AOFBO.m_blurDstTexture);
+        glBindImageTexture(1,m_device->m_AOFBO.m_colorAttach0,0, true,0,GL_WRITE_ONLY,GL_R16F);
+        glDispatchCompute(workgroup_x, workgroup_y, 1);
+        glTextureBarrier();
     }
 }

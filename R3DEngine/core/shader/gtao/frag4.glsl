@@ -64,6 +64,8 @@ layout (binding = 1) uniform sampler2D viewNormalTex;
 layout (binding = 2) uniform sampler2D noiseTex;
 layout (location = 0) out vec4 FragColor;
 layout (location = 0) in vec2 texUV;
+uniform float TanBias = tan(30.0 * M_PI / 180.0);
+
 float rand(vec2 val)
 {
     return fract(sin(dot(val, vec2(12.9898f, 78.233f))) * 43758.5453f);
@@ -124,6 +126,25 @@ vec4 GetJitter()
 {
     return textureLod(noiseTex, (gl_FragCoord.xy / AO_RANDOMTEX_SIZE), 0);
 }
+float TanToSin(float x)
+{
+    return x * inversesqrt(x*x + 1.0);
+}
+
+float InvLength(vec2 V)
+{
+    return inversesqrt(dot(V,V));
+}
+
+float Tangent(vec3 V)
+{
+    return V.z * InvLength(V.xy);
+}
+
+float BiasedTangent(vec3 V)
+{
+    return V.z * InvLength(V.xy) + TanBias;
+}
 
 float ComputeCoarseAO(vec2 FullResUV, float RadiusPixels, vec4 Rand, vec3 ViewPosition, vec3 ViewNormal)
 {
@@ -131,28 +152,44 @@ float ComputeCoarseAO(vec2 FullResUV, float RadiusPixels, vec4 Rand, vec3 ViewPo
     float StepSizePixels = RadiusPixels / (NUM_STEPS + 1);
 
     const float Alpha = 2.0 * M_PI / NUM_DIRECTIONS;
+    float R2 = aoconfigdata.block.R*aoconfigdata.block.R;
     float AO = 0;
-
     for (float DirectionIndex = 0; DirectionIndex < NUM_DIRECTIONS; ++DirectionIndex)
     {
         float Angle = Alpha * DirectionIndex;
         //深度图中的前进方向
-        vec2 Direction = RotateDirection(vec2(cos(Angle), sin(Angle)), Rand.xy);
+        vec2 Direction = normalize(RotateDirection(vec2(cos(Angle), sin(Angle)), Rand.xy));
         //随机第一步步长
         float RayPixels = (Rand.z * StepSizePixels + 1.0);
+        //切向角
+        vec3 h = vec3(Direction, 0);
+        vec3 B = normalize(cross(ViewNormal, h));
+        vec3 T = normalize(cross(B,ViewNormal));
 
+        vec3 highPos = ViewPosition;
+        bool findOccu = false;
+        float TanH = Tangent(T);
+        float SinH = TanToSin(TanH);
         for (float StepIndex = 0; StepIndex < NUM_STEPS; ++StepIndex)
         {
             //步进点采样uv
             vec2 SnappedUV = round(RayPixels * Direction) * aoconfigdata.block.InvFullResolution + FullResUV;
             vec3 S = FetchViewPos(SnappedUV);//步进点相机空间位置
+            vec3 PToS = S-ViewPosition;
+            float d2 = dot(PToS,PToS);
+            float TanS = Tangent(PToS);
+            float SinS = TanToSin(TanS);
             RayPixels += StepSizePixels;
-
-            AO += ComputeAO(ViewPosition, ViewNormal, S);
+            if(d2<R2&&SinS>SinH){
+                highPos = S;
+                float WS = clamp(Falloff(dot(PToS,PToS)),0,1);
+                AO+=WS*(SinS-SinH);
+                SinH = SinS;
+            }
         }
     }
 
-    AO *= aoconfigdata.block.AOMultiplier / (NUM_DIRECTIONS * NUM_STEPS);
+    AO = AO/NUM_DIRECTIONS;
     return clamp(1.0 - AO * 2.0, 0, 1);
 }
 

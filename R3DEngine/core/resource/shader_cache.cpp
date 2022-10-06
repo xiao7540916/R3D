@@ -31,6 +31,10 @@ namespace R3D {
         Shader gtao;
         gtao.loadShader(SHADER_DIR + "gtao/vert.glsl", SHADER_DIR + "gtao/frag.glsl");
         m_shaders.insert({"gtao", gtao});
+        Shader blur;
+        vector<ShaderCreateDesc> blurdesc = {{SHADER_DIR + "blur/blur.comp", GL_COMPUTE_SHADER}};
+        blur.loadShader(blurdesc);
+        m_shaders.insert({"blur", blur});
     }
     Shader ShaderCache::GetShader(string in_shadertype) {
         if (m_shaders.find(in_shadertype) == m_shaders.end()) {

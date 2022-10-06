@@ -120,8 +120,19 @@ namespace R3D {
         static const GLenum draw_buffers[] = {GL_COLOR_ATTACHMENT0};//设置启用的颜色附着，可指定不同顺序
         glDrawBuffers(1, draw_buffers);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);//恢复到默认帧缓冲
+
+        glGenTextures(1, &m_blurDstTexture);
+        glBindTexture(GL_TEXTURE_2D, m_blurDstTexture);
+        glTexStorage2D(GL_TEXTURE_2D, 1, GL_R16F, in_width, in_height);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
     void FrameBufferAO::Release() {
+        if(m_blurDstTexture){
+            glDeleteTextures(1,&m_blurDstTexture);
+            m_blurDstTexture = 0;
+        }
         if(m_colorAttach0){
             glDeleteTextures(1,&m_colorAttach0);
             m_colorAttach0 = 0;

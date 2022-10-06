@@ -69,7 +69,7 @@ void main() {
     float fragDepth = texture(depthTex, texUV).r;
     vec3 fragViewNormal = normalize(texture(viewNormalTex, texUV).xyz);
     //生成随机方向
-    float currAngle = radians(rand(texUV));
+    float currAngle = rand(texUV)*2.0*PI;
     float angleStep = 2.0 * PI / aoconfigdata.block.dirCount;
     float radiusStep = aoconfigdata.block.radiusScale / aoconfigdata.block.stepCount;
 
@@ -82,9 +82,8 @@ void main() {
     {
         //在深度图上选取方向，计算单位像素dx，dy方向像素
         vec2 dir = vec2(cos(currAngle), sin(currAngle));
-        //        vec3 currTan = dir.x * viewDx + dir.y * viewDy;//处理点采样方向在视空间的方向
-        vec3 B = normalize(cross(fragViewNormal, vec3(dir, 0)));
-        vec3 currTan = -normalize(cross(fragViewNormal, B));
+        vec3 currTan = dir.x * viewDx + dir.y * viewDy;
+
         float currRad = radiusStep;//当前前进距离
         vec3 highestPos = viewPos;
         bool occluded = false;
@@ -104,11 +103,13 @@ void main() {
                 if (currViewPos.z > highestPos.z){
                     highestPos = currViewPos;
                     occluded = true;
-//                    vec3 horVec = highestPos - viewPos;
-//                    float finalAtt = 1.0 - pow(length(horVec) / aoconfigdata.block.radiusScale, 2);
-//                    float horAngle = atan(horVec.z / length(horVec.xy));
-//                    float AOresult = sin(horAngle) - sintan;
-//                    WAO+=finalAtt*AOresult;
+                    vec3 horVec = highestPos - viewPos;
+                    float finalAtt = max(1.0 - pow(length(horVec) / aoconfigdata.block.radiusScale, 2),0);
+                    float horAngle = atan(horVec.z / length(horVec.xy));
+                    float sinhigh = sin(horAngle);
+                    float AOresult = sinhigh - sintan;
+                    sintan = sinhigh;
+                    WAO+=finalAtt*AOresult;
                     //
                 }
             } else {
@@ -120,11 +121,13 @@ void main() {
                      float tancurr2 = (dltcurr.z*dltcurr.z)/(dltcurr.x*dltcurr.x+dltcurr.y*dltcurr.y);
                      if (tancurr2>tanhighest2){
                          highestPos = currViewPos;
-//                         vec3 horVec = highestPos - viewPos;
-//                         float finalAtt = 1.0 - pow(length(horVec) / aoconfigdata.block.radiusScale, 2);
-//                         float horAngle = atan(horVec.z / length(horVec.xy));
-//                         float AOresult = sin(horAngle) - sintan;
-//                         WAO+=finalAtt*AOresult;
+                         vec3 horVec = highestPos - viewPos;
+                         float finalAtt = max(1.0 - pow(length(horVec) / aoconfigdata.block.radiusScale, 2),0);
+                         float horAngle = atan(horVec.z / length(horVec.xy));
+                         float sinhigh = sin(horAngle);
+                         float AOresult = sinhigh - sintan;
+                         sintan = sinhigh;
+                         WAO+=finalAtt*AOresult;
                      }
                  }
             }
@@ -139,9 +142,9 @@ void main() {
         float horAngle = atan(horVec.z / length(horVec.xy));
 
         float finalAtt = 1.0 - pow(length(horVec) / aoconfigdata.block.radiusScale, 2);
-        float AOresult = sin(horAngle) - sintan;
+        float AOresult = (sin(horAngle) - sintan)*clamp(finalAtt,0,1);
         if (AOresult < 0.0) continue;
-        AO += AOresult;
+        AO += WAO;
     }
 
     AO /= aoconfigdata.block.dirCount;
