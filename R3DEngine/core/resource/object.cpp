@@ -141,7 +141,8 @@ namespace R3D {
         m_dirtyBB = true;
     }
     void Object::SetDirectiveRelative(const vec3 &in_dir, const vec3 &in_up) {
-        m_rotateRelative = mat3(glm::lookAt(vec3(0), in_dir, in_up));
+        //此处修改待验证vec3(in_dir.x,in_dir.y,-in_dir.z)
+        m_rotateRelative = mat3(glm::lookAt(vec3(0), vec3(in_dir.x,in_dir.y,-in_dir.z), in_up));
         m_dirty = true;
         m_dirtyBB = true;
     }
@@ -381,5 +382,13 @@ namespace R3D {
     void Object::SetActionFunc(const std::function<void()> &in_function) {
         SetDynamic(true);
         m_acctionfunc = in_function;
+    }
+    void Object::UpdataRouteAction() {
+        if (m_routeAction) {
+            vec3 pos = m_routeAction->GetPosition();
+            vec3 forward = m_routeAction->GetForward();
+            MoveTo(pos);
+            SetDirectiveRelative(forward);
+        }
     }
 }

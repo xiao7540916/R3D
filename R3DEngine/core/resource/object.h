@@ -6,6 +6,7 @@
 #include <structdefine.h>
 #include <string>
 #include <math/sphere.h>
+#include <resource/route_action.h>
 #include <functional>
 namespace R3D {
     using std::string;
@@ -15,6 +16,7 @@ namespace R3D {
     public:
         Material *m_bndSphMaterial;
         std::function<void()> m_acctionfunc = nullptr;
+        RouteAction *m_routeAction = nullptr;
     protected:
         string m_name;//节点名字
         bool m_visible;//是否可见
@@ -149,6 +151,7 @@ namespace R3D {
         inline Material *GetMaterial() {return m_material;};
         void Updata(float in_deltaTime, EventInfo &in_eventInfo);
         void SetActionFunc(const std::function<void()> &in_function);
+        void UpdataRouteAction();
     };
 }
 

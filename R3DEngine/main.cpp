@@ -128,10 +128,22 @@ int main() {
             Object *matballsub0 = new Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
             matballsub0->SetMesh(meshManage->GetMesh("matballmesh0"));
             matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_forestbrown"));
-            matballsub0->RotationYaw(PI * 0.75f);
-            matballsub0->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.0f, (i / 4 - 1.5) * 2.0f));
+            RouteAction *routeAction = new RouteAction();
+            float sqlen = 4.5;
+            Path path0 = {PATH_CURVED, vec3(-sqlen, 0, -sqlen), vec3(sqlen, 0, -sqlen), vec3(-sqlen, 0, -8), vec3(sqlen, 0, -8)};
+            Path path1 = {PATH_STRAIGHT, vec3(sqlen, 0, -sqlen), vec3(sqlen, 0, sqlen)};
+            Path path2 = {PATH_CURVED, vec3(sqlen, 0, sqlen), vec3(-sqlen, 0, sqlen), vec3(sqlen, 0, 7), vec3(-sqlen, 0, 7)};
+            Path path3 = {PATH_STRAIGHT, vec3(-sqlen, 0, sqlen), vec3(-sqlen, 0, -sqlen)};
+            routeAction->AddPath(path0);
+            routeAction->AddPath(path1);
+            routeAction->AddPath(path2);
+            routeAction->AddPath(path3);
+            routeAction->m_speed = 4.0f;
+            routeAction->Init();
+            matballsub0->m_routeAction = routeAction;
             matballsub0->SetActionFunc([&]() {
-                matballsub0->RotationYaw(-device->m_gameTime.TotalTime() * 0.125f);
+                matballsub0->m_routeAction->m_actionTime += device->m_gameTime.DeltaTime();
+                matballsub0->UpdataRouteAction();
             });
             Object *matballsub1 = new Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
             matballsub1->SetMesh(meshManage->GetMesh("matballmesh1"));

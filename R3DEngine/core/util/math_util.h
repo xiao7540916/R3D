@@ -92,4 +92,13 @@ namespace R3D {
         std::cout << toprint[2][0] << " " << toprint[2][1] << " " << toprint[2][2] << " " << toprint[2][3] << std::endl;
         std::cout << toprint[3][0] << " " << toprint[3][1] << " " << toprint[3][2] << " " << toprint[3][3] << std::endl;
     }
+    inline vec3 SetBezier(vec3 p1, vec3 p2, vec3 p3, vec3 p4, float t) {
+        vec3 p;
+        float a1 = pow((1 - t), 3);
+        float a2 = pow((1 - t), 2) * 3 * t;
+        float a3 = 3 * t * t * (1 - t);
+        float a4 = t * t * t;
+        p = a1 * p1 + a2 * p2 + a3 * p3 + a4 * p4;
+        return p;
+    }
 }
