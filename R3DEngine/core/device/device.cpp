@@ -12,7 +12,7 @@ namespace R3D {
     Device *Device::m_device = nullptr;
     Device *Device::GetInstance() {
         if (m_device == nullptr) {
-            m_device = new Device();
+            m_device = NEW Device();
         }
         return m_device;
     }
@@ -57,6 +57,8 @@ namespace R3D {
         m_preDepthFBO.Release();
         m_backHDRFBO.Release();
         m_AOFBO.Release();
+        delete m_renderStateManage;
+        delete m_camera;
     }
     GLFWwindow *Device::GetWindow() {
         return m_window;
@@ -208,14 +210,14 @@ namespace R3D {
     void
     Device::SetCamera(vec3 in_position, vec3 in_target, float in_fovy, float in_aspect, float in_zn, float in_zf) {
         if (m_camera == nullptr) {
-            m_camera = new Camera();
+            m_camera = NEW Camera();
             m_camera->SetLens(in_fovy, in_aspect, in_zn, in_zf);
             m_camera->SetPosition(in_position);
             m_camera->LookAt(in_position, in_target, vec3(0, 1, 0));
             m_camera->UpdateViewMatrix();
         } else {
             delete m_camera;
-            m_camera = new Camera();
+            m_camera = NEW Camera();
             m_camera->SetLens(in_fovy, in_aspect, in_zn, in_zf);
             m_camera->SetPosition(in_position);
             m_camera->LookAt(in_position, in_target, vec3(0, 1, 0));

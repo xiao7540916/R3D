@@ -43,6 +43,7 @@ namespace R3D {
     public:
         Object(const string &in_name, Object *in_father, const vec3 &in_offsetFromParent, float in_radianX,
                float in_radianY, float in_radianZ, bool in_visible);
+        ~Object();
         //取得名字
         inline const string &GetName() const {return m_name;}
         inline bool GetDynamic() const {return m_dynamic;}

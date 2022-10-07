@@ -1,5 +1,7 @@
 #version 460
-uniform int blurMode;
+uniform int uBlurMode;
+uniform int uWindowWidth;
+uniform int uWindowHeight;
 layout (binding = 0) uniform sampler2D srcTex;
 layout (binding = 1,r16f) uniform image2D dstImage;
 
@@ -57,11 +59,11 @@ vec3 VerticalBlur(const sampler2D texBuffer, const vec2 tex_size, const vec3 vec
 
 void main()
 {
-    vec2 texUV = vec2(gl_GlobalInvocationID.xy)/vec2(1600,900);
+    vec2 texUV = vec2(gl_GlobalInvocationID.xy)/vec2(uWindowWidth,uWindowHeight);
     vec2 tex_size = 1.0 / textureSize(srcTex, 0); // gets size of single texel
     vec3 blurResult = texture(srcTex, texUV).rgb * weight[0];
 
-    switch (blurMode)
+    switch (uBlurMode)
     {
         case 0:
         blurResult = HorizontalBlur(srcTex, tex_size, blurResult,texUV);

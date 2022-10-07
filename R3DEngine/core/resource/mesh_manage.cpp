@@ -11,7 +11,7 @@ namespace R3D {
     MeshManage *MeshManage::m_meshManage = nullptr;
     MeshManage *MeshManage::GetInstance() {
         if (m_meshManage == nullptr) {
-            m_meshManage = new MeshManage();
+            m_meshManage = NEW MeshManage();
         }
         return m_meshManage;
     }
@@ -30,28 +30,28 @@ namespace R3D {
         }
     }
     void MeshManage::Init() {
-        Mesh *screenbackmesh = new Mesh();
+        Mesh *screenbackmesh = NEW Mesh();
         MeshCreate::CreateScreenBack(*screenbackmesh, VERT_POS_NOR_TAN_UV);
         AddMesh("screenbackmesh", screenbackmesh);
-        Mesh *boxmesh = new Mesh();
+        Mesh *boxmesh = NEW Mesh();
         MeshCreate::CreateBox(*boxmesh, 1, 1, 1, VERT_POS_NOR_TAN_UV);
         AddMesh("boxmesh", boxmesh);
-        Mesh *boxwallmesh = new Mesh();
+        Mesh *boxwallmesh = NEW Mesh();
         MeshCreate::CreateBox(*boxwallmesh, 1, 1, 0.01, VERT_POS_NOR_TAN_UV);
         AddMesh("boxwallmesh", boxwallmesh);
-        Mesh *geospheremesh = new Mesh();
+        Mesh *geospheremesh = NEW Mesh();
         MeshCreate::CreateGeosphere(*geospheremesh, 1, 3, VERT_POS_NOR_TAN_UV);
         AddMesh("geospheremesh", geospheremesh);
-        Mesh *lightmesh = new Mesh();
+        Mesh *lightmesh = NEW Mesh();
         MeshCreate::CreateGeosphere(*lightmesh, 0.02, 2, VERT_POS_NOR_TAN_UV);
         AddMesh("lightmesh", lightmesh);
-        Mesh *lightradiusmesh = new Mesh();
+        Mesh *lightradiusmesh = NEW Mesh();
         MeshCreate::CreateGeosphere(*lightradiusmesh, 1, 3, VERT_POS_NOR_TAN_UV);
         AddMesh("lightradiusmesh", lightradiusmesh);
-        Mesh *planemesh = new Mesh();
+        Mesh *planemesh = NEW Mesh();
         MeshCreate::CreatePlane(*planemesh, 1, 1, VERT_POS_NOR_TAN_UV);
         AddMesh("planemesh", planemesh);
-        Mesh *spotmesh = new Mesh();
+        Mesh *spotmesh = NEW Mesh();
         MeshCreate::LoadObjToMesh(*spotmesh, CURRENT_SOURCE_DIR + "Data/model/spot/spot.obj", VERT_POS_NOR_TAN_UV);
         AddMesh("spotmesh", spotmesh);
         vector<Mesh *> matballmesh;
@@ -66,6 +66,7 @@ namespace R3D {
             glDeleteVertexArrays(1, &item->second->VAO);
             glDeleteBuffers(1, &item->second->VBO);
             glDeleteBuffers(1, &item->second->EBO);
+            delete item->second;
         }
         m_nameToMesh.clear();
         //m_nameToMesh自身占用空间仍需要清理

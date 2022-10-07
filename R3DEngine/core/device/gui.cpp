@@ -16,7 +16,7 @@ namespace R3D {
     Gui *Gui::m_gui = nullptr;
     Gui *Gui::GetInstance() {
         if (m_gui == nullptr) {
-            m_gui = new Gui();
+            m_gui = NEW Gui();
         }
         return m_gui;
     }

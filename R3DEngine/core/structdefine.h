@@ -6,12 +6,18 @@
 #define R3D_STRUCTDEFINE_H
 #include <glm/glm.hpp>
 #include <unordered_map>
+#include <iostream>
+#include <string>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #ifndef GLM_ENABLE_EXPERIMENTAL
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 #endif
+using std::cout;
+using std::endl;
+using std::unordered_map;
+using std::string;
 //数学常量
 #define PI 3.14159265f
 #define PI2 6.2831852f
@@ -32,6 +38,34 @@
 #define POINT_LIGHT_COUNT 1024
 #define TILE_LIGHT_MAX 256
 #define TILE_SIZE 16
+
+//-----------------------------------------
+
+extern bool isMainLoop;
+extern uint64_t gNewCount;
+extern unordered_map<void *, string> dstToString;
+inline void *operator new(size_t size, const char *filename, int line) {
+    ++gNewCount;
+    void *data = malloc(size);
+    dstToString[data] = "file:"+string(filename) +" line:"+ std::to_string(line);
+    return data;
+}
+inline void operator delete(void *p, const char *filename, int line) {}
+inline void *operator new(size_t size) {
+    return malloc(size);
+}
+inline void operator delete(void *p) {
+    if (isMainLoop) {
+        if (dstToString.find(p) != dstToString.end()) {
+            --gNewCount;
+            dstToString.erase(p);
+        }
+    }
+    free(p);
+}
+#define NEW new(__FILE__,__LINE__)
+//-----------------------------------------
+
 namespace R3D {
     using glm::vec4;
     using glm::vec3;

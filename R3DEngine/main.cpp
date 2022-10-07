@@ -12,6 +12,9 @@ using namespace R3D;
 string CURRENT_SOURCE_DIR = "../../";
 string SHADER_DIR = "../../R3DEngine/core/shader/";
 OptionConfig optionConfig{};
+bool isMainLoop = true;
+uint64_t gNewCount = 0;
+unordered_map<void *, string> dstToString;
 void guiMake();
 int main() {
     Device *device = Device::GetInstance();
@@ -54,7 +57,7 @@ int main() {
         pointLight[i].radius = bright * 3;
         pointLight[i].cutoff = pointLight[i].radius * 0.2f;
     }
-    Object *rootplane = new Object("rootplane", nullptr, vec3(0), 0, 0, 0, true);
+    Object *rootplane = NEW Object("rootplane", nullptr, vec3(0), 0, 0, 0, true);
     scene.SetRoot(rootplane);
     rootplane->SetMesh(meshManage->GetMesh("planemesh"));
     rootplane->SetMaterial(materialManage.GetMaterial("metalpbr_floor"));
@@ -62,13 +65,13 @@ int main() {
     rootplane->Scale(16.0f);
     //墙面
     {
-        Object *wall0 = new Object("wall0", rootplane, vec3(0), 0, 0, 0, true);
+        Object *wall0 = NEW Object("wall0", rootplane, vec3(0), 0, 0, 0, true);
         wall0->SetMesh(meshManage->GetMesh("boxwallmesh"));
         wall0->SetMaterial(materialManage.GetMaterial("metalpbr_stonewall"));
         wall0->SetUvConfig(vec2(0), vec2(2));
         wall0->Scale(16.0f);
         wall0->Move(vec3(0.0f, 8.0f, 8.0f));
-        Object *wall1 = new Object("wall1", rootplane, vec3(0), 0, 0, 0, true);
+        Object *wall1 = NEW Object("wall1", rootplane, vec3(0), 0, 0, 0, true);
         wall1->SetMesh(meshManage->GetMesh("boxwallmesh"));
         wall1->SetMaterial(materialManage.GetMaterial("metalpbr_stonewall"));
         wall1->SetUvConfig(vec2(0), vec2(2));
@@ -80,7 +83,7 @@ int main() {
         //i=0
         {
             int i = 0;
-            Object *matballsub0 = new Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
+            Object *matballsub0 = NEW Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
             matballsub0->SetMesh(meshManage->GetMesh("matballmesh0"));
             matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_silver"));
             matballsub0->RotationYaw(PI * 0.75f);
@@ -88,14 +91,14 @@ int main() {
             matballsub0->SetActionFunc([&]() {
                 matballsub0->RotationYaw(device->m_gameTime.TotalTime());
             });
-            Object *matballsub1 = new Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
+            Object *matballsub1 = NEW Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
             matballsub1->SetMesh(meshManage->GetMesh("matballmesh1"));
             matballsub1->SetMaterial(materialManage.GetMaterial("metalpbr_rusted_iron"));
         }
         //i=1
         {
             int i = 1;
-            Object *matballsub0 = new Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
+            Object *matballsub0 = NEW Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
             matballsub0->SetMesh(meshManage->GetMesh("matballmesh0"));
             matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_silver"));
             matballsub0->RotationYaw(PI * 0.75f);
@@ -103,14 +106,14 @@ int main() {
             matballsub0->SetActionFunc([&]() {
                 matballsub0->RotationYaw(-device->m_gameTime.TotalTime() * 0.5f);
             });
-            Object *matballsub1 = new Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
+            Object *matballsub1 = NEW Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
             matballsub1->SetMesh(meshManage->GetMesh("matballmesh1"));
             matballsub1->SetMaterial(materialManage.GetMaterial("metalpbr_forestbrown"));
         }
         //i=2
         {
             int i = 2;
-            Object *matballsub0 = new Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
+            Object *matballsub0 = NEW Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
             matballsub0->SetMesh(meshManage->GetMesh("matballmesh0"));
             matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_rusted_iron"));
             matballsub0->RotationYaw(PI * 0.75f);
@@ -118,22 +121,24 @@ int main() {
             matballsub0->SetActionFunc([&]() {
                 matballsub0->RotationYaw(device->m_gameTime.TotalTime() * 0.25f);
             });
-            Object *matballsub1 = new Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
+            Object *matballsub1 = NEW Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
             matballsub1->SetMesh(meshManage->GetMesh("matballmesh1"));
             matballsub1->SetMaterial(materialManage.GetMaterial("metalpbr_gold"));
         }
         //i=3
         {
             int i = 3;
-            Object *matballsub0 = new Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
+            Object *matballsub0 = NEW Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
             matballsub0->SetMesh(meshManage->GetMesh("matballmesh0"));
             matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_forestbrown"));
-            RouteAction *routeAction = new RouteAction();
+            RouteAction *routeAction = NEW RouteAction();
             float sqlen = 4.5;
-            Path path0 = {PATH_CURVED, vec3(-sqlen, 0, -sqlen), vec3(sqlen, 0, -sqlen), vec3(-sqlen, 0, -8), vec3(sqlen, 0, -8)};
+            Path path0 = {PATH_CURVED, vec3(-sqlen, 1, -sqlen), vec3(sqlen, 0, -sqlen), vec3(-sqlen, 1, -8),
+                          vec3(sqlen, 0, -8)};
             Path path1 = {PATH_STRAIGHT, vec3(sqlen, 0, -sqlen), vec3(sqlen, 0, sqlen)};
-            Path path2 = {PATH_CURVED, vec3(sqlen, 0, sqlen), vec3(-sqlen, 0, sqlen), vec3(sqlen, 0, 7), vec3(-sqlen, 0, 7)};
-            Path path3 = {PATH_STRAIGHT, vec3(-sqlen, 0, sqlen), vec3(-sqlen, 0, -sqlen)};
+            Path path2 = {PATH_CURVED, vec3(sqlen, 0, sqlen), vec3(-sqlen, 0, sqlen), vec3(sqlen, 0, 7),
+                          vec3(-sqlen, 0, 7)};
+            Path path3 = {PATH_CURVED, vec3(-sqlen, 0, sqlen), vec3(-sqlen, 1, -sqlen),vec3(-sqlen,0,2),vec3(-sqlen,1,-2)};
             routeAction->AddPath(path0);
             routeAction->AddPath(path1);
             routeAction->AddPath(path2);
@@ -145,13 +150,13 @@ int main() {
                 matballsub0->m_routeAction->m_actionTime += device->m_gameTime.DeltaTime();
                 matballsub0->UpdataRouteAction();
             });
-            Object *matballsub1 = new Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
+            Object *matballsub1 = NEW Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
             matballsub1->SetMesh(meshManage->GetMesh("matballmesh1"));
             matballsub1->SetMaterial(materialManage.GetMaterial("metalpbr_silver"));
         }
     }
     for (int i = 4;i < 8;++i) {
-        Object *box = new Object("box" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
+        Object *box = NEW Object("box" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
         box->SetMesh(meshManage->GetMesh("boxmesh"));
         box->SetMaterial(materialManage.GetMaterial("metalpbr_aluminiumfoil"));
         box->Scale(1.0f);
@@ -159,10 +164,10 @@ int main() {
     }
     //体现父子关系的球绕立方体运动
     {
-        Object *boxfather0 = new Object("boxfather0", rootplane, vec3(0), 0, 0, 0, true);
+        Object *boxfather0 = NEW Object("boxfather0", rootplane, vec3(0), 0, 0, 0, true);
         boxfather0->SetMesh(meshManage->GetMesh("boxmesh"));
         boxfather0->SetMaterial(materialManage.GetMaterial("metalpbr_floor"));
-        Object *spherechild0 = new Object("spherechild0", boxfather0, vec3(2, 0, 0), 0, 0, 0, true);
+        Object *spherechild0 = NEW Object("spherechild0", boxfather0, vec3(2, 0, 0), 0, 0, 0, true);
         boxfather0->MoveTo(vec3(0.0f, 2.0f, 0.0f));
         boxfather0->SetActionFunc([&]() {
             boxfather0->MoveTo(vec3(0, 2, sinf(device->m_gameTime.TotalTime()) * 2.0f));
@@ -256,8 +261,14 @@ int main() {
         device->Tock();
     }
     glfwTerminate();
+    scene.Release();
     device->Release();
     delete device;
+    for (auto &item:dstToString) {
+        cout << item.first << " " << item.second << endl;
+    }
+    cout << gNewCount << endl;
+    isMainLoop = false;
     return 0;
 }
 void guiMake() {

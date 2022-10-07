@@ -16,7 +16,7 @@ namespace R3D {
     BufferManage *BufferManage::m_bufferManage = nullptr;
     BufferManage *BufferManage::GetInstance() {
         if (m_bufferManage == nullptr) {
-            m_bufferManage = new BufferManage();
+            m_bufferManage = NEW BufferManage();
         }
         return m_bufferManage;
     }

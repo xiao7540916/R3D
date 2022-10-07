@@ -567,7 +567,7 @@ namespace R3D {
                 glNamedBufferStorage(EBO, (long long) (indices.size() * sizeof(uint32_t)), indices.data(),
                                      0);
                 for (int i = 0;i < subMeshMtrIdInfo.size();++i) {
-                    Mesh *submesh = new Mesh();
+                    Mesh *submesh = NEW Mesh();
                     vec3 midpoint = 0.5f * (minpoints[i] + maxpoints[i]);
                     float radius = 0.5f * glm::length(maxpoints[i] - minpoints[i]);
                     submesh->m_sphere.SetRadius(radius);

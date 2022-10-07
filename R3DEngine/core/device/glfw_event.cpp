@@ -9,7 +9,7 @@ namespace R3D {
     GLFWEvent *GLFWEvent::m_glfwEvent = nullptr;
     GLFWEvent *GLFWEvent::GetInstance() {
         if (m_glfwEvent == nullptr) {
-            m_glfwEvent = new GLFWEvent();
+            m_glfwEvent = NEW GLFWEvent();
         }
         return m_glfwEvent;
     }

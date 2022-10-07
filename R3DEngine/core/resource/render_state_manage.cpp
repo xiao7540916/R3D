@@ -3,13 +3,14 @@
 //
 
 #include "render_state_manage.h"
+#include <structdefine.h>
 namespace R3D {
     RenderStateManage::RenderStateManage() {
     }
     RenderStateManage *RenderStateManage::m_renderStateManage = nullptr;
     RenderStateManage *RenderStateManage::GetInstance() {
         if (m_renderStateManage == nullptr) {
-            m_renderStateManage = new RenderStateManage();
+            m_renderStateManage = NEW RenderStateManage();
         }
         return m_renderStateManage;
     }

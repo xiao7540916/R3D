@@ -150,7 +150,9 @@ namespace R3D {
         glBindVertexArray(screenbackmesh->VAO);
         glDrawElements(GL_TRIANGLES, screenbackmesh->m_indiceSize, GL_UNSIGNED_INT, nullptr);
         shaderCache.GetShader("blur").use();
-        shaderCache.GetShader("blur").setInt("blurMode",0);
+        shaderCache.GetShader("blur").setInt("uWindowWidth",m_device->m_windowWidth);
+        shaderCache.GetShader("blur").setInt("uWindowHeight",m_device->m_windowHeight);
+        shaderCache.GetShader("blur").setInt("uBlurMode",0);
         glBindTextureUnit(0, m_device->m_AOFBO.m_colorAttach0);
         glBindImageTexture(1,m_device->m_AOFBO.m_blurDstTexture,0, true,0,GL_WRITE_ONLY,GL_R16F);
         int workgroup_x = (m_device->m_windowWidth % TILE_SIZE) == 0 ? (m_device->m_windowWidth / TILE_SIZE) : (
@@ -159,10 +161,20 @@ namespace R3D {
                 m_device->m_windowHeight / TILE_SIZE + 1);
         glDispatchCompute(workgroup_x, workgroup_y, 1);
         glTextureBarrier();
-        shaderCache.GetShader("blur").setInt("blurMode",1);
+        shaderCache.GetShader("blur").setInt("uBlurMode",1);
         glBindTextureUnit(0, m_device->m_AOFBO.m_blurDstTexture);
         glBindImageTexture(1,m_device->m_AOFBO.m_colorAttach0,0, true,0,GL_WRITE_ONLY,GL_R16F);
         glDispatchCompute(workgroup_x, workgroup_y, 1);
         glTextureBarrier();
+    }
+    void Scene::Release() {
+        DeleteObject(m_root);
+    }
+    void Scene::DeleteObject(Object *in_object) {
+        for (std::list<Object *>::iterator p = in_object->GetChildList().begin();
+             p != in_object->GetChildList().end();++p) {
+            DeleteObject(*p);
+            delete *p;
+        }
     }
 }

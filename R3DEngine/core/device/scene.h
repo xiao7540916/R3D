@@ -22,7 +22,7 @@ namespace R3D {
     public:
         void Init(Device *in_device);
         void SetRoot(Object *in_root);
-        void SetLightCount(int in_dir,int in_point,int in_tilepoint);//设置场景支持的灯光最大数目
+        void SetLightCount(int in_dir, int in_point, int in_tilepoint);//设置场景支持的灯光最大数目
         void UpdataAnimate(float in_deltaTime, EventInfo &in_eventInfo);//更新动态数据
         void UpdataTransBound();
         void ClearDynamic();
@@ -34,6 +34,8 @@ namespace R3D {
         void MakeAO();
         void RenderLightShow();
         void RenderLightRadius();
+        void Release();
+        void DeleteObject(Object *in_object);
     public:
         RenderList m_opaqueList;
         RenderList m_transparent;

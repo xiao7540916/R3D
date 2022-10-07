@@ -17,7 +17,7 @@ namespace R3D {
     TextureManage *TextureManage::m_textureManage = nullptr;
     TextureManage *TextureManage::GetInstance() {
         if (m_textureManage == nullptr) {
-            m_textureManage = new TextureManage();
+            m_textureManage = NEW TextureManage();
         }
         return m_textureManage;
     }

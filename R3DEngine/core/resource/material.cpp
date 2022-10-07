@@ -207,13 +207,13 @@ namespace R3D {
     MaterialManage *MaterialManage::m_materialManage = nullptr;
     MaterialManage *MaterialManage::GetInstance() {
         if (m_materialManage == nullptr) {
-            m_materialManage = new MaterialManage();
+            m_materialManage = NEW MaterialManage();
         }
         return m_materialManage;
     }
     void MaterialManage::Init() {
         ShaderCache &shaderCache = Device::GetInstance()->m_shaderCache;
-/*        MaterialPhone *phone_circlebox = new MaterialPhone();
+/*        MaterialPhone *phone_circlebox = NEW MaterialPhone();
         phone_circlebox->m_shader = shaderCache.GetShader("phone");
         phone_circlebox->m_diffTexUrl = CURRENT_SOURCE_DIR + "Data/image/phone/circlebox/diffuse.png";
         phone_circlebox->m_specTexUrl = CURRENT_SOURCE_DIR + "Data/image/phone/circlebox/spec.png";
@@ -221,7 +221,7 @@ namespace R3D {
         phone_circlebox->InitResource();
         AddMaterial("phone_circlebox", phone_circlebox);*/
         //----------------------------------------------
-        MaterialMetalPbr *metalpbr_rusted_iron = new MaterialMetalPbr();
+        MaterialMetalPbr *metalpbr_rusted_iron = NEW MaterialMetalPbr();
         metalpbr_rusted_iron->m_shader = shaderCache.GetShader("metalpbr");
         metalpbr_rusted_iron->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/albedo.png";
         metalpbr_rusted_iron->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/rusted_iron/normal.png";
@@ -231,7 +231,7 @@ namespace R3D {
         metalpbr_rusted_iron->InitResource(GL_CLAMP_TO_EDGE);
         AddMaterial("metalpbr_rusted_iron", metalpbr_rusted_iron);
         //----------------------------------------------
-        MaterialMetalPbr *metalpbr_gold = new MaterialMetalPbr();
+        MaterialMetalPbr *metalpbr_gold = NEW MaterialMetalPbr();
         metalpbr_gold->m_shader = shaderCache.GetShader("metalpbr");
         metalpbr_gold->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/gold/albedo.png";
         metalpbr_gold->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/gold/normal.png";
@@ -241,7 +241,7 @@ namespace R3D {
         metalpbr_gold->InitResource();
         AddMaterial("metalpbr_gold", metalpbr_gold);
         //----------------------------------------------
-        MaterialMetalPbr *metalpbr_forestbrown = new MaterialMetalPbr();
+        MaterialMetalPbr *metalpbr_forestbrown = NEW MaterialMetalPbr();
         metalpbr_forestbrown->m_shader = shaderCache.GetShader("metalpbr");
         metalpbr_forestbrown->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/forestbrown/albedo.png";
         metalpbr_forestbrown->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/forestbrown/normal.png";
@@ -251,7 +251,7 @@ namespace R3D {
         metalpbr_forestbrown->InitResource();
         AddMaterial("metalpbr_forestbrown", metalpbr_forestbrown);
         //----------------------------------------------
-        MaterialMetalPbr *metalpbr_silver = new MaterialMetalPbr();
+        MaterialMetalPbr *metalpbr_silver = NEW MaterialMetalPbr();
         metalpbr_silver->m_shader = shaderCache.GetShader("metalpbr");
         metalpbr_silver->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/silver/albedo.jpg";
         metalpbr_silver->m_metallicTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/silver/metallic.jpg";
@@ -259,7 +259,7 @@ namespace R3D {
         metalpbr_silver->InitResource();
         AddMaterial("metalpbr_silver", metalpbr_silver);
         //----------------------------------------------
-        MaterialMetalPbr *metalpbr_aluminiumfoil = new MaterialMetalPbr();
+        MaterialMetalPbr *metalpbr_aluminiumfoil = NEW MaterialMetalPbr();
         metalpbr_aluminiumfoil->m_shader = shaderCache.GetShader("metalpbr");
         metalpbr_aluminiumfoil->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/aluminiumfoil/albedo.png";
         metalpbr_aluminiumfoil->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/aluminiumfoil/normal.png";
@@ -269,7 +269,7 @@ namespace R3D {
         metalpbr_aluminiumfoil->InitResource();
         AddMaterial("metalpbr_aluminiumfoil", metalpbr_aluminiumfoil);
         //----------------------------------------------
-        MaterialMetalPbr *metalpbr_stonewall = new MaterialMetalPbr();
+        MaterialMetalPbr *metalpbr_stonewall = NEW MaterialMetalPbr();
         metalpbr_stonewall->m_shader = shaderCache.GetShader("metalpbr");
         metalpbr_stonewall->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/stonewall/albedo.png";
         metalpbr_stonewall->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/stonewall/normal.png";
@@ -279,7 +279,7 @@ namespace R3D {
         metalpbr_stonewall->InitResource();
         AddMaterial("metalpbr_stonewall", metalpbr_stonewall);
         //----------------------------------------------
-        MaterialMetalPbr *metalpbr_floor = new MaterialMetalPbr();
+        MaterialMetalPbr *metalpbr_floor = NEW MaterialMetalPbr();
         metalpbr_floor->m_shader = shaderCache.GetShader("metalpbr");
         metalpbr_floor->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/floor/albedo.png";
         metalpbr_floor->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/floor/normal.png";
@@ -289,30 +289,30 @@ namespace R3D {
         metalpbr_floor->InitResource();
         AddMaterial("metalpbr_floor", metalpbr_floor);
         //----------------------------------------------
-        MaterialMetalPbr *metalpbr_check = new MaterialMetalPbr();
+        MaterialMetalPbr *metalpbr_check = NEW MaterialMetalPbr();
         metalpbr_check->m_shader = shaderCache.GetShader("metalpbr");
         metalpbr_check->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/check/albedo.png";
         metalpbr_check->InitResource();
         AddMaterial("metalpbr_check", metalpbr_check);
         //----------------------------------------------
-        MaterialMetalPbr *metalpbr_base = new MaterialMetalPbr();
+        MaterialMetalPbr *metalpbr_base = NEW MaterialMetalPbr();
         metalpbr_base->m_shader = shaderCache.GetShader("metalpbr");
         metalpbr_base->InitResource();
         AddMaterial("metalpbr_base", metalpbr_base);
         //----------------------------------------------
-        MaterialGreen *green = new MaterialGreen();
+        MaterialGreen *green = NEW MaterialGreen();
         green->m_shader = shaderCache.GetShader("green");
         AddMaterial("green", green);
         //----------------------------------------------
-        MaterialDepth *depth = new MaterialDepth();
+        MaterialDepth *depth = NEW MaterialDepth();
         depth->m_shader = shaderCache.GetShader("depth");
         AddMaterial("depth", depth);
         //----------------------------------------------
-        MaterialLightShow *lightshow = new MaterialLightShow();
+        MaterialLightShow *lightshow = NEW MaterialLightShow();
         lightshow->m_shader = shaderCache.GetShader("lightshow");
         AddMaterial("lightshow", lightshow);
         //----------------------------------------------
-        MaterialLightRadius *lightradius = new MaterialLightRadius();
+        MaterialLightRadius *lightradius = NEW MaterialLightRadius();
         lightradius->m_shader = shaderCache.GetShader("lightradius");
         AddMaterial("lightradius", lightradius);
     }
