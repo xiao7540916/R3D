@@ -28,8 +28,8 @@ struct UniformBlockBase {
     float fill2;
 };
 layout(std140, binding = 0) uniform UniformBaseBuffer {
-    UniformBlockBase block;
-}ubobasedata;
+    UniformBlockBase ubobasedata;
+};
 struct AOConfig{
     float radiusScale;//采样周围多大的距离
     float angleBias;

@@ -174,7 +174,14 @@ namespace R3D {
         for (std::list<Object *>::iterator p = in_object->GetChildList().begin();
              p != in_object->GetChildList().end();++p) {
             DeleteObject(*p);
-            delete *p;
         }
+        delete in_object;
+    }
+    Object *Scene::GetRoot() {
+        return m_root;
+    }
+    void Scene::SetAABB(const vec3 &in_min, const vec3 &in_max) {
+        m_aabb.min = in_min;
+        m_aabb.max = in_max;
     }
 }

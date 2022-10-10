@@ -16,15 +16,15 @@ struct UniformBlockBase {
     mat4 invproj;
     mat4 viewproj;
     vec3 camerapos;
-    int dirlightactivenum;
+    int dirlightactivenum;//平行光启用数目
     DirLight dirLights[DIRECTION_LIGHT_COUNT];
-    int pointlightactivenum;
-    int tilepointlightmax;
+    int pointlightactivenum;//点光源启用数目
+    int tilepointlightmax;//单个块最多点光源数目
     float windowwidth;
     float windowheight;
-    int workgroup_x;
-    float fill0;
-    float fill1;
+    int workgroup_x;//用于灯光剔除的横向组数
+    float znear;
+    float zfar;
     float fill2;
 };
 struct UniformBlockMesh{
@@ -34,11 +34,11 @@ struct UniformBlockMesh{
     vec2 uvscale;
 };
 layout(std140, binding = 0) uniform UniformBaseBuffer {
-    UniformBlockBase block;
-}ubobasedata;
+    UniformBlockBase ubobasedata;
+};
 layout(std140, binding = 1) uniform UniformMeshBuffer {
-    UniformBlockMesh block;
-}ubomeshdata;
+    UniformBlockMesh ubomeshdata;
+};
 struct PointLight{
     vec3 position;
     float constant;
@@ -56,6 +56,6 @@ layout (std430, binding = 0) buffer PointLightBuffer {
 };
 out vec3 lightcolor;
 void main() {
-    gl_Position = ubobasedata.block.viewproj*vec4(vPosition+pointLightData[gl_InstanceID].position, 1.0);
+    gl_Position = ubobasedata.viewproj*vec4(vPosition+pointLightData[gl_InstanceID].position, 1.0);
     lightcolor = pointLightData[gl_InstanceID].strength;
 }

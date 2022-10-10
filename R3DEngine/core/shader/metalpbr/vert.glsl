@@ -16,16 +16,21 @@ struct UniformBlockBase {
     mat4 invproj;
     mat4 viewproj;
     vec3 camerapos;
-    int dirlightactivenum;
+    int dirlightactivenum;//平行光启用数目
     DirLight dirLights[DIRECTION_LIGHT_COUNT];
-    int pointlightactivenum;
-    int tilepointlightmax;
+    int pointlightactivenum;//点光源启用数目
+    int tilepointlightmax;//单个块最多点光源数目
     float windowwidth;
     float windowheight;
-    int workgroup_x;
+    int workgroup_x;//用于灯光剔除的横向组数
+    float znear;
+    float zfar;
+    int csmlayercount;
+    mat4 lightviewprojdata[6];
+    float depthbias;
+    float normalbias;
     float fill0;
     float fill1;
-    float fill2;
 };
 struct UniformBlockMesh{
     mat4 model;
@@ -34,26 +39,27 @@ struct UniformBlockMesh{
     vec2 uvscale;
 };
 layout(std140, binding = 0) uniform UniformBaseBuffer {
-    UniformBlockBase block;
-}ubobasedata;
+    UniformBlockBase ubobasedata;
+};
 layout(std140, binding = 1) uniform UniformMeshBuffer {
-    UniformBlockMesh block;
-}ubomeshdata;
+    UniformBlockMesh ubomeshdata;
+};
 
 out VS_OUT {
     vec3 FragPos;
     vec2 TexCoords;
     mat3 TBN;
+    float CameraZ;
 } vs_out;
 void main() {
-    gl_Position = ubobasedata.block.viewproj*ubomeshdata.block.model*vec4(vPosition, 1.0);
-    vs_out.FragPos = vec3(ubomeshdata.block.model * vec4(vPosition, 1.0));
-    vs_out.TexCoords = ubomeshdata.block.uvoffset+vUv*ubomeshdata.block.uvscale;
-    mat3 normalMatrix = mat3(ubomeshdata.block.invmodelt);
+    gl_Position = ubobasedata.viewproj*ubomeshdata.model*vec4(vPosition, 1.0);
+    vs_out.FragPos = vec3(ubomeshdata.model * vec4(vPosition, 1.0));
+    vs_out.TexCoords = ubomeshdata.uvoffset+vUv*ubomeshdata.uvscale;
+    mat3 normalMatrix = mat3(ubomeshdata.invmodelt);
     vec3 T = normalize(normalMatrix * vTangent);
     vec3 N = normalize(normalMatrix * vNormal);
     T = normalize(T - dot(T, N) * N);
     vec3 B = cross(N, T);
-
     vs_out.TBN = mat3(T, B, N);
+    vs_out.CameraZ = -(ubobasedata.view*vec4(vPosition, 1.0f)).z;
 }

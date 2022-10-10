@@ -202,6 +202,26 @@ namespace R3D {
         }
     }
     //----------------------------------------------
+    MaterialShadowMap::MaterialShadowMap() {
+        m_mtrQueue = MTRQUEUE_BACKGROUND;
+    }
+    void MaterialShadowMap::InitResource(GLint in_param, GLint in_mipmapinfo) {
+    }
+    void MaterialShadowMap::BindResource() {
+    }
+    void MaterialShadowMap::RenderPrepare() {
+        if (RenderStateManage::GetInstance()->NeedChangeState(m_shader.ID)) {
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
+            glFrontFace(GL_CCW);
+            glCullFace(GL_BACK);
+            glDepthFunc(GL_LESS);
+            //注：此处GL_FRONT_AND_BACK对应恢复包围球pass中的状态，不可仅恢复FRONT状态，造成渲染错误
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            m_shader.use();
+        }
+    }
+    //----------------------------------------------
     MaterialManage::MaterialManage() {
     }
     MaterialManage *MaterialManage::m_materialManage = nullptr;
@@ -212,6 +232,7 @@ namespace R3D {
         return m_materialManage;
     }
     void MaterialManage::Init() {
+#if 1
         ShaderCache &shaderCache = Device::GetInstance()->m_shaderCache;
 /*        MaterialPhone *phone_circlebox = NEW MaterialPhone();
         phone_circlebox->m_shader = shaderCache.GetShader("phone");
@@ -315,6 +336,11 @@ namespace R3D {
         MaterialLightRadius *lightradius = NEW MaterialLightRadius();
         lightradius->m_shader = shaderCache.GetShader("lightradius");
         AddMaterial("lightradius", lightradius);
+        //----------------------------------------------
+        MaterialShadowMap *shadowmap = NEW MaterialShadowMap();
+        shadowmap->m_shader = shaderCache.GetShader("shadowmap");
+        AddMaterial("shadowmap", shadowmap);
+#endif
     }
     void MaterialManage::Release() {
         for (auto item = m_nameToMtr.begin();item != m_nameToMtr.end();item++) {

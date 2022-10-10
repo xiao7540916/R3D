@@ -47,7 +47,7 @@ extern unordered_map<void *, string> dstToString;
 inline void *operator new(size_t size, const char *filename, int line) {
     ++gNewCount;
     void *data = malloc(size);
-    dstToString[data] = "file:"+string(filename) +" line:"+ std::to_string(line);
+    dstToString[data] = "file:" + string(filename) + " line:" + std::to_string(line);
     return data;
 }
 inline void operator delete(void *p, const char *filename, int line) {}
@@ -148,8 +148,10 @@ namespace R3D {
         bool castShadow;//投射阴影
         bool receiveShadow;
     };
-
-
+    struct AABB {
+        vec3 min;
+        vec3 max;
+    };
 }
 template<>
 struct std::hash<R3D::VertexPosNorTanUv> {
@@ -158,7 +160,6 @@ struct std::hash<R3D::VertexPosNorTanUv> {
                (hash<glm::vec2>()(vertex.uv) << 1);
     }
 };
-
 struct OptionConfig {
     uint32_t FPS;
     uint32_t OpaqueRenderCount;
@@ -177,5 +178,8 @@ struct OptionConfig {
     float bfRang = 1.0f;
     float powExponent = 2.0f;
     float nDotVBias = 0.1f;
+    float lightPosOffset = 0.0f;
+    float depthbias = 0.0f;
+    float normalbias = 0.2f;
 };
 #endif //R3D_STRUCTDEFINE_H

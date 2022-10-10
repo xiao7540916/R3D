@@ -17,20 +17,20 @@ struct UniformBlockBase {
     mat4 invproj;
     mat4 viewproj;
     vec3 camerapos;
-    int dirlightactivenum;
+    int dirlightactivenum;//平行光启用数目
     DirLight dirLights[DIRECTION_LIGHT_COUNT];
-    int pointlightactivenum;
-    int tilepointlightmax;
+    int pointlightactivenum;//点光源启用数目
+    int tilepointlightmax;//单个块最多点光源数目
     float windowwidth;
     float windowheight;
-    int workgroup_x;
-    float fill0;
-    float fill1;
+    int workgroup_x;//用于灯光剔除的横向组数
+    float znear;
+    float zfar;
     float fill2;
 };
 layout(std140, binding = 0) uniform UniformBaseBuffer {
-    UniformBlockBase block;
-}ubobasedata;
+    UniformBlockBase ubobasedata;
+};
 in VS_OUT {
     vec3 FragPos;
     vec2 TexCoords;
@@ -58,7 +58,7 @@ void main() {
         float diff = max(dot(lightDir, normal), 0.0);
         vec3 diffuse = diff * color*lightstrength;
         // specular
-        vec3 viewDir = normalize(ubobasedata.block.camerapos - fs_in.FragPos);
+        vec3 viewDir = normalize(ubobasedata.camerapos - fs_in.FragPos);
         vec3 reflectDir = reflect(-lightDir, normal);
         vec3 halfwayDir = normalize(lightDir + viewDir);
         float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
@@ -71,16 +71,16 @@ void main() {
     for (int i = 0; i < DIRECTION_LIGHT_COUNT; ++i)
     {
         // diffuse
-        vec3 lightDir = ubobasedata.block.dirLights[i].direction;
+        vec3 lightDir = ubobasedata.dirLights[i].direction;
         float diff = max(dot(lightDir, normal), 0.0);
-        vec3 diffuse = diff * color * ubobasedata.block.dirLights[i].strength;
+        vec3 diffuse = diff * color * ubobasedata.dirLights[i].strength;
         // specular
-        vec3 viewDir = normalize(ubobasedata.block.camerapos - fs_in.FragPos);
+        vec3 viewDir = normalize(ubobasedata.camerapos - fs_in.FragPos);
         vec3 reflectDir = reflect(-lightDir, normal);
         vec3 halfwayDir = normalize(lightDir + viewDir);
         float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
         float specstrength = texture(specTex, fs_in.TexCoords).r;
-        vec3 specular = vec3(specstrength) * spec * ubobasedata.block.dirLights[i].strength;
+        vec3 specular = vec3(specstrength) * spec * ubobasedata.dirLights[i].strength;
         Lo+=diffuse;
         Lo+=specular;
     }

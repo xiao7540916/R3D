@@ -19,6 +19,9 @@ namespace R3D {
         GLuint m_tileLightsIdxBuffer;
         GLuint m_tileLightsNumBuffer;
         GLuint m_tileClipPlaneBuffer;
+        GLuint m_uniCSMBaseBuffer;
+        GLuint m_uniCSMMeshBuffer;
+        GLuint m_uniCSMHandleBuffer;
         ~BufferManage();
         BufferManage(const BufferManage &) = delete;
         BufferManage &operator=(const BufferManage &) = delete;

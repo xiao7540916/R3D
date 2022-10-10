@@ -13,6 +13,7 @@ namespace R3D{
         void Render();
         void RenderBndSphere();
         void RenderDepth();
+        void RenderShadowMap();
         void Sort();
     };
 }

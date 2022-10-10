@@ -149,4 +149,22 @@ namespace R3D {
         mPosition += d * mWorldUp;
         mViewdirty = true;
     }
+    glm::mat4 Camera::GetOrthoProjectionOpengl(OrthoDate &orthoDate) {
+//        return glm::ortho(orthoDate.left, orthoDate.right, orthoDate.bottom, orthoDate.top, orthoDate.zNear,
+//                          orthoDate.zFar);
+        glm::mat4 orthoProjection(1.0f);
+        float r = orthoDate.right;
+        float l = orthoDate.left;
+        float t = orthoDate.top;
+        float b = orthoDate.bottom;
+        float n = orthoDate.zNear;
+        float f = orthoDate.zFar;
+        orthoProjection[0][0] = 2.0f / (r - l);
+        orthoProjection[1][1] = 2.0f / (t - b);
+        orthoProjection[2][2] = -2.0f / (f - n);
+        orthoProjection[3][0] = -(r + l) / (r - l);
+        orthoProjection[3][1] = -(t + b) / (t - b);
+        orthoProjection[3][2] = -(f + n) / (f - n);
+        return orthoProjection;
+    }
 }

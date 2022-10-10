@@ -28,8 +28,8 @@ struct UniformBlockBase {
     float fill2;
 };
 layout(std140, binding = 0) uniform UniformBaseBuffer {
-    UniformBlockBase block;
-}ubobasedata;
+    UniformBlockBase ubobasedata;
+};
 struct AOConfig{
     float radiusScale;//采样周围多大的距离
     float angleBias;
@@ -73,7 +73,7 @@ vec3 FetchViewPos(vec2 UV)
 {
     float depth = texture(depthTex, UV).r;
     vec4 clipPos = vec4(UV * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
-    vec4 viewPos = ubobasedata.block.invproj * clipPos;
+    vec4 viewPos = ubobasedata.invproj * clipPos;
     viewPos /= viewPos.w;
     return viewPos.rgb;
 }
@@ -81,7 +81,7 @@ vec3 FetchViewPos(vec2 UV)
 //距离衰减 NegInvR2为负值，距离平方越大，衰减越强
 float Falloff(float DistanceSquare)
 {
-    return DistanceSquare * aoconfigdata.block.NegInvR2 + 1.0;
+    return DistanceSquare * aoconfigdata.NegInvR2 + 1.0;
 }
 
 float PowVec3_2(in vec3 v){
@@ -126,12 +126,12 @@ void main()
     float depth = texture(depthTex, texUV).r;
     vec3 ViewPosition = FetchViewPos(texUV);
     vec3 ViewNormal = normalize(texture(viewNormalTex, texUV).xyz);
-    float RadiusPixels = aoconfigdata.block.RadiusToScreen / abs(ViewPosition.z);
+    float RadiusPixels = aoconfigdata.RadiusToScreen / abs(ViewPosition.z);
     vec4 Rand = GetJitter();
 
     float StepSizePixels = RadiusPixels/(NUM_STEPS+1);
     const float StepAngle = 2.0 * M_PI / NUM_DIRECTIONS;
-    float R2 = aoconfigdata.block.R*aoconfigdata.block.R;
+    float R2 = aoconfigdata.R*aoconfigdata.R;
     float AO = 0;
     for (float DirectionIndex = 0; DirectionIndex < NUM_DIRECTIONS; ++DirectionIndex)
     {
@@ -154,7 +154,7 @@ void main()
         for (float StepIndex = 0; StepIndex < NUM_STEPS; ++StepIndex)
         {
             //步进点采样uv
-            vec2 SnappedUV = RayPixels * Direction * aoconfigdata.block.InvFullResolution + texUV;
+            vec2 SnappedUV = RayPixels * Direction * aoconfigdata.InvFullResolution + texUV;
             S = FetchViewPos(SnappedUV);//步进点相机空间位置
             RayPixels += StepSizePixels;
             tanS = Tangent(ViewPosition,S);

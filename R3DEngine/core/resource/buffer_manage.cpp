@@ -38,6 +38,21 @@ namespace R3D {
         glCreateBuffers(1, &m_uniBlockAoCfgBuffer);
         glNamedBufferData(m_uniBlockAoCfgBuffer, sizeof(AOConfig),
                           nullptr, GL_DYNAMIC_DRAW);
+        //CSM数据
+        glCreateBuffers(1, &m_uniCSMBaseBuffer);
+        glNamedBufferData(m_uniCSMBaseBuffer, sizeof(mat4),
+                          nullptr, GL_DYNAMIC_DRAW);//DRAW代表会被用于GPU
+        glCreateBuffers(1, &m_uniCSMHandleBuffer);
+        glNamedBufferData(m_uniCSMHandleBuffer, sizeof(uint64_t) * m_device->m_cascadedShadowMap.m_csmLayerCount,
+                          nullptr, GL_DYNAMIC_DRAW);//DRAW代表会被用于GPU
+        glBindBuffer(GL_UNIFORM_BUFFER, m_uniCSMHandleBuffer);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(GLuint64) * m_device->m_cascadedShadowMap.m_csmLayerCount,
+                        m_device->m_cascadedShadowMap.m_shadowmapHandles.data());
+        glUnmapBuffer(GL_UNIFORM_BUFFER);
+        //模型数据
+        glCreateBuffers(1, &m_uniCSMMeshBuffer);
+        glNamedBufferData(m_uniCSMMeshBuffer, sizeof(mat4),
+                          nullptr, GL_DYNAMIC_DRAW);
     }
     void BufferManage::Release() {
     }
@@ -61,6 +76,13 @@ namespace R3D {
         uniformBlockBase.workgroup_x =
                 (m_device->m_windowWidth % TILE_SIZE) == 0 ? (m_device->m_windowWidth / TILE_SIZE) : (
                         m_device->m_windowWidth / TILE_SIZE + 1);
+        uniformBlockBase.znear = camera.GetNearZ();
+        uniformBlockBase.zfar = camera.GetFarZ();
+        uniformBlockBase.depthbias = optionConfig.depthbias;
+        uniformBlockBase.normalbias = optionConfig.normalbias;
+        for (int i = 0;i < 6;++i) {
+            uniformBlockBase.lightviewprojdata[i] = m_device->m_cascadedShadowMap.m_lightViewProjs[i];
+        }
         glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_uniBlockBaseBuffer);
         glNamedBufferSubData(m_uniBlockBaseBuffer, 0, sizeof(UniformBlockBase), &uniformBlockBase);
         glUnmapBuffer(GL_UNIFORM_BUFFER);
@@ -81,18 +103,19 @@ namespace R3D {
         aoConfig.stepCount = optionConfig.stepCount;
         //新增
         //hbao uniforms
-        aoConfig.projInfo = vec4(2.0f / camera.GetProjection()[0][0], 2.0f / camera.GetProjection()[1][1], -1.0f / camera.GetProjection()[0][0], -1.0f / camera.GetProjection()[1][1]);
-        aoConfig.InvFullResolution = vec2(1.0f / float(m_device->m_windowWidth), 1.0f / float(m_device->m_windowHeight));
-
-        aoConfig.InvQuarterResolution = vec2(1.0f / float((m_device->m_windowWidth+3)/4), 1.0f / float((m_device->m_windowHeight+3)/4));
-
+        aoConfig.projInfo = vec4(2.0f / camera.GetProjection()[0][0], 2.0f / camera.GetProjection()[1][1],
+                                 -1.0f / camera.GetProjection()[0][0], -1.0f / camera.GetProjection()[1][1]);
+        aoConfig.InvFullResolution = vec2(1.0f / float(m_device->m_windowWidth),
+                                          1.0f / float(m_device->m_windowHeight));
+        aoConfig.InvQuarterResolution = vec2(1.0f / float((m_device->m_windowWidth + 3) / 4),
+                                             1.0f / float((m_device->m_windowHeight + 3) / 4));
         aoConfig.R = optionConfig.radiusScale;
         aoConfig.NegInvR2 = -1.0f / (optionConfig.radiusScale * optionConfig.radiusScale);
-        aoConfig.RadiusToScreen = optionConfig.radiusScale * 0.5f * m_device->m_windowHeight / (tanf(camera.GetFovY() * 0.5f) * 2.0f);
+        aoConfig.RadiusToScreen =
+                optionConfig.radiusScale * 0.5f * m_device->m_windowHeight / (tanf(camera.GetFovY() * 0.5f) * 2.0f);
         aoConfig.PowExponent = optionConfig.powExponent;
         aoConfig.NDotVBias = optionConfig.nDotVBias;
         aoConfig.AOMultiplier = 1.0f / (1.0f - aoConfig.NDotVBias);
-
         glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_uniBlockAoCfgBuffer);
         glNamedBufferSubData(m_uniBlockAoCfgBuffer, 0, sizeof(AOConfig), &aoConfig);
         glUnmapBuffer(GL_UNIFORM_BUFFER);

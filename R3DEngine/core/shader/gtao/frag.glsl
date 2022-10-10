@@ -16,20 +16,20 @@ struct UniformBlockBase {
     mat4 invproj;
     mat4 viewproj;
     vec3 camerapos;
-    int dirlightactivenum;
+    int dirlightactivenum;//平行光启用数目
     DirLight dirLights[DIRECTION_LIGHT_COUNT];
-    int pointlightactivenum;
-    int tilepointlightmax;
+    int pointlightactivenum;//点光源启用数目
+    int tilepointlightmax;//单个块最多点光源数目
     float windowwidth;
     float windowheight;
-    int workgroup_x;
-    float fill0;
-    float fill1;
+    int workgroup_x;//用于灯光剔除的横向组数
+    float znear;
+    float zfar;
     float fill2;
 };
 layout(std140, binding = 0) uniform UniformBaseBuffer {
-    UniformBlockBase block;
-}ubobasedata;
+    UniformBlockBase ubobasedata;
+};
 struct AOConfig{
     float radiusScale;//采样周围多大的距离
     float angleBias;
@@ -56,8 +56,8 @@ struct AOConfig{
     float fill4;
 };
 layout(std140, binding = 1) uniform AoConfigBuffer {
-    AOConfig block;
-}aoconfigdata;
+    AOConfig aoconfigdata;
+};
 
 layout (binding = 0) uniform sampler2D depthTex;
 layout (binding = 1) uniform sampler2D viewNormalTex;
@@ -72,7 +72,7 @@ vec3 FetchViewPos(vec2 UV)
 {
     float depth = texture(depthTex, UV).r;
     vec4 clipPos = vec4(UV * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
-    vec4 viewPos = ubobasedata.block.invproj * clipPos;
+    vec4 viewPos = ubobasedata.invproj * clipPos;
     viewPos /= viewPos.w;
     return viewPos.rgb;
 }
@@ -87,17 +87,17 @@ vec3 MinDiff(vec3 P, vec3 Pr, vec3 Pl)
 
 vec3 ReconstructNormal(vec2 UV, vec3 P)
 {
-    vec3 Pr = FetchViewPos(UV + vec2(aoconfigdata.block.InvFullResolution.x, 0));
-    vec3 Pl = FetchViewPos(UV + vec2(-aoconfigdata.block.InvFullResolution.x, 0));
-    vec3 Pt = FetchViewPos(UV + vec2(0, aoconfigdata.block.InvFullResolution.y));
-    vec3 Pb = FetchViewPos(UV + vec2(0, -aoconfigdata.block.InvFullResolution.y));
+    vec3 Pr = FetchViewPos(UV + vec2(aoconfigdata.InvFullResolution.x, 0));
+    vec3 Pl = FetchViewPos(UV + vec2(-aoconfigdata.InvFullResolution.x, 0));
+    vec3 Pt = FetchViewPos(UV + vec2(0, aoconfigdata.InvFullResolution.y));
+    vec3 Pb = FetchViewPos(UV + vec2(0, -aoconfigdata.InvFullResolution.y));
     return normalize(cross(MinDiff(P, Pr, Pl), MinDiff(P, Pt, Pb)));
 }
 
 //距离衰减 NegInvR2为负值，距离平方越大，衰减越强
 float Falloff(float DistanceSquare)
 {
-    return DistanceSquare * aoconfigdata.block.NegInvR2 + 1.0;
+    return DistanceSquare * aoconfigdata.NegInvR2 + 1.0;
 }
 
 //P 处理点的相机空间位置，N 处理点相机空间法线S 采样点相机空间位置
@@ -106,11 +106,11 @@ float ComputeAO(vec3 P, vec3 N, vec3 S)
     vec3 V = S - P;//处理点指向采样点的位置向量
     float VdotV = dot(V, V);
     float NdotV = dot(N, V) * 1.0/sqrt(VdotV);//法线在采样点方向上投影越大，说明越陡峭
-    if (VdotV>aoconfigdata.block.R*aoconfigdata.block.R){
+    if (VdotV>aoconfigdata.R*aoconfigdata.R){
         return 0;
     }
     else {
-        return clamp(NdotV - aoconfigdata.block.NDotVBias, 0, 1) * clamp(Falloff(VdotV), 0, 1);
+        return clamp(NdotV - aoconfigdata.NDotVBias, 0, 1) * clamp(Falloff(VdotV), 0, 1);
     }
 }
 
@@ -144,7 +144,7 @@ float ComputeCoarseAO(vec2 FullResUV, float RadiusPixels, vec4 Rand, vec3 ViewPo
         for (float StepIndex = 0; StepIndex < NUM_STEPS; ++StepIndex)
         {
             //步进点采样uv
-            vec2 SnappedUV = round(RayPixels * Direction) * aoconfigdata.block.InvFullResolution + FullResUV;
+            vec2 SnappedUV = round(RayPixels * Direction) * aoconfigdata.InvFullResolution + FullResUV;
             vec3 S = FetchViewPos(SnappedUV);//步进点相机空间位置
             RayPixels += StepSizePixels;
 
@@ -152,7 +152,7 @@ float ComputeCoarseAO(vec2 FullResUV, float RadiusPixels, vec4 Rand, vec3 ViewPo
         }
     }
 
-    AO *= aoconfigdata.block.AOMultiplier / (NUM_DIRECTIONS * NUM_STEPS);
+    AO *= aoconfigdata.AOMultiplier / (NUM_DIRECTIONS * NUM_STEPS);
     return clamp(1.0 - AO * 2.0, 0, 1);
 }
 
@@ -162,11 +162,11 @@ void main()
     float depth = texture(depthTex, uv).r;
     vec3 ViewPosition = FetchViewPos(uv);
     vec3 ViewNormal = texture(viewNormalTex, uv).xyz;
-    float RadiusPixels = aoconfigdata.block.RadiusToScreen / abs(ViewPosition.z);
+    float RadiusPixels = aoconfigdata.RadiusToScreen / abs(ViewPosition.z);
     vec4 Rand = GetJitter();
     float AO = ComputeCoarseAO(uv, RadiusPixels, Rand, ViewPosition, ViewNormal);
     if (abs(depth-1.0f)<0.0001f){
         AO = 1.0f;
     }
-    FragColor = vec4(pow(AO, aoconfigdata.block.PowExponent));
+    FragColor = vec4(pow(AO, aoconfigdata.PowExponent));
 }

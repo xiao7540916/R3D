@@ -7,6 +7,7 @@
 #include <math/sphere.h>
 #include <resource/object.h>
 #include <device/scene.h>
+#include <resource/cascaded_shadow_map.h>
 using namespace std;
 using namespace R3D;
 string CURRENT_SOURCE_DIR = "../../";
@@ -18,10 +19,10 @@ unordered_map<void *, string> dstToString;
 void guiMake();
 int main() {
     Device *device = Device::GetInstance();
-    device->Init("windowtest", 1600, 900, true);
+    device->Init("windowtest", 1600, 900, 3, true);
     device->SetCamera(vec3(-8, 3, -8), vec3(0, 0, 0), radians(70.0f),
                       float(device->m_windowWidth) / float(device->m_windowHeight),
-                      0.1f, 100.0f);
+                      0.1f, 50.0f);
     BufferManage::GetInstance()->CreateTileClipBuffer(*device->m_camera, device->m_windowWidth, device->m_windowHeight,
                                                       TILE_SIZE);
     Gui *gui = Gui::GetInstance();
@@ -31,9 +32,10 @@ int main() {
     MaterialManage &materialManage = *device->m_materialManage;
     Scene scene;
     scene.Init(device);
-    scene.SetLightCount(0, optionConfig.PointLightCount, TILE_LIGHT_MAX);
+    scene.SetAABB(vec3(-9, -1, -9), vec3(9, 17, 9));
+    scene.SetLightCount(1, optionConfig.PointLightCount, TILE_LIGHT_MAX);
     scene.m_dirLights[0].direction = glm::normalize(vec3(-8, 16, -8));
-    scene.m_dirLights[0].strength = vec3(10, 10, 10);
+    scene.m_dirLights[0].strength = vec3(6, 6, 6);
     scene.m_dirLights[1].direction = glm::normalize(vec3(-1, 5, 1));
     scene.m_dirLights[1].strength = vec3(0, 0, 0);
     for (int i = 0;i < scene.m_pointLights.size();++i) {
@@ -138,7 +140,8 @@ int main() {
             Path path1 = {PATH_STRAIGHT, vec3(sqlen, 0, -sqlen), vec3(sqlen, 0, sqlen)};
             Path path2 = {PATH_CURVED, vec3(sqlen, 0, sqlen), vec3(-sqlen, 0, sqlen), vec3(sqlen, 0, 7),
                           vec3(-sqlen, 0, 7)};
-            Path path3 = {PATH_CURVED, vec3(-sqlen, 0, sqlen), vec3(-sqlen, 1, -sqlen),vec3(-sqlen,0,2),vec3(-sqlen,1,-2)};
+            Path path3 = {PATH_CURVED, vec3(-sqlen, 0, sqlen), vec3(-sqlen, 1, -sqlen), vec3(-sqlen, 0, 0),
+                          vec3(-sqlen, 1, -2)};
             routeAction->AddPath(path0);
             routeAction->AddPath(path1);
             routeAction->AddPath(path2);
@@ -185,8 +188,6 @@ int main() {
     rootplane->UpdataSubSceneGraph(true);
     rootplane->UpdataBoundSphere(rootplane);
     scene.GatherDynamic(rootplane);
-    scene.MakeRenderList();
-    scene.m_opaqueList.Sort();
     while (device->Run()) {
         //数据准备
         device->Tick();
@@ -201,32 +202,36 @@ int main() {
         EventInfo eventInfo{};
         eventInfo.type = EVENT_NONE;
         scene.UpdataAnimate(device->m_gameTime.DeltaTime(), eventInfo);
-        scene.SetLightCount(0, optionConfig.PointLightCount, TILE_LIGHT_MAX);
+        scene.SetLightCount(1, optionConfig.PointLightCount, TILE_LIGHT_MAX);
         scene.UpdataTransBound();
         scene.MakeRenderList();
         scene.SortRenderList();
         optionConfig.OpaqueRenderCount = scene.m_opaqueList.m_objectList.size();
         bufferManage->UpdataUniBaseBuf(scene);
+        //更新shadowmap
+        device->PrepareCSM(scene);
+        //更新GUI
         gui->Begin();
         guiMake();
         gui->End();
         //渲染开始
+        //shadowmap
+        glViewport(0, 0, 1024, 1024);
+        device->UpdataCSM(scene);
+        glFinish();
+        glViewport(0, 0, device->m_windowWidth, device->m_windowHeight);
         //深度预渲染
         glBindFramebuffer(GL_FRAMEBUFFER, device->m_preDepthFBO.m_frameBuffer);
         glClearColor(-1, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 0, BufferManage::GetInstance()->m_uniBlockBaseBuffer);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 15,BufferManage::GetInstance()->m_uniCSMHandleBuffer);
         scene.m_opaqueList.RenderDepth();
         //光源剔除
         scene.CullLight();
         glBindFramebuffer(GL_FRAMEBUFFER, device->m_AOFBO.m_frameBuffer);
         scene.MakeAO();
-/*        void *lightcountptr = glMapNamedBuffer(bufferManage->m_tileLightsNumBuffer, GL_READ_ONLY);
-        uint32_t *lightcount = (uint32_t *) (lightcountptr);
-        for (int i = 0;i < 10;++i) {
-            cout<<lightcount[i]<<" ";
-        }        cout << endl;
-        glUnmapNamedBuffer(bufferManage->m_tileLightsNumBuffer);*/
         //拷贝pre深度缓冲到后台缓冲，使用深度相等渲染
         glBindFramebuffer(GL_READ_FRAMEBUFFER, device->m_preDepthFBO.m_frameBuffer);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, device->m_backHDRFBO.m_frameBuffer);
@@ -238,6 +243,7 @@ int main() {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
+
         scene.m_opaqueList.Render();
         if (optionConfig.LightShowRender) {
             scene.RenderLightShow();
@@ -292,25 +298,22 @@ void guiMake() {
     ImGui::Checkbox("LightShowRender", &optionConfig.LightShowRender);
     ImGui::Checkbox("LightRadiusRender", &optionConfig.LightRadiusRender);
     ImGui::SliderInt("PointLightCount", &optionConfig.PointLightCount, 0, 1024);
+    ImGui::SliderFloat("DepthBias",&optionConfig.depthbias,0.0,0.2);
+    ImGui::SliderFloat("NormalBias",&optionConfig.normalbias,0.0,0.2);
     ImGui::End();
     ImGui::Begin("DepthTex");
     //翻转y轴使图像于屏幕匹配
-    ImGui::Image((ImTextureID) Device::GetInstance()->m_preDepthFBO.m_depthAttach, ImVec2(800, 450), ImVec2(0, 1),
-                 ImVec2(1, 0));
-    ImGui::End();
-    ImGui::Begin("ViewNormalTex");
-    //翻转y轴使图像于屏幕匹配
-    ImGui::Image((ImTextureID) Device::GetInstance()->m_preDepthFBO.m_normalAttach, ImVec2(800, 450), ImVec2(0, 1),
+    ImGui::Image((ImTextureID) Device::GetInstance()->m_preDepthFBO.m_depthAttach, ImVec2(400, 225), ImVec2(0, 1),
                  ImVec2(1, 0));
     ImGui::End();
     ImGui::Begin("BackColTex");
     //翻转y轴使图像于屏幕匹配
-    ImGui::Image((ImTextureID) Device::GetInstance()->m_backHDRFBO.m_colorAttach0, ImVec2(800, 450), ImVec2(0, 1),
+    ImGui::Image((ImTextureID) Device::GetInstance()->m_backHDRFBO.m_colorAttach0, ImVec2(400, 225), ImVec2(0, 1),
                  ImVec2(1, 0));
     ImGui::End();
-    ImGui::Begin("AOTex");
-    //翻转y轴使图像于屏幕匹配
-    ImGui::Image((ImTextureID) Device::GetInstance()->m_AOFBO.m_blurDstTexture, ImVec2(800, 450), ImVec2(0, 1),
+    ImGui::Begin("ShadowMap0");
+    ImGui::Image((ImTextureID) Device::GetInstance()->m_cascadedShadowMap.m_shadowMapFBO[0].m_depthAttach,
+                 ImVec2(400, 400), ImVec2(0, 1),
                  ImVec2(1, 0));
     ImGui::End();
     ImGui::Begin("AO Config");

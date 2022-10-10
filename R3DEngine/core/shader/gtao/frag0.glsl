@@ -28,8 +28,8 @@ struct UniformBlockBase {
     float fill2;
 };
 layout(std140, binding = 0) uniform UniformBaseBuffer {
-    UniformBlockBase block;
-}ubobasedata;
+    UniformBlockBase ubobasedata;
+};
 struct AOConfig{
     float radiusScale;//采样周围多大的距离
     float angleBias;
@@ -60,7 +60,7 @@ float rand(vec2 val)
 vec3 getViewPos(float depth)
 {
     vec4 clipPos = vec4(texUV * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
-    vec4 viewPos = ubobasedata.block.invproj * clipPos;
+    vec4 viewPos = ubobasedata.invproj * clipPos;
     viewPos /= viewPos.w;
 
     return viewPos.rgb;
@@ -70,15 +70,15 @@ void main() {
     vec3 fragViewNormal = normalize(texture(viewNormalTex, texUV).xyz);
     //生成随机方向
     float currAngle = rand(texUV)*2.0*PI;
-    float angleStep = 2.0 * PI / aoconfigdata.block.dirCount;
-    float radiusStep = aoconfigdata.block.radiusScale / aoconfigdata.block.stepCount;
+    float angleStep = 2.0 * PI / aoconfigdata.dirCount;
+    float radiusStep = aoconfigdata.radiusScale / aoconfigdata.stepCount;
 
     vec3 viewPos = getViewPos(fragDepth);//处理点在相机空间的位置
     vec3 viewDx = dFdx(viewPos);//处理点在相机空间位置x方向的变化率
     vec3 viewDy = dFdy(viewPos);//处理点在相机空间位置y方向的变化率
 
     float AO = 0;
-    for (int i = 0; i < aoconfigdata.block.dirCount; i++)
+    for (int i = 0; i < aoconfigdata.dirCount; i++)
     {
         //在深度图上选取方向，计算单位像素dx，dy方向像素
         vec2 dir = vec2(cos(currAngle), sin(currAngle));
@@ -88,12 +88,12 @@ void main() {
         vec3 highestPos = viewPos;
         bool occluded = false;
         float WAO = 0.0f;
-        float tanAngle = atan(currTan.z / length(currTan.xy)) + radians(aoconfigdata.block.angleBias);
+        float tanAngle = atan(currTan.z / length(currTan.xy)) + radians(aoconfigdata.angleBias);
         float sintan = sin(tanAngle);
-        for (int j = 0; j < aoconfigdata.block.stepCount; j++)
+        for (int j = 0; j < aoconfigdata.stepCount; j++)
         {
             vec3 currPos = viewPos + currRad * vec3(dir, 0);//z等于处理点z的面上，步进单步距离后的相机空间坐标
-            vec4 ndcPos = ubobasedata.block.proj * vec4(currPos, 1.0);
+            vec4 ndcPos = ubobasedata.proj * vec4(currPos, 1.0);
             vec2 newUV = (ndcPos.xy / ndcPos.w + vec2(1.0)) / 2.0;//求出采样点在深度图中的uv
 
             float currDepth = texture(depthTex, newUV).r;
@@ -104,7 +104,7 @@ void main() {
                     highestPos = currViewPos;
                     occluded = true;
                     vec3 horVec = highestPos - viewPos;
-                    float finalAtt = max(1.0 - pow(length(horVec) / aoconfigdata.block.radiusScale, 2),0);
+                    float finalAtt = max(1.0 - pow(length(horVec) / aoconfigdata.radiusScale, 2),0);
                     float horAngle = atan(horVec.z / length(horVec.xy));
                     float sinhigh = sin(horAngle);
                     float AOresult = sinhigh - sintan;
@@ -122,7 +122,7 @@ void main() {
                      if (tancurr2>tanhighest2){
                          highestPos = currViewPos;
                          vec3 horVec = highestPos - viewPos;
-                         float finalAtt = max(1.0 - pow(length(horVec) / aoconfigdata.block.radiusScale, 2),0);
+                         float finalAtt = max(1.0 - pow(length(horVec) / aoconfigdata.radiusScale, 2),0);
                          float horAngle = atan(horVec.z / length(horVec.xy));
                          float sinhigh = sin(horAngle);
                          float AOresult = sinhigh - sintan;
@@ -141,17 +141,17 @@ void main() {
         vec3 horVec = highestPos - viewPos;
         float horAngle = atan(horVec.z / length(horVec.xy));
 
-        float finalAtt = 1.0 - pow(length(horVec) / aoconfigdata.block.radiusScale, 2);
+        float finalAtt = 1.0 - pow(length(horVec) / aoconfigdata.radiusScale, 2);
         float AOresult = (sin(horAngle) - sintan)*clamp(finalAtt,0,1);
         if (AOresult < 0.0) continue;
         AO += WAO;
     }
 
-    AO /= aoconfigdata.block.dirCount;
+    AO /= aoconfigdata.dirCount;
     AO = 1.0-AO;
     if (fragDepth>0.999){
         AO = 1.0f;
     }
-    //    AO = 1.0 - pow(AO, aoconfigdata.block.scaleAO);
+    //    AO = 1.0 - pow(AO, aoconfigdata.scaleAO);
     FragColor = vec4(AO, AO, AO, 1.0);
 }

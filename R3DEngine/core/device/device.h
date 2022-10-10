@@ -15,6 +15,7 @@
 #include <math/camera.h>
 #include <util/r_log.h>
 #include <queue>
+#include <resource/cascaded_shadow_map.h>
 namespace R3D {
     struct MouseInfo {
         float x = 0;
@@ -42,13 +43,14 @@ namespace R3D {
         Device(const Device &) = delete;
         Device &operator=(const Device &) = delete;
         static Device *GetInstance();
-        Device *Init(const char *in_appname, int in_width, int in_height, bool in_vsync = true);
+        Device *Init(const char *in_appname, int in_width, int in_height,int in_csmlayercount, bool in_vsync = true);
         void Release();
         void InitGlfw(const char *in_appname, int in_width, int in_height, bool in_vsync);
         void InitControlSystem();
         void InitGui();
         void InitTextureManage();
         void InitBufferManage();
+        void InitCSM(int in_csmlayercount);
         void InitRenderStateManage();
         void InitShaderCache();
         void InitMeshManage();
@@ -58,6 +60,8 @@ namespace R3D {
         void UpdataAppInfo(EventInfo &in_eventInfo);
         void UpdataInputInfo(EventInfo &in_eventInfo);
         void UpdataCamera() const;
+        void PrepareCSM(Scene& in_scene);
+        void UpdataCSM(Scene& in_scene);
         bool Run();
         void Tick();//每帧初始时运行
         void Tock();//每帧结束前运行
@@ -87,6 +91,7 @@ namespace R3D {
         FrameBufferDepthNormal m_preDepthFBO;
         FrameBufferColDepthHDR m_backHDRFBO;
         FrameBufferAO m_AOFBO;
+        CascadedShadowMap m_cascadedShadowMap;
     private:
         static Device *m_device;
         GLFWwindow *m_window = nullptr;

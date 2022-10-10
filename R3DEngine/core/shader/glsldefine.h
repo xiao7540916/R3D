@@ -40,16 +40,21 @@ struct UniformBlockBase {
     mat4 invproj;
     mat4 viewproj;
     vec3 camerapos;
-    int dirlightactivenum;
+    int dirlightactivenum;//平行光启用数目
     DirLight dirLights[DIRECTION_LIGHT_COUNT];
-    int pointlightactivenum;
-    int tilepointlightmax;
+    int pointlightactivenum;//点光源启用数目
+    int tilepointlightmax;//单个块最多点光源数目
     float windowwidth;
     float windowheight;
-    int workgroup_x;
+    int workgroup_x;//用于灯光剔除的横向组数
+    float znear;
+    float zfar;
+    int csmlayercount;
+    mat4 lightviewprojdata[6];
+    float depthbias;
+    float normalbias;
     float fill0;
     float fill1;
-    float fill2;
 };
 struct UniformBlockMesh {
     mat4 model;

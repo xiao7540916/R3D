@@ -16,7 +16,7 @@ namespace R3D {
     using glm::mat3;
     using glm::mat4;
     using glm::radians;
-    struct orthodate {
+    struct OrthoDate {
         float left;
         float right;
         float bottom;
@@ -37,6 +37,7 @@ namespace R3D {
         Camera();
         ~Camera();
         static vec3 rotatebymat4(vec3 &toberotate, mat4 &rotatemat);
+        static glm::mat4 GetOrthoProjectionOpengl(OrthoDate &orthoDate);
         //获取及设置世界空间位置
         vec3 GetPosition() const;
         void SetPosition(vec3 &pos);

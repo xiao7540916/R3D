@@ -35,4 +35,10 @@ namespace R3D {
             m_objectList[i]->RenderDepth();
         }
     }
+    void RenderList::RenderShadowMap() {
+        uint32_t objectCount = m_objectList.size();
+        for (int i = 0;i < objectCount;++i) {
+            m_objectList[i]->RenderShadowMap();
+        }
+    }
 }

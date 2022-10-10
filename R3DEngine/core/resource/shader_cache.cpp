@@ -35,6 +35,9 @@ namespace R3D {
         vector<ShaderCreateDesc> blurdesc = {{SHADER_DIR + "blur/blur.comp", GL_COMPUTE_SHADER}};
         blur.loadShader(blurdesc);
         m_shaders.insert({"blur", blur});
+        Shader shadowmap;
+        shadowmap.loadShader(SHADER_DIR + "shadowmap/vert.glsl", SHADER_DIR + "shadowmap/frag.glsl");
+        m_shaders.insert({"shadowmap", shadowmap});
     }
     Shader ShaderCache::GetShader(string in_shadertype) {
         if (m_shaders.find(in_shadertype) == m_shaders.end()) {

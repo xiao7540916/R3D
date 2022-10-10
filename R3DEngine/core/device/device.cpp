@@ -16,7 +16,7 @@ namespace R3D {
         }
         return m_device;
     }
-    Device *Device::Init(const char *in_appname, int in_width, int in_height, bool in_vsync) {
+    Device *Device::Init(const char *in_appname, int in_width, int in_height, int in_csmlayercount, bool in_vsync) {
         static bool onceInit = true;
         srand(time(nullptr));
         Device *device = GetInstance();
@@ -24,11 +24,12 @@ namespace R3D {
             RLog::Init();
             device->InitGlfw(in_appname, in_width, in_height, in_vsync);
             device->InitControlSystem();
+            device->InitShaderCache();
+            device->InitCSM(in_csmlayercount);
             device->InitGui();
             device->InitTextureManage();
             device->InitBufferManage();
             device->InitRenderStateManage();
-            device->InitShaderCache();
             device->InitMeshManage();
             device->InitMaterialManage();
             device->InitFrameBuffers(in_width, in_height);
@@ -59,6 +60,9 @@ namespace R3D {
         m_AOFBO.Release();
         delete m_renderStateManage;
         delete m_camera;
+        if (Gui::GetInstance()) {
+            delete Gui::GetInstance();
+        }
     }
     GLFWwindow *Device::GetWindow() {
         return m_window;
@@ -197,6 +201,12 @@ namespace R3D {
     void Device::InitShaderCache() {
         m_shaderCache.Init();
     }
+    void Device::InitCSM(int in_csmlayercount) {
+        CSMInfo csmInfo;
+        csmInfo.csmLayerCount = in_csmlayercount;
+        csmInfo.shadowMapSize = 1024;
+        m_cascadedShadowMap.Init(csmInfo);
+    }
     void Device::InitMaterialManage() {
         Device *device = GetInstance();
         device->m_materialManage = MaterialManage::GetInstance();
@@ -205,7 +215,7 @@ namespace R3D {
     void Device::InitFrameBuffers(int in_width, int in_height) {
         m_preDepthFBO.Init(in_width, in_height);
         m_backHDRFBO.Init(in_width, in_height);
-        m_AOFBO.Init(in_width,in_height);
+        m_AOFBO.Init(in_width, in_height);
     }
     void
     Device::SetCamera(vec3 in_position, vec3 in_target, float in_fovy, float in_aspect, float in_zn, float in_zf) {
@@ -362,6 +372,12 @@ namespace R3D {
             }
         }
     }
+    void Device::PrepareCSM(Scene &in_scene) {
+        m_cascadedShadowMap.PrepareRenderData(*m_camera, in_scene);
+    }
+    void Device::UpdataCSM(Scene &in_scene) {
+        m_cascadedShadowMap.MakeShadowMap(in_scene);
+    }
     void Device::UpdataAppInfo(EventInfo &in_eventInfo) {
         if (in_eventInfo.type == EVENT_KEY) {
             if (in_eventInfo.action == GLFW_RELEASE) {
@@ -383,5 +399,6 @@ namespace R3D {
     void Device::Tock() {
         UpdataCamera();
     }
+
 }
 

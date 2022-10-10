@@ -378,6 +378,16 @@ namespace R3D {
         glUnmapBuffer(GL_UNIFORM_BUFFER);
         m_mesh->Render(depthMaterial);
     }
+    void Object::RenderShadowMap() {
+        Material *shadowMapMaterial = MaterialManage::GetInstance()->GetMaterial("shadowmap");
+        //更新uniform缓冲
+        mat4 model = GetFinalTransformMatrix();
+        glBindBufferBase(GL_UNIFORM_BUFFER, 1, BufferManage::GetInstance()->m_uniCSMMeshBuffer);
+        glNamedBufferSubData(BufferManage::GetInstance()->m_uniCSMMeshBuffer, 0, sizeof(mat4),
+                             &model);
+        glUnmapBuffer(GL_UNIFORM_BUFFER);
+        m_mesh->Render(shadowMapMaterial);
+    }
     void Object::Updata(float in_deltaTime, EventInfo &in_eventInfo) {
         if (in_eventInfo.type == EVENT_NONE) {
             if (m_acctionfunc) {
