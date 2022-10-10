@@ -166,7 +166,7 @@ struct OptionConfig {
     bool SphereRender = false;
     bool LightShowRender = false;
     bool LightRadiusRender = false;
-    int PointLightCount = POINT_LIGHT_COUNT;
+    int PointLightCount = 256;
     float radiusScale = 1.5f;//采样周围多大的距离
     float angleBias = 30.0f;
     int dirCount = 10;//trace光线在周围的切分数量
@@ -179,7 +179,7 @@ struct OptionConfig {
     float powExponent = 2.0f;
     float nDotVBias = 0.1f;
     float lightPosOffset = 0.0f;
-    float depthbias = 0.0f;
-    float normalbias = 0.2f;
+    float depthbias = 0.1f;
+    float normalbias = 0.1f;
 };
 #endif //R3D_STRUCTDEFINE_H

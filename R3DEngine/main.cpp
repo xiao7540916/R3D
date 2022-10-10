@@ -311,21 +311,6 @@ void guiMake() {
     ImGui::Image((ImTextureID) Device::GetInstance()->m_backHDRFBO.m_colorAttach0, ImVec2(400, 225), ImVec2(0, 1),
                  ImVec2(1, 0));
     ImGui::End();
-    ImGui::Begin("ShadowMap0");
-    ImGui::Image((ImTextureID) Device::GetInstance()->m_cascadedShadowMap.m_shadowMapFBO[0].m_depthAttach,
-                 ImVec2(400, 400), ImVec2(0, 1),
-                 ImVec2(1, 0));
-    ImGui::End();
-    ImGui::Begin("ShadowMap1");
-    ImGui::Image((ImTextureID) Device::GetInstance()->m_cascadedShadowMap.m_shadowMapFBO[1].m_depthAttach,
-                 ImVec2(400, 400), ImVec2(0, 1),
-                 ImVec2(1, 0));
-    ImGui::End();
-    ImGui::Begin("ShadowMap2");
-    ImGui::Image((ImTextureID) Device::GetInstance()->m_cascadedShadowMap.m_shadowMapFBO[2].m_depthAttach,
-                 ImVec2(400, 400), ImVec2(0, 1),
-                 ImVec2(1, 0));
-    ImGui::End();
     ImGui::Begin("AO Config");
     ImGui::SliderFloat("RadiusScale", &optionConfig.radiusScale, 0.01, 2.0);
     ImGui::SliderFloat("PowExponent", &optionConfig.powExponent, 0.1, 3.0);

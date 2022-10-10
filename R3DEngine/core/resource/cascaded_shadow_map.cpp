@@ -72,6 +72,7 @@ namespace R3D {
         }
     }
     void CascadedShadowMap::UpdataLightViewProj(Camera &in_camera, Scene &in_scene) {
+        //TODO 根据场景求取所需的灯光空间最小包围视景体
         vec3 viewconepointsN[8] = {
                 {-1, -1, -1},
                 {1,  -1, -1},
@@ -253,6 +254,7 @@ namespace R3D {
         }
     }
     void CascadedShadowMap::OpaqueObjectCull(Object *in_object, RenderList &in_renderList) {
+        //TODO 根据灯光空间视景体剔除
         switch (in_object->GetMaterial()->m_mtrQueue) {
             case MTRQUEUE_BACKGROUND:
                 break;

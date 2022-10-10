@@ -130,7 +130,7 @@ float getAttenuation(float radius, float cutoff, float distance){
 }
 
 //-----------------------------------------------------------
-const float csmsplit[4] = { 0.0, 0.15, 0.45, 1.0 };
+const float csmsplit[4] = { 0.0, 0.15, 0.45, 1.0 };//相机可视空间z方向分割比例
 float csmdst[3];
 float csmgddststart[3];
 float csmgddstend[3];
@@ -229,7 +229,7 @@ float ShadowCalculation(vec3 worldnormal, float filtersize)
 
             //采用泊松分布采样
             for (int i=0;i<NUM_SAMPLES;i++){
-                float pcfDepth = texture(shadowmapTex[camindex], projCoords.xy + filtersize*texelSize*poissonDisk[i]).r;                dstvisible += currentDepth - bias < pcfDepth ? 1.0 : 0.0;
+                float pcfDepth = texture(shadowmapTex[camindex], projCoords.xy + filtersize*texelSize*poissonDisk[i]).r;
                 dstvisible += currentDepth - bias < pcfDepth ? 1.0 : 0.0;
             }
             dstvisible /= float(NUM_SAMPLES);
@@ -267,37 +267,9 @@ float ShadowCalculation(vec3 worldnormal, float filtersize)
         return visible;
     }
 }
-float ShadowCalculationOne(vec4 fragPosLightSpace)
-{
-    // 执行透视除法
-    vec3 projCoords = fragPosLightSpace.xyz/fragPosLightSpace.w;
-    // 变换到[0,1]的范围
-    projCoords = projCoords * 0.5 + 0.5;
-    // 取得当前片段在光源视角下的深度
-    float currentDepth = projCoords.z;
-    //    // 检查当前片段是否在阴影中
-    float bias = 0.005;
-    //pfc
-    float shadow = 0.0;
-    vec2 texelSize = 1.0 / vec2(1024.0);
-    //采用泊松分布采样
-    for (int i=0;i<NUM_SAMPLES;i++){
-        //        float pcfDepth = texture(shadowmapTex[0], projCoords.xy + 3.0f*texelSize*poissonDisk[i]).r;
-        float pcfDepth = texture(shadowmapTex[0], projCoords.xy).r;
-        shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
-    }
-    shadow /= NUM_SAMPLES;
-
-
-    //如果超出可视范围，则没有阴影
-    if (projCoords.z > 1.0){
-        shadow = 0.0;
-    }
-    return 1.0-shadow;
-}
 //-----------------------------------------------------------
 void main() {
-    poissonDiskSamples(gl_FragCoord.xy);//获得泊松分布采样点
+    poissonDiskSamples(fs_in.FragPos.xz);//获得泊松分布采样点
     for (int i = 0; i < 3; ++i) {
         csmdst[i] = ubobasedata.znear+csmsplit[i]*(ubobasedata.zfar-ubobasedata.znear);
         csmgddststart[i] = csmdst[i]*0.9;
@@ -316,10 +288,7 @@ void main() {
     vec3 N = GetNormalFromMap();
     vec3 V = normalize(camPos - WorldPos);
     float visible = ShadowCalculation(N, 3.0);
-//    float visible = ShadowCalculationOne(fragPosLightSpace);
 
-    // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
-    // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
 
@@ -331,15 +300,13 @@ void main() {
     uint lightcount = lights_count[index];
     uint offset = index * TILE_LIGHT_MAX;
     //点光源
-    for (int i = 0; i < 0; ++i)
+    for (int i = 0; i < lightcount; ++i)
     {
         uint lightindex = lights_indices[offset + i];
         // calculate per-light radiance
         vec3 L = normalize(pointLightData[lightindex].position - WorldPos);
         vec3 H = normalize(V + L);
         float distance = length(pointLightData[lightindex].position - WorldPos);
-        //        float attenuation = 1.0 / (pointLightData[lightindex].constant + pointLightData[lightindex].linear * distance +
-        //        pointLightData[lightindex].quadratic * (distance * distance));
         float attenuation = getAttenuation(pointLightData[lightindex].radius, pointLightData[lightindex].cutoff, distance);
         vec3 radiance = pointLightData[lightindex].strength * attenuation;
 
@@ -416,8 +383,4 @@ void main() {
     color = pow(color, vec3(1.0/2.2));
 
     FragColor = vec4(color, 1.0);
-//    FragColor = vec4(vec3(visible), 1);
-//        vec4 shadowmapcol = texture(shadowmapTex[1], vec2(gl_FragCoord.xy)/vec2(1600, 900));
-//        FragColor = vec4(vec3(shadowmapcol.r), 1);
-    //    FragColor = vec4(vec2(gl_FragCoord.xy/1600.0f),0.0, 1.0);
 }
