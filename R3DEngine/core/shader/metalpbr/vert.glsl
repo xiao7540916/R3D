@@ -61,5 +61,5 @@ void main() {
     T = normalize(T - dot(T, N) * N);
     vec3 B = cross(N, T);
     vs_out.TBN = mat3(T, B, N);
-    vs_out.CameraZ = -(ubobasedata.view*vec4(vPosition, 1.0f)).z;
+    vs_out.CameraZ = -(ubobasedata.view*ubomeshdata.model*vec4(vPosition, 1.0f)).z;
 }

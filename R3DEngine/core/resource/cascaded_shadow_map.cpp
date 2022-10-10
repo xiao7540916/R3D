@@ -225,7 +225,7 @@ namespace R3D {
             m_lightViewProjs[i] = m_CSMData[i].viewproj;
             m_lightViewProjs[i + m_csmLayerCount] = glm::inverse(m_CSMData[i].viewproj);
         }
-        OrthoDate orthoDate;
+        /*OrthoDate orthoDate;
         orthoDate.pos = lightdir * 12.0f;
         orthoDate.target = vec3(0);
         orthoDate.up = vec3(0, 1, 0);
@@ -240,7 +240,7 @@ namespace R3D {
                            orthoDate.target,
                            orthoDate.up);
         m_lightViewProjs[0] = proj * view;
-        m_lightViewProjs[3] = glm::inverse(m_lightViewProjs[0]);
+        m_lightViewProjs[3] = glm::inverse(m_lightViewProjs[0]);*/
     }
     void CascadedShadowMap::PrepareRenderData(Camera &in_camera, Scene &in_scene) {
         UpdataLightViewProj(in_camera, in_scene);

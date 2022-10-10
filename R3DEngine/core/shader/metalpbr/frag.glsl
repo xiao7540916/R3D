@@ -136,10 +136,6 @@ float csmgddststart[3];
 float csmgddstend[3];
 float frustumSize[3] = { 21.666, 64.428, 142.8232 };//相机空间尺寸
 const float shadowMapSize = 1024.0f;
-float rand_1to1(float x) {
-    // -1 -1
-    return fract(sin(x)*10000.0);
-}
 
 float rand_2to1(vec2 uv) {
     // 0 - 1
@@ -286,7 +282,7 @@ float ShadowCalculationOne(vec4 fragPosLightSpace)
     vec2 texelSize = 1.0 / vec2(1024.0);
     //采用泊松分布采样
     for (int i=0;i<NUM_SAMPLES;i++){
-//        float pcfDepth = texture(shadowmapTex[0], projCoords.xy + 3.0f*texelSize*poissonDisk[i]).r;
+        //        float pcfDepth = texture(shadowmapTex[0], projCoords.xy + 3.0f*texelSize*poissonDisk[i]).r;
         float pcfDepth = texture(shadowmapTex[0], projCoords.xy).r;
         shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
     }
@@ -301,14 +297,13 @@ float ShadowCalculationOne(vec4 fragPosLightSpace)
 }
 //-----------------------------------------------------------
 void main() {
-    poissonDiskSamples((fs_in.FragPos.xz)*0.5+0.5);//获得泊松分布采样点
+    poissonDiskSamples(gl_FragCoord.xy);//获得泊松分布采样点
     for (int i = 0; i < 3; ++i) {
         csmdst[i] = ubobasedata.znear+csmsplit[i]*(ubobasedata.zfar-ubobasedata.znear);
         csmgddststart[i] = csmdst[i]*0.9;
         csmgddstend[i] = csmdst[i]*1.1;
     }
     vec4 fragPosLightSpace = ubobasedata.lightviewprojdata[0]*vec4(fs_in.FragPos, 1.0);
-    float visible = ShadowCalculationOne(fragPosLightSpace);
     float globalao = texture(globalAoTex, vec2(gl_FragCoord.xy)/vec2(ubobasedata.windowwidth, ubobasedata.windowheight)).r;
 
     vec3 albedo     = pow(texture(albedoTex, fs_in.TexCoords).rgb, vec3(2.2));//转到线性空间
@@ -320,6 +315,8 @@ void main() {
     vec3 WorldPos = fs_in.FragPos;
     vec3 N = GetNormalFromMap();
     vec3 V = normalize(camPos - WorldPos);
+    float visible = ShadowCalculation(N, 3.0);
+//    float visible = ShadowCalculationOne(fragPosLightSpace);
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)
@@ -404,7 +401,6 @@ void main() {
         float NdotL = max(dot(N, L), 0.0);
 
         // add to outgoing radiance Lo
-//        visible = 0.0;
         Lo += visible*(kD * albedo / PI + specular) * radiance * NdotL;// note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
     }
 
@@ -420,9 +416,8 @@ void main() {
     color = pow(color, vec3(1.0/2.2));
 
     FragColor = vec4(color, 1.0);
-    //    float visible = ShadowCalculation(N, 3.0);
-    //    FragColor = vec4(vec3(visible), 1);
-    //    vec4 shadowmapcol = texture(shadowmapTex[0], vec2(gl_FragCoord.xy)/vec2(1600, 900));
-    //    FragColor = vec4(vec3(shadowmapcol.r), 1);
+//    FragColor = vec4(vec3(visible), 1);
+//        vec4 shadowmapcol = texture(shadowmapTex[1], vec2(gl_FragCoord.xy)/vec2(1600, 900));
+//        FragColor = vec4(vec3(shadowmapcol.r), 1);
     //    FragColor = vec4(vec2(gl_FragCoord.xy/1600.0f),0.0, 1.0);
 }
