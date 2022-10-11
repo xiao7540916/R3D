@@ -1,5 +1,6 @@
 #version 460
 #extension GL_ARB_bindless_texture : require
+layout(early_fragment_tests) in;
 #define DIRECTION_LIGHT_COUNT 4
 #define POINT_LIGHT_COUNT 1024
 #define TILE_SIZE 16
@@ -71,6 +72,7 @@ in VS_OUT {
     mat3 TBN;
     float CameraZ;
 } fs_in;
+
 
 #define NUM_SAMPLES 16
 #define BLOCKER_SEARCH_NUM_SAMPLES NUM_SAMPLES

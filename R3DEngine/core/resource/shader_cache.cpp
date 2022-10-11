@@ -38,6 +38,12 @@ namespace R3D {
         Shader shadowmap;
         shadowmap.loadShader(SHADER_DIR + "shadowmap/vert.glsl", SHADER_DIR + "shadowmap/frag.glsl");
         m_shaders.insert({"shadowmap", shadowmap});
+        Shader oitgreen;
+        oitgreen.loadShader(SHADER_DIR + "oitgreen/vert.glsl", SHADER_DIR + "oitgreen/frag.glsl");
+        m_shaders.insert({"oitgreen", oitgreen});
+        Shader oitresolve;
+        oitresolve.loadShader(SHADER_DIR + "oitresolve/vert.glsl", SHADER_DIR + "oitresolve/frag.glsl");
+        m_shaders.insert({"oitresolve", oitresolve});
     }
     Shader ShaderCache::GetShader(string in_shadertype) {
         if (m_shaders.find(in_shadertype) == m_shaders.end()) {

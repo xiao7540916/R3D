@@ -38,7 +38,8 @@ using std::string;
 #define POINT_LIGHT_COUNT 1024
 #define TILE_LIGHT_MAX 256
 #define TILE_SIZE 16
-
+#define OIT_FRAME_WIDTH 2048
+#define OIT_FRAME_HEIGHT 2048
 //-----------------------------------------
 
 extern bool isMainLoop;
@@ -178,8 +179,8 @@ struct OptionConfig {
     float bfRang = 1.0f;
     float powExponent = 2.0f;
     float nDotVBias = 0.1f;
-    float lightPosOffset = 0.0f;
-    float depthbias = 0.1f;
-    float normalbias = 0.1f;
+    float lightPosOffset = 10.0f;
+    float depthbias = 0.05f;
+    float normalbias = 0.05f;
 };
 #endif //R3D_STRUCTDEFINE_H

@@ -12,6 +12,7 @@
 #include <resource/material.h>
 #include <resource/frame_buffer.h>
 #include <device/render_list.h>
+#include <resource/oit.h>
 #include <math/camera.h>
 #include <util/r_log.h>
 #include <queue>
@@ -55,6 +56,7 @@ namespace R3D {
         void InitShaderCache();
         void InitMeshManage();
         void InitMaterialManage();
+        void InitOIT();
         void InitFrameBuffers(int in_width, int in_height);
         void SetCamera(vec3 in_position, vec3 in_target, float in_fovy, float in_aspect, float in_zn, float in_zf);
         void UpdataAppInfo(EventInfo &in_eventInfo);
@@ -100,6 +102,7 @@ namespace R3D {
         TextureManage *m_textureManage = nullptr;
         BufferManage *m_bufferManege = nullptr;
         RenderStateManage *m_renderStateManage = nullptr;
+        OIT *m_OIT = nullptr;
         bool runable = false;
     private:
         Device();

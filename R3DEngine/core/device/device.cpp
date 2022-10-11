@@ -26,6 +26,7 @@ namespace R3D {
             device->InitControlSystem();
             device->InitShaderCache();
             device->InitCSM(in_csmlayercount);
+            device->InitOIT();
             device->InitGui();
             device->InitTextureManage();
             device->InitBufferManage();
@@ -63,6 +64,7 @@ namespace R3D {
         if (Gui::GetInstance()) {
             delete Gui::GetInstance();
         }
+        m_OIT->Release();
     }
     GLFWwindow *Device::GetWindow() {
         return m_window;
@@ -206,6 +208,11 @@ namespace R3D {
         csmInfo.csmLayerCount = in_csmlayercount;
         csmInfo.shadowMapSize = 1024;
         m_cascadedShadowMap.Init(csmInfo);
+    }
+    void Device::InitOIT() {
+        Device *device = GetInstance();
+        device->m_OIT = OIT::GetInstance();
+        device->m_OIT->Init(device);
     }
     void Device::InitMaterialManage() {
         Device *device = GetInstance();
@@ -399,6 +406,5 @@ namespace R3D {
     void Device::Tock() {
         UpdataCamera();
     }
-
 }
 

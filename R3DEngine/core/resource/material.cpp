@@ -58,6 +58,7 @@ namespace R3D {
             glFrontFace(GL_CCW);
             glCullFace(GL_BACK);
             glDepthFunc(GL_EQUAL);
+            glDepthMask(GL_TRUE);
             glPolygonMode(GL_FRONT, GL_FILL);
             m_shader.use();
         }
@@ -119,6 +120,7 @@ namespace R3D {
             glFrontFace(GL_CCW);
             glCullFace(GL_BACK);
             glDepthFunc(GL_EQUAL);
+            glDepthMask(GL_TRUE);
             glPolygonMode(GL_FRONT, GL_FILL);
             m_shader.use();
         }
@@ -137,6 +139,7 @@ namespace R3D {
             glEnable(GL_DEPTH_TEST);
             glDisable(GL_CULL_FACE);
             glDepthFunc(GL_LESS);
+            glDepthMask(GL_TRUE);
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             m_shader.use();
         }
@@ -156,6 +159,7 @@ namespace R3D {
             glFrontFace(GL_CCW);
             glCullFace(GL_BACK);
             glDepthFunc(GL_LESS);
+            glDepthMask(GL_TRUE);
             //注：此处GL_FRONT_AND_BACK对应恢复包围球pass中的状态，不可仅恢复FRONT状态，造成渲染错误
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             m_shader.use();
@@ -176,6 +180,7 @@ namespace R3D {
             glFrontFace(GL_CCW);
             glCullFace(GL_BACK);
             glDepthFunc(GL_LESS);
+            glDepthMask(GL_TRUE);
             //注：此处GL_FRONT_AND_BACK对应恢复包围球pass中的状态，不可仅恢复FRONT状态，造成渲染错误
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             m_shader.use();
@@ -196,6 +201,7 @@ namespace R3D {
             glFrontFace(GL_CCW);
             glCullFace(GL_BACK);
             glDepthFunc(GL_LESS);
+            glDepthMask(GL_TRUE);
             //注：此处GL_FRONT_AND_BACK对应恢复包围球pass中的状态，不可仅恢复FRONT状态，造成渲染错误
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             m_shader.use();
@@ -216,6 +222,26 @@ namespace R3D {
             glFrontFace(GL_CCW);
             glCullFace(GL_BACK);
             glDepthFunc(GL_LESS);
+            glDepthMask(GL_TRUE);
+            //注：此处GL_FRONT_AND_BACK对应恢复包围球pass中的状态，不可仅恢复FRONT状态，造成渲染错误
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            m_shader.use();
+        }
+    }
+    //----------------------------------------------
+    MaterialOITGreen::MaterialOITGreen() {
+        m_mtrQueue = MTRQUEUE_TRANSPARENT;
+    }
+    void MaterialOITGreen::InitResource(GLint in_param, GLint in_mipmapinfo) {
+    }
+    void MaterialOITGreen::BindResource() {
+    }
+    void MaterialOITGreen::RenderPrepare() {
+        if (RenderStateManage::GetInstance()->NeedChangeState(m_shader.ID)) {
+            glEnable(GL_DEPTH_TEST);
+            glDisable(GL_CULL_FACE);
+            glDepthFunc(GL_LESS);
+            glDepthMask(GL_FALSE);
             //注：此处GL_FRONT_AND_BACK对应恢复包围球pass中的状态，不可仅恢复FRONT状态，造成渲染错误
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             m_shader.use();
@@ -340,6 +366,10 @@ namespace R3D {
         MaterialShadowMap *shadowmap = NEW MaterialShadowMap();
         shadowmap->m_shader = shaderCache.GetShader("shadowmap");
         AddMaterial("shadowmap", shadowmap);
+        //----------------------------------------------
+        MaterialOITGreen *oitgreen = NEW MaterialOITGreen();
+        oitgreen->m_shader = shaderCache.GetShader("oitgreen");
+        AddMaterial("oitgreen", oitgreen);
 #endif
     }
     void MaterialManage::Release() {

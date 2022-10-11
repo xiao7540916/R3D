@@ -18,20 +18,21 @@ uint64_t gNewCount = 0;
 unordered_map<void *, string> dstToString;
 void guiMake();
 int main() {
-    Device *device = Device::GetInstance();
-    device->Init("windowtest", 1600, 900, 3, true);
-    device->SetCamera(vec3(-8, 3, -8), vec3(0, 0, 0), radians(70.0f),
-                      float(device->m_windowWidth) / float(device->m_windowHeight),
-                      0.1f, 50.0f);
-    BufferManage::GetInstance()->CreateTileClipBuffer(*device->m_camera, device->m_windowWidth, device->m_windowHeight,
+    Device &device = *Device::GetInstance();
+    device.Init("windowtest", 1600, 900, 3, true);
+    device.SetCamera(vec3(-8, 3, -8), vec3(0, 0, 0), radians(70.0f),
+                     float(device.m_windowWidth) / float(device.m_windowHeight),
+                     0.1f, 50.0f);
+    BufferManage::GetInstance()->CreateTileClipBuffer(*device.m_camera, device.m_windowWidth, device.m_windowHeight,
                                                       TILE_SIZE);
-    Gui *gui = Gui::GetInstance();
-    BufferManage *bufferManage = BufferManage::GetInstance();
-    MeshManage *meshManage = MeshManage::GetInstance();
-    ShaderCache &shaderCache = device->m_shaderCache;
-    MaterialManage &materialManage = *device->m_materialManage;
+    Gui &gui = *Gui::GetInstance();
+    BufferManage &bufferManage = *BufferManage::GetInstance();
+    MeshManage &meshManage = *MeshManage::GetInstance();
+    OIT &oit = *OIT::GetInstance();
+    ShaderCache &shaderCache = device.m_shaderCache;
+    MaterialManage &materialManage = *device.m_materialManage;
     Scene scene;
-    scene.Init(device);
+    scene.Init(&device);
     scene.SetAABB(vec3(-9, -1, -9), vec3(9, 17, 9));
     scene.SetLightCount(1, optionConfig.PointLightCount, TILE_LIGHT_MAX);
     scene.m_dirLights[0].direction = glm::normalize(vec3(-8, 16, -8));
@@ -61,20 +62,20 @@ int main() {
     }
     Object *rootplane = NEW Object("rootplane", nullptr, vec3(0), 0, 0, 0, true);
     scene.SetRoot(rootplane);
-    rootplane->SetMesh(meshManage->GetMesh("planemesh"));
+    rootplane->SetMesh(meshManage.GetMesh("planemesh"));
     rootplane->SetMaterial(materialManage.GetMaterial("metalpbr_floor"));
     rootplane->SetUvConfig(vec2(0), vec2(16));
     rootplane->Scale(16.0f);
     //墙面
     {
         Object *wall0 = NEW Object("wall0", rootplane, vec3(0), 0, 0, 0, true);
-        wall0->SetMesh(meshManage->GetMesh("boxwallmesh"));
+        wall0->SetMesh(meshManage.GetMesh("boxwallmesh"));
         wall0->SetMaterial(materialManage.GetMaterial("metalpbr_stonewall"));
         wall0->SetUvConfig(vec2(0), vec2(2));
         wall0->Scale(16.0f);
         wall0->Move(vec3(0.0f, 8.0f, 8.0f));
         Object *wall1 = NEW Object("wall1", rootplane, vec3(0), 0, 0, 0, true);
-        wall1->SetMesh(meshManage->GetMesh("boxwallmesh"));
+        wall1->SetMesh(meshManage.GetMesh("boxwallmesh"));
         wall1->SetMaterial(materialManage.GetMaterial("metalpbr_stonewall"));
         wall1->SetUvConfig(vec2(0), vec2(2));
         wall1->Scale(16.0f);
@@ -86,52 +87,52 @@ int main() {
         {
             int i = 0;
             Object *matballsub0 = NEW Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
-            matballsub0->SetMesh(meshManage->GetMesh("matballmesh0"));
+            matballsub0->SetMesh(meshManage.GetMesh("matballmesh0"));
             matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_silver"));
             matballsub0->RotationYaw(PI * 0.75f);
             matballsub0->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.0f, (i / 4 - 1.5) * 2.0f));
             matballsub0->SetActionFunc([&]() {
-                matballsub0->RotationYaw(device->m_gameTime.TotalTime());
+                matballsub0->RotationYaw(device.m_gameTime.TotalTime());
             });
             Object *matballsub1 = NEW Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
-            matballsub1->SetMesh(meshManage->GetMesh("matballmesh1"));
+            matballsub1->SetMesh(meshManage.GetMesh("matballmesh1"));
             matballsub1->SetMaterial(materialManage.GetMaterial("metalpbr_rusted_iron"));
         }
         //i=1
         {
             int i = 1;
             Object *matballsub0 = NEW Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
-            matballsub0->SetMesh(meshManage->GetMesh("matballmesh0"));
+            matballsub0->SetMesh(meshManage.GetMesh("matballmesh0"));
             matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_silver"));
             matballsub0->RotationYaw(PI * 0.75f);
             matballsub0->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.0f, (i / 4 - 1.5) * 2.0f));
             matballsub0->SetActionFunc([&]() {
-                matballsub0->RotationYaw(-device->m_gameTime.TotalTime() * 0.5f);
+                matballsub0->RotationYaw(-device.m_gameTime.TotalTime() * 0.5f);
             });
             Object *matballsub1 = NEW Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
-            matballsub1->SetMesh(meshManage->GetMesh("matballmesh1"));
+            matballsub1->SetMesh(meshManage.GetMesh("matballmesh1"));
             matballsub1->SetMaterial(materialManage.GetMaterial("metalpbr_forestbrown"));
         }
         //i=2
         {
             int i = 2;
             Object *matballsub0 = NEW Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
-            matballsub0->SetMesh(meshManage->GetMesh("matballmesh0"));
+            matballsub0->SetMesh(meshManage.GetMesh("matballmesh0"));
             matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_rusted_iron"));
             matballsub0->RotationYaw(PI * 0.75f);
             matballsub0->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.0f, (i / 4 - 1.5) * 2.0f));
             matballsub0->SetActionFunc([&]() {
-                matballsub0->RotationYaw(device->m_gameTime.TotalTime() * 0.25f);
+                matballsub0->RotationYaw(device.m_gameTime.TotalTime() * 0.25f);
             });
             Object *matballsub1 = NEW Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
-            matballsub1->SetMesh(meshManage->GetMesh("matballmesh1"));
+            matballsub1->SetMesh(meshManage.GetMesh("matballmesh1"));
             matballsub1->SetMaterial(materialManage.GetMaterial("metalpbr_gold"));
         }
         //i=3
         {
             int i = 3;
             Object *matballsub0 = NEW Object("matballmesh0" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
-            matballsub0->SetMesh(meshManage->GetMesh("matballmesh0"));
+            matballsub0->SetMesh(meshManage.GetMesh("matballmesh0"));
             matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_forestbrown"));
             RouteAction *routeAction = NEW RouteAction();
             float sqlen = 4.5;
@@ -150,17 +151,17 @@ int main() {
             routeAction->Init();
             matballsub0->m_routeAction = routeAction;
             matballsub0->SetActionFunc([&]() {
-                matballsub0->m_routeAction->m_actionTime += device->m_gameTime.DeltaTime();
+                matballsub0->m_routeAction->m_actionTime += device.m_gameTime.DeltaTime();
                 matballsub0->UpdataRouteAction();
             });
             Object *matballsub1 = NEW Object("matballsub1" + IntToString(i), matballsub0, vec3(0), 0, 0, 0, true);
-            matballsub1->SetMesh(meshManage->GetMesh("matballmesh1"));
+            matballsub1->SetMesh(meshManage.GetMesh("matballmesh1"));
             matballsub1->SetMaterial(materialManage.GetMaterial("metalpbr_silver"));
         }
     }
     for (int i = 4;i < 8;++i) {
         Object *box = NEW Object("box" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
-        box->SetMesh(meshManage->GetMesh("boxmesh"));
+        box->SetMesh(meshManage.GetMesh("boxmesh"));
         box->SetMaterial(materialManage.GetMaterial("metalpbr_aluminiumfoil"));
         box->Scale(1.0f);
         box->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.5, (i / 4 - 0.5) * 2.0f));
@@ -168,82 +169,90 @@ int main() {
     //体现父子关系的球绕立方体运动
     {
         Object *boxfather0 = NEW Object("boxfather0", rootplane, vec3(0), 0, 0, 0, true);
-        boxfather0->SetMesh(meshManage->GetMesh("boxmesh"));
+        boxfather0->SetMesh(meshManage.GetMesh("boxmesh"));
         boxfather0->SetMaterial(materialManage.GetMaterial("metalpbr_floor"));
         Object *spherechild0 = NEW Object("spherechild0", boxfather0, vec3(2, 0, 0), 0, 0, 0, true);
         boxfather0->MoveTo(vec3(0.0f, 2.0f, 0.0f));
         boxfather0->SetActionFunc([&]() {
-            boxfather0->MoveTo(vec3(0, 2, sinf(device->m_gameTime.TotalTime()) * 2.0f));
-            boxfather0->RotationYaw(device->m_gameTime.TotalTime() * 0.5f);
+            boxfather0->MoveTo(vec3(0, 2, sinf(device.m_gameTime.TotalTime()) * 2.0f));
+            boxfather0->RotationYaw(device.m_gameTime.TotalTime() * 0.5f);
         });
-        spherechild0->SetMesh(meshManage->GetMesh("geospheremesh"));
+        spherechild0->SetMesh(meshManage.GetMesh("geospheremesh"));
         spherechild0->SetMaterial(materialManage.GetMaterial("metalpbr_gold"));
         spherechild0->Scale(0.4f);
         spherechild0->SetActionFunc([&]() {
-            spherechild0->MoveTo(vec3(0.9f + abs(sinf(device->m_gameTime.TotalTime() * 2.0f)) * 2.0f, 0, 0));
+            spherechild0->MoveTo(vec3(0.9f + abs(sinf(device.m_gameTime.TotalTime() * 2.0f)) * 2.0f, 0, 0));
         });
+    }
+    //透明物体
+    {
+        Object *boxoit = NEW Object("boxoit" + IntToString(0), rootplane, vec3(0), 0, 0, 0, true);
+        boxoit->SetMesh(meshManage.GetMesh("boxmesh"));
+        boxoit->SetMaterial(materialManage.GetMaterial("oitgreen"));
+        boxoit->Scale(1.0f);
+        boxoit->MoveTo(vec3(0, 4, 0));
     }
 
     //----------------
     rootplane->UpdataSubSceneGraph(true);
     rootplane->UpdataBoundSphere(rootplane);
     scene.GatherDynamic(rootplane);
-    while (device->Run()) {
+    while (device.Run()) {
         //数据准备
-        device->Tick();
+        device.Tick();
         glfwPollEvents();
-        while (!device->m_eventInfo.empty()) {
-            EventInfo &eventInfo = device->m_eventInfo.front();
-            device->UpdataAppInfo(eventInfo);
-            device->UpdataInputInfo(eventInfo);
-            scene.UpdataAnimate(device->m_gameTime.DeltaTime(), eventInfo);
-            device->m_eventInfo.pop();
+        while (!device.m_eventInfo.empty()) {
+            EventInfo &eventInfo = device.m_eventInfo.front();
+            device.UpdataAppInfo(eventInfo);
+            device.UpdataInputInfo(eventInfo);
+            scene.UpdataAnimate(device.m_gameTime.DeltaTime(), eventInfo);
+            device.m_eventInfo.pop();
         }
         EventInfo eventInfo{};
         eventInfo.type = EVENT_NONE;
-        scene.UpdataAnimate(device->m_gameTime.DeltaTime(), eventInfo);
+        scene.UpdataAnimate(device.m_gameTime.DeltaTime(), eventInfo);
         scene.SetLightCount(1, optionConfig.PointLightCount, TILE_LIGHT_MAX);
         scene.UpdataTransBound();
         scene.MakeRenderList();
         scene.SortRenderList();
         optionConfig.OpaqueRenderCount = scene.m_opaqueList.m_objectList.size();
         //更新shadowmap
-        device->PrepareCSM(scene);
-        bufferManage->UpdataUniBaseBuf(scene);
+        device.PrepareCSM(scene);
+        bufferManage.UpdataUniBaseBuf(scene);
         //更新GUI
-        gui->Begin();
+        gui.Begin();
         guiMake();
-        gui->End();
+        gui.End();
         //渲染开始
         //shadowmap
         glViewport(0, 0, 1024, 1024);
-        device->UpdataCSM(scene);
+        device.UpdataCSM(scene);
         glMemoryBarrier(GL_FRAMEBUFFER_BARRIER_BIT);
-        glViewport(0, 0, device->m_windowWidth, device->m_windowHeight);
+        glViewport(0, 0, device.m_windowWidth, device.m_windowHeight);
         //深度预渲染
-        glBindFramebuffer(GL_FRAMEBUFFER, device->m_preDepthFBO.m_frameBuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, device.m_preDepthFBO.m_frameBuffer);
         glClearColor(-1, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
+        glDepthMask(GL_TRUE);
         glBindBufferBase(GL_UNIFORM_BUFFER, 0, BufferManage::GetInstance()->m_uniBlockBaseBuffer);
-        glBindBufferBase(GL_UNIFORM_BUFFER, 15,BufferManage::GetInstance()->m_uniCSMHandleBuffer);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 15, BufferManage::GetInstance()->m_uniCSMHandleBuffer);
         scene.m_opaqueList.RenderDepth();
         //光源剔除
         scene.CullLight();
-        glBindFramebuffer(GL_FRAMEBUFFER, device->m_AOFBO.m_frameBuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, device.m_AOFBO.m_frameBuffer);
         scene.MakeAO();
         //拷贝pre深度缓冲到后台缓冲，使用深度相等渲染
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, device->m_preDepthFBO.m_frameBuffer);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, device->m_backHDRFBO.m_frameBuffer);
-        glBlitFramebuffer(0, 0, device->m_windowWidth, device->m_windowHeight,
-                          0, 0, device->m_windowWidth, device->m_windowHeight,
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, device.m_preDepthFBO.m_frameBuffer);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, device.m_backHDRFBO.m_frameBuffer);
+        glBlitFramebuffer(0, 0, device.m_windowWidth, device.m_windowHeight,
+                          0, 0, device.m_windowWidth, device.m_windowHeight,
                           GL_DEPTH_BUFFER_BIT, GL_NEAREST);
         //后台HDR缓冲渲染
-        glBindFramebuffer(GL_FRAMEBUFFER, device->m_backHDRFBO.m_frameBuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, device.m_backHDRFBO.m_frameBuffer);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
-
         scene.m_opaqueList.Render();
         if (optionConfig.LightShowRender) {
             scene.RenderLightShow();
@@ -253,23 +262,30 @@ int main() {
         }
         if (optionConfig.SphereRender) {
             scene.m_opaqueList.RenderBndSphere();
+            scene.m_transparent.RenderBndSphere();
         }
+        //准备透明渲染所需数据
+        oit.PrapareData();
+        scene.m_transparent.Render();
+        glDepthMask(GL_TRUE);
+        oit.Resolve();
+        glDepthMask(GL_TRUE);
         //windowframe
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, device->m_backHDRFBO.m_frameBuffer);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, device.m_backHDRFBO.m_frameBuffer);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-        glBlitFramebuffer(0, 0, device->m_windowWidth, device->m_windowHeight,
-                          0, 0, device->m_windowWidth, device->m_windowHeight,
+        glBlitFramebuffer(0, 0, device.m_windowWidth, device.m_windowHeight,
+                          0, 0, device.m_windowWidth, device.m_windowHeight,
                           GL_COLOR_BUFFER_BIT, GL_NEAREST);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        gui->Render();
+        gui.Render();
         //渲染结束
-        glfwSwapBuffers(device->GetWindow());
-        device->Tock();
+        glfwSwapBuffers(device.GetWindow());
+        device.Tock();
     }
     glfwTerminate();
     scene.Release();
-    device->Release();
-    delete device;
+    device.Release();
+    delete &device;
     for (auto &item:dstToString) {
         cout << item.first << " " << item.second << endl;
     }
@@ -298,8 +314,8 @@ void guiMake() {
     ImGui::Checkbox("LightShowRender", &optionConfig.LightShowRender);
     ImGui::Checkbox("LightRadiusRender", &optionConfig.LightRadiusRender);
     ImGui::SliderInt("PointLightCount", &optionConfig.PointLightCount, 0, 1024);
-    ImGui::SliderFloat("DepthBias",&optionConfig.depthbias,0.0,0.2);
-    ImGui::SliderFloat("NormalBias",&optionConfig.normalbias,0.0,0.2);
+    ImGui::SliderFloat("DepthBias", &optionConfig.depthbias, 0.0, 0.2);
+    ImGui::SliderFloat("NormalBias", &optionConfig.normalbias, 0.0, 0.2);
     ImGui::End();
     ImGui::Begin("DepthTex");
     //翻转y轴使图像于屏幕匹配
@@ -309,6 +325,11 @@ void guiMake() {
     ImGui::Begin("BackColTex");
     //翻转y轴使图像于屏幕匹配
     ImGui::Image((ImTextureID) Device::GetInstance()->m_backHDRFBO.m_colorAttach0, ImVec2(400, 225), ImVec2(0, 1),
+                 ImVec2(1, 0));
+    ImGui::End();
+    ImGui::Begin("ShadowMap0");
+    //翻转y轴使图像于屏幕匹配
+    ImGui::Image((ImTextureID) Device::GetInstance()->m_cascadedShadowMap.m_shadowMapFBO[0].m_depthAttach, ImVec2(400, 400), ImVec2(0, 1),
                  ImVec2(1, 0));
     ImGui::End();
     ImGui::Begin("AO Config");

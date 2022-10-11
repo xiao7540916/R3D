@@ -59,10 +59,12 @@ namespace R3D {
     }
     void Scene::MakeRenderList() {
         m_opaqueList.m_objectList.clear();
+        m_transparent.m_objectList.clear();
         ObjectCull(m_root);
     }
     void Scene::SortRenderList() {
         m_opaqueList.Sort();
+        m_transparent.Sort();
     }
     void Scene::ObjectCull(Object *in_object) {
         if (CameraSphereTest(*m_device->m_camera, in_object->GetBoundingSphere())) {
@@ -79,6 +81,7 @@ namespace R3D {
                     case MTRQUEUE_ALPHATEST:
                         break;
                     case MTRQUEUE_TRANSPARENT:
+                        m_transparent.m_objectList.push_back(in_object);
                         break;
                     case MTRQUEUE_OVERLAY:
                         break;
@@ -140,7 +143,9 @@ namespace R3D {
     void Scene::MakeAO() {
         static Mesh *screenbackmesh = MeshManage::GetInstance()->GetMesh("screenbackmesh");
         ShaderCache &shaderCache = Device::GetInstance()->m_shaderCache;
-        shaderCache.GetShader("gtao").use();
+        if (RenderStateManage::GetInstance()->NeedChangeState(shaderCache.GetShader("gtao").ID)){
+            shaderCache.GetShader("gtao").use();
+        }
         glBindBufferBase(GL_UNIFORM_BUFFER, 0, BufferManage::GetInstance()->m_uniBlockBaseBuffer);
         glBindBufferBase(GL_UNIFORM_BUFFER, 1, BufferManage::GetInstance()->m_uniBlockAoCfgBuffer);
         glBindTextureUnit(0, m_device->m_preDepthFBO.m_depthAttach);
@@ -150,20 +155,20 @@ namespace R3D {
         glBindVertexArray(screenbackmesh->VAO);
         glDrawElements(GL_TRIANGLES, screenbackmesh->m_indiceSize, GL_UNSIGNED_INT, nullptr);
         shaderCache.GetShader("blur").use();
-        shaderCache.GetShader("blur").setInt("uWindowWidth",m_device->m_windowWidth);
-        shaderCache.GetShader("blur").setInt("uWindowHeight",m_device->m_windowHeight);
-        shaderCache.GetShader("blur").setInt("uBlurMode",0);
+        shaderCache.GetShader("blur").setInt("uWindowWidth", m_device->m_windowWidth);
+        shaderCache.GetShader("blur").setInt("uWindowHeight", m_device->m_windowHeight);
+        shaderCache.GetShader("blur").setInt("uBlurMode", 0);
         glBindTextureUnit(0, m_device->m_AOFBO.m_colorAttach0);
-        glBindImageTexture(1,m_device->m_AOFBO.m_blurDstTexture,0, true,0,GL_WRITE_ONLY,GL_R16F);
+        glBindImageTexture(1, m_device->m_AOFBO.m_blurDstTexture, 0, true, 0, GL_WRITE_ONLY, GL_R16F);
         int workgroup_x = (m_device->m_windowWidth % TILE_SIZE) == 0 ? (m_device->m_windowWidth / TILE_SIZE) : (
                 m_device->m_windowWidth / TILE_SIZE + 1);
         int workgroup_y = (m_device->m_windowHeight % TILE_SIZE) == 0 ? (m_device->m_windowHeight / TILE_SIZE) : (
                 m_device->m_windowHeight / TILE_SIZE + 1);
         glDispatchCompute(workgroup_x, workgroup_y, 1);
         glTextureBarrier();
-        shaderCache.GetShader("blur").setInt("uBlurMode",1);
+        shaderCache.GetShader("blur").setInt("uBlurMode", 1);
         glBindTextureUnit(0, m_device->m_AOFBO.m_blurDstTexture);
-        glBindImageTexture(1,m_device->m_AOFBO.m_colorAttach0,0, true,0,GL_WRITE_ONLY,GL_R16F);
+        glBindImageTexture(1, m_device->m_AOFBO.m_colorAttach0, 0, true, 0, GL_WRITE_ONLY, GL_R16F);
         glDispatchCompute(workgroup_x, workgroup_y, 1);
         glTextureBarrier();
     }
