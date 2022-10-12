@@ -61,10 +61,7 @@ struct UniformBlockMesh {
     mat4 invmodelt;
     vec2 uvoffset;
     vec2 uvscale;
-    vec3 cfin;
-    float opacity;
-    vec3 cfout;
-    float fill0;
+    vec4 surfacecolor;//透明物体的表面颜色
 };
 struct AOConfig {
     float radiusScale;//采样周围多大的距离

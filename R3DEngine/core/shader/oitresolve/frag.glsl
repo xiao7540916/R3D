@@ -20,7 +20,6 @@ int build_local_fragment_list(){
 }
 void sort_fragment_list(int in_fragcount){
     uint i, j;
-
     if (in_fragcount > 1)
     {
 
@@ -41,7 +40,6 @@ void sort_fragment_list(int in_fragcount){
                 }
             }
         }
-
     }
 }
 vec4 calculate_final_color(int in_frag_count){

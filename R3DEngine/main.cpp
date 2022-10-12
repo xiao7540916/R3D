@@ -162,9 +162,21 @@ int main() {
     for (int i = 4;i < 8;++i) {
         Object *box = NEW Object("box" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
         box->SetMesh(meshManage.GetMesh("boxmesh"));
-        box->SetMaterial(materialManage.GetMaterial("metalpbr_aluminiumfoil"));
+        box->SetMaterial(materialManage.GetMaterial("oitcolor"));
         box->Scale(1.0f);
-        box->MoveTo(vec3((i % 4 - 1.5) * 2.0f, 0.5, (i / 4 - 0.5) * 2.0f));
+        box->MoveTo(vec3((i % 4 - 2.0) * 1.4f, 0.51, (i / 4 - 0.5) * 2.0f));
+        if(i==4){
+            box->m_surfaceColor = vec4(1,0,0,0.8);
+        }
+        if(i==5){
+            box->m_surfaceColor = vec4(1,1,0,0.5);
+        }
+        if(i==6){
+            box->m_surfaceColor = vec4(0,1,0,0.6);
+        }
+        if(i==7){
+            box->m_surfaceColor = vec4(0,0,1,0.4);
+        }
     }
     //体现父子关系的球绕立方体运动
     {
@@ -186,11 +198,12 @@ int main() {
     }
     //透明物体
     {
-        Object *boxoit = NEW Object("boxoit" + IntToString(0), rootplane, vec3(0), 0, 0, 0, true);
-        boxoit->SetMesh(meshManage.GetMesh("boxmesh"));
-        boxoit->SetMaterial(materialManage.GetMaterial("oitgreen"));
-        boxoit->Scale(1.0f);
-        boxoit->MoveTo(vec3(0, 4, 0));
+//        Object *boxoit = NEW Object("boxoit" + IntToString(0), rootplane, vec3(0), 0, 0, 0, true);
+//        boxoit->SetMesh(meshManage.GetMesh("boxmesh"));
+//        boxoit->SetMaterial(materialManage.GetMaterial("oitgreen"));
+//        boxoit->Scale(1.0f);
+//        boxoit->MoveTo(vec3(0, 0, 0));
+//        boxoit->m_surfaceColor = vec4(1,1,0,0.6);
     }
 
     //----------------
@@ -249,11 +262,7 @@ int main() {
                           0, 0, device.m_windowWidth, device.m_windowHeight,
                           GL_DEPTH_BUFFER_BIT, GL_NEAREST);
         //后台HDR缓冲渲染
-        glBindFramebuffer(GL_FRAMEBUFFER, device.m_backHDRFBO.m_frameBuffer);
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        glEnable(GL_DEPTH_TEST);
-        scene.m_opaqueList.Render();
+        scene.RenderOpaque();
         if (optionConfig.LightShowRender) {
             scene.RenderLightShow();
         }

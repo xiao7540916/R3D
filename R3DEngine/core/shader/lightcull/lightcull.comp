@@ -134,12 +134,12 @@ void main() {
         float max_group_depth = uintBitsToFloat(max_depth);
         //计算相机空间下的最大最小深度
         //使用投影矩阵的逆矩阵
-/*        vec4 vs_min_depth = (ubobasedata.invproj * vec4(0.0, 0.0, (2.0 * min_group_depth - 1.0), 1.0));
-        vec4 vs_max_depth = (ubobasedata.invproj * vec4(0.0, 0.0, (2.0 * max_group_depth - 1.0), 1.0));
-        vs_min_depth /= vs_min_depth.w;
-        vs_max_depth /= vs_max_depth.w;
-        min_group_depth = vs_min_depth.z;
-        max_group_depth = vs_max_depth.z;*/
+        /*        vec4 vs_min_depth = (ubobasedata.invproj * vec4(0.0, 0.0, (2.0 * min_group_depth - 1.0), 1.0));
+                vec4 vs_max_depth = (ubobasedata.invproj * vec4(0.0, 0.0, (2.0 * max_group_depth - 1.0), 1.0));
+                vs_min_depth /= vs_min_depth.w;
+                vs_max_depth /= vs_max_depth.w;
+                min_group_depth = vs_min_depth.z;
+                max_group_depth = vs_max_depth.z;*/
         //使用公式推导，需要传入znear，zfar
         min_group_depth = depthToViewZ(min_group_depth, ubobasedata.znear, ubobasedata.zfar);
         max_group_depth = depthToViewZ(max_group_depth, ubobasedata.znear, ubobasedata.zfar);
@@ -161,7 +161,8 @@ void main() {
         frustum_planes[2] = clip_plane[baseplaneindex+2];//左
         frustum_planes[3] = clip_plane[baseplaneindex+3];//右
         frustum_planes[4] = vec4(0.0, 0.0, 1.0, -max_group_depth);
-        frustum_planes[5] = vec4(0.0, 0.0, -1.0, min_group_depth);
+        //frustum_planes[5] = vec4(0.0, 0.0, -1.0, min_group_depth);
+        frustum_planes[5] = vec4(0.0, 0.0, -1.0, -ubobasedata.znear);//省去透明物体的灯光排序
     }
 
     barrier();

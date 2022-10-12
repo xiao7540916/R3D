@@ -85,9 +85,9 @@ namespace R3D {
         void BindResource() override;
         void RenderPrepare() override;
     };
-    class MaterialOITGreen : public Material {
+    class MaterialOITColor : public Material {
     public:
-        MaterialOITGreen();
+        MaterialOITColor();
         void InitResource(GLint in_param = GL_REPEAT,GLint in_mipmapinfo = GL_LINEAR_MIPMAP_LINEAR) override;
         void BindResource() override;
         void RenderPrepare() override;

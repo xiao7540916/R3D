@@ -321,9 +321,7 @@ namespace R3D {
         uniformBlockMesh.invmodelt = glm::transpose(glm::inverse(GetFinalTransformMatrix()));
         uniformBlockMesh.uvoffset = m_uvoffset;
         uniformBlockMesh.uvscale = m_uvscale;
-        uniformBlockMesh.cfin = m_cfin;
-        uniformBlockMesh.cfout = m_cfout;
-        uniformBlockMesh.opacity = m_opacity;
+        uniformBlockMesh.surfacecolor = m_surfaceColor;
         glBindBufferBase(GL_UNIFORM_BUFFER, 1, BufferManage::GetInstance()->m_uniBlockMeshBuffer);
         glNamedBufferSubData(BufferManage::GetInstance()->m_uniBlockMeshBuffer, 0, sizeof(UniformBlockMesh),
                              &uniformBlockMesh);

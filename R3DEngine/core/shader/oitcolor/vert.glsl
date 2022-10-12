@@ -37,10 +37,7 @@ struct UniformBlockMesh{
     mat4 invmodelt;
     vec2 uvoffset;
     vec2 uvscale;
-    vec3 cfin;//内部透射率
-    float opacity;
-    vec3 cfout;//外部透射率
-    float fill0;
+    vec4 surfacecolor;//透明物体的表面颜色
 };
 layout(std140, binding = 0) uniform UniformBaseBuffer {
     UniformBlockBase ubobasedata;
@@ -48,6 +45,15 @@ layout(std140, binding = 0) uniform UniformBaseBuffer {
 layout(std140, binding = 1) uniform UniformMeshBuffer {
     UniformBlockMesh ubomeshdata;
 };
+out VS_OUT {
+    vec3 worldpos;
+    vec3 worldnormal;
+    float cameraz;
+} vs_out;
 void main() {
     gl_Position = ubobasedata.viewproj*ubomeshdata.model*vec4(vPosition, 1.0);
+    vs_out.worldpos = vec3(ubomeshdata.model * vec4(vPosition, 1.0));
+    mat3 normalMatrix = mat3(ubomeshdata.invmodelt);
+    vs_out.worldnormal = normalize(normalMatrix * vNormal);
+    vs_out.cameraz = -(ubobasedata.view*ubomeshdata.model*vec4(vPosition, 1.0f)).z;
 }

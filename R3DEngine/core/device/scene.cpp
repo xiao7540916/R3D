@@ -189,4 +189,16 @@ namespace R3D {
         m_aabb.min = in_min;
         m_aabb.max = in_max;
     }
+    void Scene::RenderOpaque() {
+        glBindFramebuffer(GL_FRAMEBUFFER, m_device->m_backHDRFBO.m_frameBuffer);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 0, BufferManage::GetInstance()->m_uniBlockBaseBuffer);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 1, BufferManage::GetInstance()->m_uniBlockMeshBuffer);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, BufferManage::GetInstance()->m_pointLightBuffer);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, BufferManage::GetInstance()->m_tileLightsIdxBuffer);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, BufferManage::GetInstance()->m_tileLightsNumBuffer);
+        m_opaqueList.Render();
+    }
 }

@@ -229,14 +229,14 @@ namespace R3D {
         }
     }
     //----------------------------------------------
-    MaterialOITGreen::MaterialOITGreen() {
+    MaterialOITColor::MaterialOITColor() {
         m_mtrQueue = MTRQUEUE_TRANSPARENT;
     }
-    void MaterialOITGreen::InitResource(GLint in_param, GLint in_mipmapinfo) {
+    void MaterialOITColor::InitResource(GLint in_param, GLint in_mipmapinfo) {
     }
-    void MaterialOITGreen::BindResource() {
+    void MaterialOITColor::BindResource() {
     }
-    void MaterialOITGreen::RenderPrepare() {
+    void MaterialOITColor::RenderPrepare() {
         if (RenderStateManage::GetInstance()->NeedChangeState(m_shader.ID)) {
             glEnable(GL_DEPTH_TEST);
             glDisable(GL_CULL_FACE);
@@ -367,9 +367,9 @@ namespace R3D {
         shadowmap->m_shader = shaderCache.GetShader("shadowmap");
         AddMaterial("shadowmap", shadowmap);
         //----------------------------------------------
-        MaterialOITGreen *oitgreen = NEW MaterialOITGreen();
-        oitgreen->m_shader = shaderCache.GetShader("oitgreen");
-        AddMaterial("oitgreen", oitgreen);
+        MaterialOITColor *oitcolor = NEW MaterialOITColor;
+        oitcolor->m_shader = shaderCache.GetShader("oitcolor");
+        AddMaterial("oitcolor", oitcolor);
 #endif
     }
     void MaterialManage::Release() {

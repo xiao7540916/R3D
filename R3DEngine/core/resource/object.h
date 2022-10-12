@@ -41,9 +41,7 @@ namespace R3D {
         bool m_dirty;//是否需要重新计算最终变换矩阵
         bool m_dirtyBB;//是否需要重新计算自身包围球
     public:
-        vec3 m_cfin = vec3(1.0f);//内部透射率
-        vec3 m_cfout = vec3(1.0f);//外部透射率
-        float m_opacity = 1.0f;
+        vec4 m_surfaceColor = vec4(1.0f);
     public:
         Object(const string &in_name, Object *in_father, const vec3 &in_offsetFromParent, float in_radianX,
                float in_radianY, float in_radianZ, bool in_visible);

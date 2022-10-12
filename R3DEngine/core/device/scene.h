@@ -38,6 +38,7 @@ namespace R3D {
         void Release();
         void DeleteObject(Object *in_object);
         void SetAABB(const vec3& in_min,const vec3& in_max);
+        void RenderOpaque();
     public:
         RenderList m_opaqueList;
         RenderList m_transparent;
