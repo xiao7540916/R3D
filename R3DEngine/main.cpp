@@ -136,13 +136,13 @@ int main() {
             matballsub0->SetMaterial(materialManage.GetMaterial("metalpbr_forestbrown"));
             RouteAction *routeAction = NEW RouteAction();
             float sqlen = 4.5;
-            Path path0 = {PATH_CURVED, vec3(-sqlen, 1, -sqlen), vec3(sqlen, 0, -sqlen), vec3(-sqlen, 1, -8),
+            Path path0 = {PATH_CURVED, vec3(-sqlen, 2, -sqlen), vec3(sqlen, 0, -sqlen), vec3(-sqlen, 2, -8),
                           vec3(sqlen, 0, -8)};
             Path path1 = {PATH_STRAIGHT, vec3(sqlen, 0, -sqlen), vec3(sqlen, 0, sqlen)};
             Path path2 = {PATH_CURVED, vec3(sqlen, 0, sqlen), vec3(-sqlen, 0, sqlen), vec3(sqlen, 0, 7),
                           vec3(-sqlen, 0, 7)};
-            Path path3 = {PATH_CURVED, vec3(-sqlen, 0, sqlen), vec3(-sqlen, 1, -sqlen), vec3(-sqlen, 0, 0),
-                          vec3(-sqlen, 1, -2)};
+            Path path3 = {PATH_CURVED, vec3(-sqlen, 0, sqlen), vec3(-sqlen, 2, -sqlen), vec3(-sqlen, 0, -1),
+                          vec3(-sqlen, 2, -2)};
             routeAction->AddPath(path0);
             routeAction->AddPath(path1);
             routeAction->AddPath(path2);
@@ -226,6 +226,7 @@ int main() {
         //渲染开始
         //shadowmap
         glViewport(0, 0, 1024, 1024);
+        glDepthMask(GL_TRUE);
         device.UpdataCSM(scene);
         glMemoryBarrier(GL_FRAMEBUFFER_BARRIER_BIT);
         glViewport(0, 0, device.m_windowWidth, device.m_windowHeight);
@@ -234,7 +235,6 @@ int main() {
         glClearColor(-1, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
-        glDepthMask(GL_TRUE);
         glBindBufferBase(GL_UNIFORM_BUFFER, 0, BufferManage::GetInstance()->m_uniBlockBaseBuffer);
         glBindBufferBase(GL_UNIFORM_BUFFER, 15, BufferManage::GetInstance()->m_uniCSMHandleBuffer);
         scene.m_opaqueList.RenderDepth();
@@ -267,9 +267,8 @@ int main() {
         //准备透明渲染所需数据
         oit.PrapareData();
         scene.m_transparent.Render();
-        glDepthMask(GL_TRUE);
+        glMemoryBarrier(GL_UNIFORM_BARRIER_BIT);
         oit.Resolve();
-        glDepthMask(GL_TRUE);
         //windowframe
         glBindFramebuffer(GL_READ_FRAMEBUFFER, device.m_backHDRFBO.m_frameBuffer);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
@@ -314,6 +313,7 @@ void guiMake() {
     ImGui::Checkbox("LightShowRender", &optionConfig.LightShowRender);
     ImGui::Checkbox("LightRadiusRender", &optionConfig.LightRadiusRender);
     ImGui::SliderInt("PointLightCount", &optionConfig.PointLightCount, 0, 1024);
+    ImGui::SliderFloat("LightPosOffset", &optionConfig.lightPosOffset, 0.0, 20.0);
     ImGui::SliderFloat("DepthBias", &optionConfig.depthbias, 0.0, 0.2);
     ImGui::SliderFloat("NormalBias", &optionConfig.normalbias, 0.0, 0.2);
     ImGui::End();
@@ -330,6 +330,11 @@ void guiMake() {
     ImGui::Begin("ShadowMap0");
     //翻转y轴使图像于屏幕匹配
     ImGui::Image((ImTextureID) Device::GetInstance()->m_cascadedShadowMap.m_shadowMapFBO[0].m_depthAttach, ImVec2(400, 400), ImVec2(0, 1),
+                 ImVec2(1, 0));
+    ImGui::End();
+    ImGui::Begin("AO");
+    //翻转y轴使图像于屏幕匹配
+    ImGui::Image((ImTextureID) Device::GetInstance()->m_AOFBO.m_colorAttach0, ImVec2(400, 225), ImVec2(0, 1),
                  ImVec2(1, 0));
     ImGui::End();
     ImGui::Begin("AO Config");

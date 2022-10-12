@@ -37,6 +37,10 @@ struct UniformBlockMesh{
     mat4 invmodelt;
     vec2 uvoffset;
     vec2 uvscale;
+    vec3 cfin;//内部透射率
+    float opacity;
+    vec3 cfout;//外部透射率
+    float fill0;
 };
 layout(std140, binding = 0) uniform UniformBaseBuffer {
     UniformBlockBase ubobasedata;

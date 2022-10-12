@@ -141,11 +141,10 @@ namespace R3D {
         m_dirtyBB = true;
     }
     void Object::SetDirectiveRelative(const vec3 &in_dir, const vec3 &in_up) {
-        vec3 forward,upV,right;
+        vec3 forward, upV, right;
         right = glm::cross(in_up, in_dir);
         forward = glm::normalize(in_dir);
         upV = glm::cross(forward, right);
-
         m_rotateRelative[0] = right;
         m_rotateRelative[1] = upV;
         m_rotateRelative[2] = forward;
@@ -322,6 +321,9 @@ namespace R3D {
         uniformBlockMesh.invmodelt = glm::transpose(glm::inverse(GetFinalTransformMatrix()));
         uniformBlockMesh.uvoffset = m_uvoffset;
         uniformBlockMesh.uvscale = m_uvscale;
+        uniformBlockMesh.cfin = m_cfin;
+        uniformBlockMesh.cfout = m_cfout;
+        uniformBlockMesh.opacity = m_opacity;
         glBindBufferBase(GL_UNIFORM_BUFFER, 1, BufferManage::GetInstance()->m_uniBlockMeshBuffer);
         glNamedBufferSubData(BufferManage::GetInstance()->m_uniBlockMeshBuffer, 0, sizeof(UniformBlockMesh),
                              &uniformBlockMesh);
@@ -408,7 +410,7 @@ namespace R3D {
         }
     }
     Object::~Object() {
-        if(m_routeAction){
+        if (m_routeAction) {
             delete m_routeAction;
         }
     }

@@ -17,6 +17,7 @@ namespace R3D {
         GLuint m_headPointTex = 0;
         GLuint m_atomicCountBuffer = 0;
         GLuint m_fragmentStorageBuffer = 0;
+        GLuint m_fragmentStorageTex = 0;
     public:
         void Init(Device* in_device);
         void PrapareData();//重置链表头，计数器

@@ -21,6 +21,8 @@ namespace R3D {
         //初始化head
         glGenTextures(1, &m_headPointTex);
         glBindTexture(GL_TEXTURE_2D, m_headPointTex);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, OIT_FRAME_WIDTH, OIT_FRAME_HEIGHT, 0, GL_RED_INTEGER, GL_UNSIGNED_INT,
                      nullptr);
         //初始化head初始数据，使用Pixel Buffer Object，PBO 仅用于执行像素传输不连接到纹理，且与FBO（帧缓冲区对象）无关
@@ -39,6 +41,12 @@ namespace R3D {
         glGenBuffers(1, &m_fragmentStorageBuffer);
         glBindBuffer(GL_TEXTURE_BUFFER, m_fragmentStorageBuffer);
         glBufferData(GL_TEXTURE_BUFFER, 2 * totalpixels * sizeof(vec4), nullptr, GL_DYNAMIC_COPY);
+        glBindBuffer(GL_TEXTURE_BUFFER, 0);
+        //创建一个texture用于绑定buffer
+        glGenTextures(1, &m_fragmentStorageTex);
+        glBindTexture(GL_TEXTURE_BUFFER, m_fragmentStorageTex);
+        glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32UI, m_fragmentStorageBuffer);
+        glBindTexture(GL_TEXTURE_BUFFER, 0);
     }
     void OIT::PrapareData() {
         //绑定了GL_PIXEL_UNPACK_BUFFER时，glTexSubImage2D的数据来源变为所绑定的缓冲，通过指针位置设置偏移
@@ -46,13 +54,13 @@ namespace R3D {
         glBindTexture(GL_TEXTURE_2D, m_headPointTex);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, OIT_FRAME_WIDTH, OIT_FRAME_HEIGHT, GL_RED_INTEGER, GL_UNSIGNED_INT,
                         nullptr);
-        glBindImageTexture(0, m_headPointTex, 0, false, 0, GL_READ_WRITE, GL_R32UI);//绑定到着色器
+        glBindImageTexture(0, m_headPointTex, 0, GL_TRUE, 0, GL_READ_WRITE, GL_R32UI);//绑定到着色器
         //重置计数器
         glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, m_atomicCountBuffer);//绑定到着色器
         const GLuint zero = 0;
         glBufferSubData(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint), &zero);
         //
-        glBindImageTexture(1, m_fragmentStorageBuffer, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32UI);//绑定到着色器
+        glBindImageTexture(1, m_fragmentStorageTex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32UI);
     }
     void OIT::Release() {
         if (m_headInitBuffer) {
@@ -71,9 +79,14 @@ namespace R3D {
             glDeleteBuffers(1, &m_fragmentStorageBuffer);
             m_fragmentStorageBuffer = 0;
         }
+        if (m_fragmentStorageTex) {
+            glDeleteTextures(1, &m_fragmentStorageTex);
+            m_fragmentStorageTex = 0;
+        }
     }
     void OIT::Resolve() {
-        glBindImageTexture(1, m_fragmentStorageBuffer, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32UI);//绑定到着色器
+        glBindImageTexture(0, m_headPointTex, 0, GL_TRUE, 0, GL_READ_ONLY, GL_R32UI);//绑定到着色器
+        glBindImageTexture(1, m_fragmentStorageTex, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32UI);//绑定到着色器
         if (RenderStateManage::GetInstance()->NeedChangeState(m_resolveShader.ID)) {
             glDisable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
@@ -88,5 +101,6 @@ namespace R3D {
         static Mesh *screenbackmesh = MeshManage::GetInstance()->GetMesh("screenbackmesh");
         glBindVertexArray(screenbackmesh->VAO);
         glDrawElements(GL_TRIANGLES, screenbackmesh->m_indiceSize, GL_UNSIGNED_INT, nullptr);
+        glDisable(GL_BLEND);
     }
 }

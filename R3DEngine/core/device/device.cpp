@@ -65,6 +65,9 @@ namespace R3D {
             delete Gui::GetInstance();
         }
         m_OIT->Release();
+        if (OIT::GetInstance()) {
+            delete OIT::GetInstance();
+        }
     }
     GLFWwindow *Device::GetWindow() {
         return m_window;

@@ -45,10 +45,12 @@ void sort_fragment_list(int in_fragcount){
     }
 }
 vec4 calculate_final_color(int in_frag_count){
+    //排列顺序，按照由远到近
     vec4 finalcol = vec4(0);
     for (int i = 0; i < in_frag_count; i++)
     {
         vec4 modulator = unpackUnorm4x8(fragment_list[i].y);
+        vec4 opacityinfo = unpackUnorm4x8(fragment_list[i].w);
         finalcol = mix(finalcol, modulator, modulator.a);
     }
     return finalcol;

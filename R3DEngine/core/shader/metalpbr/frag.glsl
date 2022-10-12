@@ -137,6 +137,7 @@ float csmdst[3];
 float csmgddststart[3];
 float csmgddstend[3];
 float frustumSize[3] = { 21.666, 64.428, 142.8232 };//相机空间尺寸
+
 const float shadowMapSize = 1024.0f;
 
 float rand_2to1(vec2 uv) {
@@ -194,9 +195,10 @@ float ShadowCalculation(vec3 worldnormal, float filtersize)
 
             float A = (1.0f+float(ceil(filtersize)))*frustumSize[camindex-1]/(shadowMapSize*2.0);
             float coscita = clamp(dot(normalize(worldnormal), ubobasedata.dirLights[0].direction), 0.0, 1.0);
-            float B = sqrt(1-coscita*coscita);
-            float DepthBias = A*B;
-            float NormalBias = A*B;
+            float sincita = sqrt(1-coscita*coscita);
+            float tancita = min(1,sincita/coscita);
+            float DepthBias = A*tancita;
+            float NormalBias = A*sincita;
 
             float bias = ubobasedata.depthbias*DepthBias+ubobasedata.normalbias*NormalBias;
 
@@ -221,9 +223,10 @@ float ShadowCalculation(vec3 worldnormal, float filtersize)
 
             float A = (1.0f+float(ceil(filtersize)))*frustumSize[camindex]/(shadowMapSize*2.0);
             float coscita = clamp(dot(normalize(worldnormal), ubobasedata.dirLights[0].direction), 0.0, 1.0);
-            float B = sqrt(1-coscita*coscita);
-            float DepthBias = A*B;
-            float NormalBias = A*B;
+            float sincita = sqrt(1-coscita*coscita);
+            float tancita = min(1,sincita/coscita);
+            float DepthBias = A*tancita;
+            float NormalBias = A*sincita;
             float bias = ubobasedata.depthbias*DepthBias+ubobasedata.normalbias*NormalBias;
 
             //pfc
@@ -251,9 +254,10 @@ float ShadowCalculation(vec3 worldnormal, float filtersize)
 
         float A = (1.0f+float(ceil(filtersize)))*frustumSize[camindex]/(shadowMapSize*2.0);
         float coscita = clamp(dot(normalize(worldnormal), ubobasedata.dirLights[0].direction), 0.0, 1.0);
-        float B = sqrt(1-coscita*coscita);
-        float DepthBias = A*B;
-        float NormalBias = A*B;
+        float sincita = sqrt(1-coscita*coscita);
+        float tancita = min(1,sincita/coscita);
+        float DepthBias = A*tancita;
+        float NormalBias = A*sincita;
         float bias = ubobasedata.depthbias*DepthBias+ubobasedata.normalbias*NormalBias;
 
         //pfc
@@ -272,6 +276,7 @@ float ShadowCalculation(vec3 worldnormal, float filtersize)
 //-----------------------------------------------------------
 void main() {
     poissonDiskSamples(fs_in.FragPos.xz);//获得泊松分布采样点
+//    poissonDisk[0] = vec2(0);
     for (int i = 0; i < 3; ++i) {
         csmdst[i] = ubobasedata.znear+csmsplit[i]*(ubobasedata.zfar-ubobasedata.znear);
         csmgddststart[i] = csmdst[i]*0.9;
@@ -385,4 +390,5 @@ void main() {
     color = pow(color, vec3(1.0/2.2));
 
     FragColor = vec4(color, 1.0);
+//    FragColor = vec4(vec3(visible),1.0);
 }
