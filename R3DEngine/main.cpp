@@ -161,12 +161,12 @@ int main() {
     }
     for (int i = 4;i < 8;++i) {
         Object *box = NEW Object("box" + IntToString(i), rootplane, vec3(0), 0, 0, 0, true);
-        box->SetMesh(meshManage.GetMesh("boxmesh"));
+        box->SetMesh(meshManage.GetMesh("spotmesh"));
         box->SetMaterial(materialManage.GetMaterial("oitcolor"));
         box->Scale(1.0f);
-        box->MoveTo(vec3((i % 4 - 2.0) * 1.4f, 0.51, (i / 4 - 0.5) * 2.0f));
+        box->MoveTo(vec3((i % 4 - 2.0) * 1.4f, 0.75, (i / 4 - 0.5) * 2.0f));
         if(i==4){
-            box->m_surfaceColor = vec4(1,0,0,0.8);
+            box->m_surfaceColor = vec4(1,0,0,0.9);
         }
         if(i==5){
             box->m_surfaceColor = vec4(1,1,0,0.5);
@@ -184,9 +184,9 @@ int main() {
         boxfather0->SetMesh(meshManage.GetMesh("boxmesh"));
         boxfather0->SetMaterial(materialManage.GetMaterial("metalpbr_floor"));
         Object *spherechild0 = NEW Object("spherechild0", boxfather0, vec3(2, 0, 0), 0, 0, 0, true);
-        boxfather0->MoveTo(vec3(0.0f, 2.0f, 0.0f));
+        boxfather0->MoveTo(vec3(0.0f, 2.6f, 0.0f));
         boxfather0->SetActionFunc([&]() {
-            boxfather0->MoveTo(vec3(0, 2, sinf(device.m_gameTime.TotalTime()) * 2.0f));
+            boxfather0->MoveTo(vec3(0, 2.6, sinf(device.m_gameTime.TotalTime()) * 2.0f));
             boxfather0->RotationYaw(device.m_gameTime.TotalTime() * 0.5f);
         });
         spherechild0->SetMesh(meshManage.GetMesh("geospheremesh"));
@@ -196,16 +196,6 @@ int main() {
             spherechild0->MoveTo(vec3(0.9f + abs(sinf(device.m_gameTime.TotalTime() * 2.0f)) * 2.0f, 0, 0));
         });
     }
-    //透明物体
-    {
-//        Object *boxoit = NEW Object("boxoit" + IntToString(0), rootplane, vec3(0), 0, 0, 0, true);
-//        boxoit->SetMesh(meshManage.GetMesh("boxmesh"));
-//        boxoit->SetMaterial(materialManage.GetMaterial("oitgreen"));
-//        boxoit->Scale(1.0f);
-//        boxoit->MoveTo(vec3(0, 0, 0));
-//        boxoit->m_surfaceColor = vec4(1,1,0,0.6);
-    }
-
     //----------------
     rootplane->UpdataSubSceneGraph(true);
     rootplane->UpdataBoundSphere(rootplane);

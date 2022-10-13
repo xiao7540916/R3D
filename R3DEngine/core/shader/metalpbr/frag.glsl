@@ -276,7 +276,6 @@ float ShadowCalculation(vec3 worldnormal, float filtersize)
 //-----------------------------------------------------------
 void main() {
     poissonDiskSamples(fs_in.FragPos.xz);//获得泊松分布采样点
-//    poissonDisk[0] = vec2(0);
     for (int i = 0; i < 3; ++i) {
         csmdst[i] = ubobasedata.znear+csmsplit[i]*(ubobasedata.zfar-ubobasedata.znear);
         csmgddststart[i] = csmdst[i]*0.9;
