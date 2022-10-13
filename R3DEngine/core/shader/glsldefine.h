@@ -55,6 +55,8 @@ struct UniformBlockBase {
     float normalbias;
     float fill0;
     float fill1;
+    vec3 ambient;
+    float fill2;
 };
 struct UniformBlockMesh {
     mat4 model;

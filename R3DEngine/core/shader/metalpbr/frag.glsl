@@ -42,6 +42,8 @@ struct UniformBlockBase {
     float normalbias;
     float fill0;
     float fill1;
+    vec3 ambient;
+    float fill2;
 };
 layout(std140, binding = 0) uniform UniformBaseBuffer {
     UniformBlockBase ubobasedata;
@@ -196,7 +198,7 @@ float ShadowCalculation(vec3 worldnormal, float filtersize)
             float A = (1.0f+float(ceil(filtersize)))*frustumSize[camindex-1]/(shadowMapSize*2.0);
             float coscita = clamp(dot(normalize(worldnormal), ubobasedata.dirLights[0].direction), 0.0, 1.0);
             float sincita = sqrt(1-coscita*coscita);
-            float tancita = min(1,sincita/coscita);
+            float tancita = min(1, sincita/coscita);
             float DepthBias = A*tancita;
             float NormalBias = A*sincita;
 
@@ -224,7 +226,7 @@ float ShadowCalculation(vec3 worldnormal, float filtersize)
             float A = (1.0f+float(ceil(filtersize)))*frustumSize[camindex]/(shadowMapSize*2.0);
             float coscita = clamp(dot(normalize(worldnormal), ubobasedata.dirLights[0].direction), 0.0, 1.0);
             float sincita = sqrt(1-coscita*coscita);
-            float tancita = min(1,sincita/coscita);
+            float tancita = min(1, sincita/coscita);
             float DepthBias = A*tancita;
             float NormalBias = A*sincita;
             float bias = ubobasedata.depthbias*DepthBias+ubobasedata.normalbias*NormalBias;
@@ -255,7 +257,7 @@ float ShadowCalculation(vec3 worldnormal, float filtersize)
         float A = (1.0f+float(ceil(filtersize)))*frustumSize[camindex]/(shadowMapSize*2.0);
         float coscita = clamp(dot(normalize(worldnormal), ubobasedata.dirLights[0].direction), 0.0, 1.0);
         float sincita = sqrt(1-coscita*coscita);
-        float tancita = min(1,sincita/coscita);
+        float tancita = min(1, sincita/coscita);
         float DepthBias = A*tancita;
         float NormalBias = A*sincita;
         float bias = ubobasedata.depthbias*DepthBias+ubobasedata.normalbias*NormalBias;
@@ -376,18 +378,12 @@ void main() {
         // add to outgoing radiance Lo
         Lo += visible*(kD * albedo / PI + specular) * radiance * NdotL;// note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
     }
-
-
-    // ambient lighting (note that the next IBL tutorial will replace
-    // this ambient lighting with environment lighting).
-    vec3 ambient = vec3(0.01) * albedo * ao * globalao;
-
+    vec3 ambient = ubobasedata.ambient * albedo * ao * globalao;
     vec3 color = ambient + Lo;
     // HDR tonemapping
-    color = color / (color + vec3(1.0));
+    //color = color / (color + vec3(1.0));
     // gamma correct
-    color = pow(color, vec3(1.0/2.2));
+    //color = pow(color, vec3(1.0/2.2));
 
     FragColor = vec4(color, 1.0);
-//    FragColor = vec4(vec3(visible),1.0);
 }

@@ -26,6 +26,13 @@ struct UniformBlockBase {
     int workgroup_x;//用于灯光剔除的横向组数
     float znear;
     float zfar;
+    int csmlayercount;
+    mat4 lightviewprojdata[6];
+    float depthbias;
+    float normalbias;
+    float fill0;
+    float fill1;
+    vec3 ambient;
     float fill2;
 };
 struct UniformBlockMesh{

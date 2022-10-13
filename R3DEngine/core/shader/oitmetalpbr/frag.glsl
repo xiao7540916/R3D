@@ -42,6 +42,8 @@ struct UniformBlockBase {
     float normalbias;
     float fill0;
     float fill1;
+    vec3 ambient;
+    float fill2;
 };
 layout(std140, binding = 0) uniform UniformBaseBuffer {
     UniformBlockBase ubobasedata;

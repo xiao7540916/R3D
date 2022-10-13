@@ -56,6 +56,8 @@ struct UniformBlockBase {
     float normalbias;
     float fill0;
     float fill1;
+    vec3 ambient;
+    float fill2;
 };
 layout(std140, binding = 0) uniform UniformBaseBuffer {
     UniformBlockBase ubobasedata;
@@ -266,7 +268,7 @@ void main() {
         float NdotL = dot(N, L);
         float NdotH = dot(N, H);
         float diff = max(dot(N, L), 0.1);
-        float spec = pow(max(dot(N, H), 0.1), 32.0);
+        float spec = pow(max(dot(N, H), 0.1), 64.0);
         specmax = max(spec, specmax);
         Lo+=diff*radiance*ubomeshdata.surfacecolor.rgb+spec*radiance;
     }
@@ -277,14 +279,13 @@ void main() {
         float NdotL = dot(N, L);
         float NdotH = dot(N, H);
         float diff = max(dot(N, L), 0.1);
-        float spec = pow(max(dot(N, H), 0.1), 32.0);
+        float spec = pow(max(dot(N, H), 0.1), 64.0);
         specmax = max(spec, specmax);
         Lo+=diff*ubobasedata.dirLights[0].strength*ubomeshdata.surfacecolor.rgb+spec*ubobasedata.dirLights[0].strength;
     }
     float visible = ShadowCalculation(N, 3.0);
-    frag_color = vec4(Lo*visible, mix(ubomeshdata.surfacecolor.a, 1.0, specmax*0.9));
-
-
+    vec3 ambient = ubobasedata.ambient*ubomeshdata.surfacecolor.rgb;
+    frag_color = vec4(Lo*visible+ambient, mix(ubomeshdata.surfacecolor.a, 1.0, specmax*0.9));
 
     //----------------------------------------------------------------
     index = atomicCounterIncrement(list_counter);

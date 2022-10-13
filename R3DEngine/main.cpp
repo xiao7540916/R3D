@@ -50,13 +50,7 @@ int main() {
         pointLight[i].constant = 2.0f;
         pointLight[i].linear = 2.0f;
         pointLight[i].quadratic = 2.0f;
-//        float bright = glm::dot(vec3(0.3, 0.6, 0.1), pointLight[i].strength);
         float bright = glm::dot(vec3(0.33, 0.33, 0.33), pointLight[i].strength);
-        /*float minbright = 0.001f;
-        float a = pointLight[i].quadratic;
-        float b = pointLight[i].linear;
-        float c = pointLight[i].constant - bright / minbright;
-        pointLight[i].radius = 0.5f * (sqrt(b * b - 4.0f * a * c) - b) / a;*/
         pointLight[i].radius = bright * 3;
         pointLight[i].cutoff = pointLight[i].radius * 0.2f;
     }
