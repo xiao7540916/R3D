@@ -64,6 +64,8 @@ namespace R3D {
         void UpdataCamera() const;
         void PrepareCSM(Scene& in_scene);
         void UpdataCSM(Scene& in_scene);
+        void HDRToLow();
+        void FXAA();
         bool Run();
         void Tick();//每帧初始时运行
         void Tock();//每帧结束前运行
@@ -92,6 +94,7 @@ namespace R3D {
         RenderList m_opaqueList;
         FrameBufferDepthNormal m_preDepthFBO;
         FrameBufferColDepthHDR m_backHDRFBO;
+        FrameBufferColHDR m_postHDRFBO;
         FrameBufferAO m_AOFBO;
         CascadedShadowMap m_cascadedShadowMap;
     private:

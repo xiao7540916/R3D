@@ -53,7 +53,7 @@ struct UniformBlockBase {
     mat4 lightviewprojdata[6];
     float depthbias;
     float normalbias;
-    float fill0;
+    float hdrexp;
     float fill1;
     vec3 ambient;
     float fill2;

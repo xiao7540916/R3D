@@ -182,5 +182,6 @@ struct OptionConfig {
     float lightPosOffset = 10.0f;
     float depthbias = 0.05f;
     float normalbias = 0.05f;
+    float hdrExp = 1.5f;
 };
 #endif //R3D_STRUCTDEFINE_H

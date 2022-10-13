@@ -44,6 +44,12 @@ namespace R3D {
         Shader oitresolve;
         oitresolve.loadShader(SHADER_DIR + "oitresolve/vert.glsl", SHADER_DIR + "oitresolve/frag.glsl");
         m_shaders.insert({"oitresolve", oitresolve});
+        Shader fxaa;
+        fxaa.loadShader(SHADER_DIR + "fxaa/vert.glsl", SHADER_DIR + "fxaa/frag.glsl");
+        m_shaders.insert({"fxaa", fxaa});
+        Shader hdrtolow;
+        hdrtolow.loadShader(SHADER_DIR + "hdrtolow/vert.glsl", SHADER_DIR + "hdrtolow/frag.glsl");
+        m_shaders.insert({"hdrtolow", hdrtolow});
     }
     Shader ShaderCache::GetShader(string in_shadertype) {
         if (m_shaders.find(in_shadertype) == m_shaders.end()) {

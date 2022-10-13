@@ -159,17 +159,17 @@ int main() {
         box->SetMaterial(materialManage.GetMaterial("oitcolor"));
         box->Scale(1.0f);
         box->MoveTo(vec3((i % 4 - 2.0) * 1.4f, 0.75, (i / 4 - 0.5) * 2.0f));
-        if(i==4){
-            box->m_surfaceColor = vec4(1,0,0,0.9);
+        if (i == 4) {
+            box->m_surfaceColor = vec4(1, 0, 0, 0.9);
         }
-        if(i==5){
-            box->m_surfaceColor = vec4(1,1,0,0.5);
+        if (i == 5) {
+            box->m_surfaceColor = vec4(1, 1, 0, 0.5);
         }
-        if(i==6){
-            box->m_surfaceColor = vec4(0,1,0,0.6);
+        if (i == 6) {
+            box->m_surfaceColor = vec4(0, 1, 0, 0.6);
         }
-        if(i==7){
-            box->m_surfaceColor = vec4(0,0,1,0.4);
+        if (i == 7) {
+            box->m_surfaceColor = vec4(0, 0, 1, 0.4);
         }
     }
     //体现父子关系的球绕立方体运动
@@ -262,6 +262,17 @@ int main() {
         scene.m_transparent.Render();
         glMemoryBarrier(GL_UNIFORM_BARRIER_BIT);
         oit.Resolve();
+        //渲染透明物体的深度值，以便在后处理中使用
+        glBindFramebuffer(GL_FRAMEBUFFER, device.m_preDepthFBO.m_frameBuffer);
+        glEnable(GL_DEPTH_TEST);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 0, BufferManage::GetInstance()->m_uniBlockBaseBuffer);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 15, BufferManage::GetInstance()->m_uniCSMHandleBuffer);
+        scene.m_transparent.RenderDepth();
+        //将HDR颜色映射到低动态范围，进行FXAA后直接输出逆映射后的高动态范围图像，用于解决亮度过高造成的闪烁问题
+        //色调映射到低动态范围
+        device.HDRToLow();
+        //FXAA
+        device.FXAA();
         //windowframe
         glBindFramebuffer(GL_READ_FRAMEBUFFER, device.m_backHDRFBO.m_frameBuffer);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
@@ -309,6 +320,7 @@ void guiMake() {
     ImGui::SliderFloat("LightPosOffset", &optionConfig.lightPosOffset, 0.0, 20.0);
     ImGui::SliderFloat("DepthBias", &optionConfig.depthbias, 0.0, 0.2);
     ImGui::SliderFloat("NormalBias", &optionConfig.normalbias, 0.0, 0.2);
+    ImGui::SliderFloat("HDRExp", &optionConfig.hdrExp, 0.0, 5.0);
     ImGui::End();
     ImGui::Begin("DepthTex");
     //翻转y轴使图像于屏幕匹配
@@ -322,7 +334,8 @@ void guiMake() {
     ImGui::End();
     ImGui::Begin("ShadowMap0");
     //翻转y轴使图像于屏幕匹配
-    ImGui::Image((ImTextureID) Device::GetInstance()->m_cascadedShadowMap.m_shadowMapFBO[0].m_depthAttach, ImVec2(400, 400), ImVec2(0, 1),
+    ImGui::Image((ImTextureID) Device::GetInstance()->m_cascadedShadowMap.m_shadowMapFBO[0].m_depthAttach,
+                 ImVec2(400, 400), ImVec2(0, 1),
                  ImVec2(1, 0));
     ImGui::End();
     ImGui::Begin("AO");

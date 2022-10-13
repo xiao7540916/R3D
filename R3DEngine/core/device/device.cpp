@@ -58,6 +58,7 @@ namespace R3D {
         delete m_materialManage;
         m_preDepthFBO.Release();
         m_backHDRFBO.Release();
+        m_postHDRFBO.Release();
         m_AOFBO.Release();
         delete m_renderStateManage;
         delete m_camera;
@@ -225,6 +226,7 @@ namespace R3D {
     void Device::InitFrameBuffers(int in_width, int in_height) {
         m_preDepthFBO.Init(in_width, in_height);
         m_backHDRFBO.Init(in_width, in_height);
+        m_postHDRFBO.Init(in_width, in_height);
         m_AOFBO.Init(in_width, in_height);
     }
     void
@@ -408,6 +410,40 @@ namespace R3D {
     }
     void Device::Tock() {
         UpdataCamera();
+    }
+    void Device::HDRToLow() {
+        static Shader hdrToLowShader = m_shaderCache.GetShader("hdrtolow");
+        glBindFramebuffer(GL_FRAMEBUFFER, m_postHDRFBO.m_frameBuffer);
+        glBindTextureUnit(0, m_backHDRFBO.m_colorAttach0);//绑定到着色器
+        glBindBufferBase(GL_UNIFORM_BUFFER, 0, BufferManage::GetInstance()->m_uniBlockBaseBuffer);
+        if (RenderStateManage::GetInstance()->NeedChangeState(hdrToLowShader.ID)) {
+            glDisable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
+            glFrontFace(GL_CCW);
+            glCullFace(GL_BACK);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            hdrToLowShader.use();
+        }
+        static Mesh *screenbackmesh = MeshManage::GetInstance()->GetMesh("screenbackmesh");
+        glBindVertexArray(screenbackmesh->VAO);
+        glDrawElements(GL_TRIANGLES, screenbackmesh->m_indiceSize, GL_UNSIGNED_INT, nullptr);
+    }
+    void Device::FXAA() {
+        static Shader fxaaShader = m_shaderCache.GetShader("fxaa");
+        glBindFramebuffer(GL_FRAMEBUFFER, m_backHDRFBO.m_frameBuffer);
+        glBindTextureUnit(0, m_postHDRFBO.m_colorAttach0);//绑定到着色器
+        glBindBufferBase(GL_UNIFORM_BUFFER, 0, BufferManage::GetInstance()->m_uniBlockBaseBuffer);
+        if (RenderStateManage::GetInstance()->NeedChangeState(fxaaShader.ID)) {
+            glDisable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
+            glFrontFace(GL_CCW);
+            glCullFace(GL_BACK);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            fxaaShader.use();
+        }
+        static Mesh *screenbackmesh = MeshManage::GetInstance()->GetMesh("screenbackmesh");
+        glBindVertexArray(screenbackmesh->VAO);
+        glDrawElements(GL_TRIANGLES, screenbackmesh->m_indiceSize, GL_UNSIGNED_INT, nullptr);
     }
 }
 
