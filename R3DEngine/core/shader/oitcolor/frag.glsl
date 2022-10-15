@@ -87,7 +87,9 @@ in VS_OUT {
     float cameraz;
 } fs_in;
 float getAttenuation(float radius, float cutoff, float distance){
-    return smoothstep(radius, cutoff, distance);
+    //smoothstep(a,b,x) if(x<a);return 0；if(x>b);return 1;
+    //t = clamp((x-a)/(b-a),0,1);return t*t(3-2*t);
+    return 1.0f-smoothstep(cutoff, radius, distance);
 }
 //-----------------------------------------------------------
 const float csmsplit[4] = { 0.0, 0.15, 0.45, 1.0 };//相机可视空间z方向分割比例
@@ -154,7 +156,7 @@ float ShadowCalculation(vec3 worldnormal, float filtersize)
             float A = (1.0f+float(ceil(filtersize)))*frustumSize[camindex-1]/(shadowMapSize*2.0);
             float coscita = clamp(dot(normalize(worldnormal), ubobasedata.dirLights[0].direction), 0.0, 1.0);
             float sincita = sqrt(1-coscita*coscita);
-            float tancita = min(1,sincita/coscita);
+            float tancita = min(1, sincita/coscita);
             float DepthBias = A*tancita;
             float NormalBias = A*sincita;
 
@@ -182,7 +184,7 @@ float ShadowCalculation(vec3 worldnormal, float filtersize)
             float A = (1.0f+float(ceil(filtersize)))*frustumSize[camindex]/(shadowMapSize*2.0);
             float coscita = clamp(dot(normalize(worldnormal), ubobasedata.dirLights[0].direction), 0.0, 1.0);
             float sincita = sqrt(1-coscita*coscita);
-            float tancita = min(1,sincita/coscita);
+            float tancita = min(1, sincita/coscita);
             float DepthBias = A*tancita;
             float NormalBias = A*sincita;
             float bias = ubobasedata.depthbias*DepthBias+ubobasedata.normalbias*NormalBias;
@@ -213,7 +215,7 @@ float ShadowCalculation(vec3 worldnormal, float filtersize)
         float A = (1.0f+float(ceil(filtersize)))*frustumSize[camindex]/(shadowMapSize*2.0);
         float coscita = clamp(dot(normalize(worldnormal), ubobasedata.dirLights[0].direction), 0.0, 1.0);
         float sincita = sqrt(1-coscita*coscita);
-        float tancita = min(1,sincita/coscita);
+        float tancita = min(1, sincita/coscita);
         float DepthBias = A*tancita;
         float NormalBias = A*sincita;
         float bias = ubobasedata.depthbias*DepthBias+ubobasedata.normalbias*NormalBias;
@@ -285,8 +287,8 @@ void main() {
     }
     float visible = ShadowCalculation(N, 3.0);
     vec3 ambient = ubobasedata.ambient*ubomeshdata.surfacecolor.rgb;
-    frag_color = vec4(Lo*visible+ambient, mix(ubomeshdata.surfacecolor.a, 1.0, specmax*0.9));
-
+//    frag_color = vec4(Lo*visible+ambient, mix(ubomeshdata.surfacecolor.a, 0.96, specmax*0.9));
+    frag_color = vec4(Lo*visible+ambient, ubomeshdata.surfacecolor.a);
     //----------------------------------------------------------------
     index = atomicCounterIncrement(list_counter);
     //将计数器值写入链表头图像中此片元对应的位置

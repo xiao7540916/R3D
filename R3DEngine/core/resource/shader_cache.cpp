@@ -50,6 +50,17 @@ namespace R3D {
         Shader hdrtolow;
         hdrtolow.loadShader(SHADER_DIR + "hdrtolow/vert.glsl", SHADER_DIR + "hdrtolow/frag.glsl");
         m_shaders.insert({"hdrtolow", hdrtolow});
+        Shader downsample;
+        vector<ShaderCreateDesc> downsampledesc = {{SHADER_DIR + "bloom/downsample.comp", GL_COMPUTE_SHADER}};
+        downsample.loadShader(downsampledesc);
+        m_shaders.insert({"downsample", downsample});
+        Shader upsample;
+        vector<ShaderCreateDesc> upsampledesc = {{SHADER_DIR + "bloom/upsample.comp", GL_COMPUTE_SHADER}};
+        upsample.loadShader(upsampledesc);
+        m_shaders.insert({"upsample", upsample});
+        Shader mergebloom;
+        mergebloom.loadShader(SHADER_DIR + "bloom/mergebloomvert.glsl", SHADER_DIR + "bloom/mergebloomfrag.glsl");
+        m_shaders.insert({"mergebloom", mergebloom});
     }
     Shader ShaderCache::GetShader(string in_shadertype) {
         if (m_shaders.find(in_shadertype) == m_shaders.end()) {

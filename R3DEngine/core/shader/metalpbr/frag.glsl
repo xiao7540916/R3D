@@ -100,8 +100,7 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
     float nom   = a2;
     float denom = (NdotH2 * (a2 - 1.0) + 1.0);
     denom = PI * denom * denom;
-
-    return nom / denom;
+    return nom / max(denom, 0.00001);
 }
 // ----------------------------------------------------------------------------
 float GeometrySchlickGGX(float NdotV, float roughness)
@@ -130,7 +129,9 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
 }
 float getAttenuation(float radius, float cutoff, float distance){
-    return smoothstep(radius, cutoff, distance);
+    //smoothstep(a,b,x) if(x<a);return 0；if(x>b);return 1;
+    //t = clamp((x-a)/(b-a),0,1);return t*t(3-2*t);
+    return 1.0f-smoothstep(cutoff, radius, distance);
 }
 
 //-----------------------------------------------------------
@@ -288,7 +289,7 @@ void main() {
 
     vec3 albedo     = pow(texture(albedoTex, fs_in.TexCoords).rgb, vec3(2.2));//转到线性空间
     float metallic  = texture(metalTex, fs_in.TexCoords).r;
-    float roughness = texture(roughnessTex, fs_in.TexCoords).r;
+    float roughness = max(texture(roughnessTex, fs_in.TexCoords).r,0.01);
     float ao        = texture(aoTex, fs_in.TexCoords).r;
 
     vec3 camPos = ubobasedata.camerapos;
@@ -326,6 +327,7 @@ void main() {
         vec3 nominator    = NDF * G * F;
         float denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001;// 0.001 to prevent divide by zero.
         vec3 specular = nominator / denominator;
+
 
         // kS is equal to Fresnel
         vec3 kS = F;

@@ -168,7 +168,7 @@ void main() {
         frustum_planes[2] = clip_plane[baseplaneindex+2];//左
         frustum_planes[3] = clip_plane[baseplaneindex+3];//右
         frustum_planes[4] = vec4(0.0, 0.0, 1.0, -max_group_depth);
-        //frustum_planes[5] = vec4(0.0, 0.0, -1.0, min_group_depth);
+//        frustum_planes[5] = vec4(0.0, 0.0, -1.0, min_group_depth);
         frustum_planes[5] = vec4(0.0, 0.0, -1.0, -ubobasedata.znear);//省去透明物体的灯光排序
     }
 

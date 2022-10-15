@@ -13,6 +13,9 @@ namespace R3D {
     };
     class TextureManage {
     public:
+        GLuint m_nearestEdgeSample;//最近邻不循环采样器(无mipmap)
+        GLuint m_linearEdgeSample;//线性插值不循环采样器(无mipmap)
+    public:
         unordered_map<string, GLuint> m_urlToTexture;
         int m_textureBindCache[16] = {0};
         ~TextureManage();
@@ -21,7 +24,8 @@ namespace R3D {
         static TextureManage *GetInstance();
         void Init();
         void Release();
-        void LoadTexture(const string &in_url,GLint in_param = GL_REPEAT,GLint in_mipmapinfo = GL_LINEAR_MIPMAP_LINEAR);
+        void
+        LoadTexture(const string &in_url, GLint in_param = GL_REPEAT, GLint in_mipmapinfo = GL_LINEAR_MIPMAP_LINEAR);
         void LoadTextureEx(const string &in_url, const TextureLayout &in_textureLayout);
         GLuint GetTextureByUrl(const string &in_url);
     private:

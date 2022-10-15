@@ -43,7 +43,7 @@ namespace R3D {
         MeshCreate::CreateGeosphere(*geospheremesh, 1, 3, VERT_POS_NOR_TAN_UV);
         AddMesh("geospheremesh", geospheremesh);
         Mesh *lightmesh = NEW Mesh();
-        MeshCreate::CreateGeosphere(*lightmesh, 0.02, 2, VERT_POS_NOR_TAN_UV);
+        MeshCreate::CreateGeosphere(*lightmesh, 0.2, 2, VERT_POS_NOR_TAN_UV);
         AddMesh("lightmesh", lightmesh);
         Mesh *lightradiusmesh = NEW Mesh();
         MeshCreate::CreateGeosphere(*lightradiusmesh, 1, 3, VERT_POS_NOR_TAN_UV);

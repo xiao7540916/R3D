@@ -40,6 +40,8 @@ in VS_OUT{
 }fs_in;
 void main() {
     vec3 srccol = texture(screenTex, fs_in.uv).rgb;
-    vec3 dstcol = vec3(1.0) - exp(-srccol * ubobasedata.hdrexp);
+    //    vec3 dstcol = vec3(1.0) - exp(-srccol * ubobasedata.hdrexp);
+    //使用稳定的色调映射变换到低动态范围FXAA后再反变换，最终变换使用对数变换
+    vec3 dstcol = srccol / (srccol + vec3(1.0));
     FragColor = vec4(dstcol, 1.0);
 }

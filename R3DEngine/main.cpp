@@ -36,7 +36,7 @@ int main() {
     scene.SetAABB(vec3(-9, -1, -9), vec3(9, 17, 9));
     scene.SetLightCount(1, optionConfig.PointLightCount, TILE_LIGHT_MAX);
     scene.m_dirLights[0].direction = glm::normalize(vec3(-8, 16, -8));
-    scene.m_dirLights[0].strength = vec3(6, 6, 6);
+    scene.m_dirLights[0].strength = vec3(4, 4, 3.6);
     scene.m_dirLights[1].direction = glm::normalize(vec3(-1, 5, 1));
     scene.m_dirLights[1].strength = vec3(0, 0, 0);
     for (int i = 0;i < scene.m_pointLights.size();++i) {
@@ -163,13 +163,13 @@ int main() {
             box->m_surfaceColor = vec4(1, 0, 0, 0.9);
         }
         if (i == 5) {
-            box->m_surfaceColor = vec4(1, 1, 0, 0.5);
+            box->m_surfaceColor = vec4(1, 1, 0, 0.6);
         }
         if (i == 6) {
-            box->m_surfaceColor = vec4(0, 1, 0, 0.6);
+            box->m_surfaceColor = vec4(0, 1, 0, 0.7);
         }
         if (i == 7) {
-            box->m_surfaceColor = vec4(0, 0, 1, 0.4);
+            box->m_surfaceColor = vec4(0, 0, 1, 0.6);
         }
     }
     //体现父子关系的球绕立方体运动
@@ -273,6 +273,8 @@ int main() {
         device.HDRToLow();
         //FXAA
         device.FXAA();
+        //Bloom
+        device.BloomSurface(device.m_backHDRFBO.m_colorAttach0);
         //windowframe
         glBindFramebuffer(GL_READ_FRAMEBUFFER, device.m_backHDRFBO.m_frameBuffer);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
@@ -321,6 +323,9 @@ void guiMake() {
     ImGui::SliderFloat("DepthBias", &optionConfig.depthbias, 0.0, 0.2);
     ImGui::SliderFloat("NormalBias", &optionConfig.normalbias, 0.0, 0.2);
     ImGui::SliderFloat("HDRExp", &optionConfig.hdrExp, 0.0, 5.0);
+    ImGui::SliderFloat("BloomThreshold", &optionConfig.threshold, 0.1, 10.0);
+    ImGui::SliderFloat("BloomSoftThreshold", &optionConfig.softThreshold, 0.0, 1.0);
+    ImGui::SliderFloat("BloomStrength", &optionConfig.bloomStrength, 0.0, 1.0);
     ImGui::End();
     ImGui::Begin("DepthTex");
     //翻转y轴使图像于屏幕匹配
@@ -341,6 +346,17 @@ void guiMake() {
     ImGui::Begin("AO");
     //翻转y轴使图像于屏幕匹配
     ImGui::Image((ImTextureID) Device::GetInstance()->m_AOFBO.m_colorAttach0, ImVec2(400, 225), ImVec2(0, 1),
+                 ImVec2(1, 0));
+    ImGui::End();
+    ImGui::Begin("Bloom");
+    //翻转y轴使图像于屏幕匹配
+    ImGui::Image((ImTextureID) Bloom::GetInstance()->m_bloomTex[4], ImVec2(400, 225), ImVec2(0, 1),
+                 ImVec2(1, 0));
+    ImGui::Image((ImTextureID) Bloom::GetInstance()->m_bloomTex[3], ImVec2(400, 225), ImVec2(0, 1),
+                 ImVec2(1, 0));
+    ImGui::Image((ImTextureID) Bloom::GetInstance()->m_bloomTex[2], ImVec2(400, 225), ImVec2(0, 1),
+                 ImVec2(1, 0));
+    ImGui::Image((ImTextureID) Bloom::GetInstance()->m_bloomTex[1], ImVec2(400, 225), ImVec2(0, 1),
                  ImVec2(1, 0));
     ImGui::End();
     ImGui::Begin("AO Config");

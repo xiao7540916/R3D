@@ -40,6 +40,7 @@ using std::string;
 #define TILE_SIZE 16
 #define OIT_FRAME_WIDTH 2048
 #define OIT_FRAME_HEIGHT 2048
+#define BLOOM_ITERATION 5
 //-----------------------------------------
 
 extern bool isMainLoop;
@@ -183,5 +184,8 @@ struct OptionConfig {
     float depthbias = 0.05f;
     float normalbias = 0.05f;
     float hdrExp = 1.5f;
+    float bloomStrength = 0.2f;
+    float threshold = 3.0f;//bloom阈值
+    float softThreshold = 0.5;//用于柔和bloom阈值的控制项
 };
 #endif //R3D_STRUCTDEFINE_H

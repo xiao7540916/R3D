@@ -81,6 +81,7 @@ namespace R3D {
         uniformBlockBase.depthbias = optionConfig.depthbias;
         uniformBlockBase.normalbias = optionConfig.normalbias;
         uniformBlockBase.hdrexp = optionConfig.hdrExp;
+        uniformBlockBase.ambient = vec3(0.01);
         for (int i = 0;i < 6;++i) {
             uniformBlockBase.lightviewprojdata[i] = m_device->m_cascadedShadowMap.m_lightViewProjs[i];
         }

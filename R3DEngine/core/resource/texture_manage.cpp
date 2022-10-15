@@ -78,6 +78,8 @@ namespace R3D {
     TextureManage::LoadTextureEx(const string &in_url, const TextureLayout &in_textureLayout) {
     }
     void TextureManage::Release() {
+        glDeleteSamplers(1, &m_nearestEdgeSample);
+        glDeleteSamplers(1, &m_linearEdgeSample);
         for (auto item = m_urlToTexture.begin();item != m_urlToTexture.end();item++) {
             glDeleteTextures(1, &item->second);
         }
@@ -85,6 +87,19 @@ namespace R3D {
         //m_urlToTexture自身占用空间仍需要清理
     }
     void TextureManage::Init() {
+        //-------------------------------------
+        //初始化采样器
+        glGenSamplers(1, &m_nearestEdgeSample);
+        glSamplerParameteri(m_nearestEdgeSample, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glSamplerParameteri(m_nearestEdgeSample, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glSamplerParameteri(m_nearestEdgeSample, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glSamplerParameteri(m_nearestEdgeSample, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glGenSamplers(1, &m_linearEdgeSample);
+        glSamplerParameteri(m_linearEdgeSample, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glSamplerParameteri(m_linearEdgeSample, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glSamplerParameteri(m_linearEdgeSample, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glSamplerParameteri(m_linearEdgeSample, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        //-------------------------------------
         LoadTexture(CURRENT_SOURCE_DIR + "Data/image/black.png");
         LoadTexture(CURRENT_SOURCE_DIR + "Data/image/white.png");
         LoadTexture(CURRENT_SOURCE_DIR + "Data/image/normal.png");
@@ -92,7 +107,7 @@ namespace R3D {
         // Noise texture
         std::vector<glm::vec3> ssaoNoise;
         int noiseSize = 256;
-        ssaoNoise.resize(noiseSize*noiseSize);
+        ssaoNoise.resize(noiseSize * noiseSize);
         std::uniform_real_distribution<GLfloat> randomFloats(0.0, 1.0);
         std::default_random_engine generator;
         for (GLuint i = 0;i < ssaoNoise.size();i++) {

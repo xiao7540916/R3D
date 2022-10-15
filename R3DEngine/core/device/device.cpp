@@ -25,6 +25,7 @@ namespace R3D {
             device->InitGlfw(in_appname, in_width, in_height, in_vsync);
             device->InitControlSystem();
             device->InitShaderCache();
+            device->InitBloom();
             device->InitCSM(in_csmlayercount);
             device->InitOIT();
             device->InitGui();
@@ -68,6 +69,10 @@ namespace R3D {
         m_OIT->Release();
         if (OIT::GetInstance()) {
             delete OIT::GetInstance();
+        }
+        m_bloom->Release();
+        if (Bloom::GetInstance()) {
+            delete Bloom::GetInstance();
         }
     }
     GLFWwindow *Device::GetWindow() {
@@ -217,6 +222,11 @@ namespace R3D {
         Device *device = GetInstance();
         device->m_OIT = OIT::GetInstance();
         device->m_OIT->Init(device);
+    }
+    void Device::InitBloom() {
+        Device *device = GetInstance();
+        device->m_bloom = Bloom::GetInstance();
+        device->m_bloom->Init(device);
     }
     void Device::InitMaterialManage() {
         Device *device = GetInstance();
@@ -444,6 +454,11 @@ namespace R3D {
         static Mesh *screenbackmesh = MeshManage::GetInstance()->GetMesh("screenbackmesh");
         glBindVertexArray(screenbackmesh->VAO);
         glDrawElements(GL_TRIANGLES, screenbackmesh->m_indiceSize, GL_UNSIGNED_INT, nullptr);
+    }
+    void Device::BloomSurface(GLuint in_bloomSurface) {
+        m_bloom->DownSample(in_bloomSurface);
+        m_bloom->UpSample();
+        m_bloom->MergeBloom();
     }
 }
 

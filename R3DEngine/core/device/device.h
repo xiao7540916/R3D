@@ -13,11 +13,13 @@
 #include <resource/frame_buffer.h>
 #include <device/render_list.h>
 #include <resource/oit.h>
+#include <resource/bloom.h>
 #include <math/camera.h>
 #include <util/r_log.h>
 #include <queue>
 #include <resource/cascaded_shadow_map.h>
 namespace R3D {
+    class Bloom;
     struct MouseInfo {
         float x = 0;
         float y = 0;
@@ -44,7 +46,7 @@ namespace R3D {
         Device(const Device &) = delete;
         Device &operator=(const Device &) = delete;
         static Device *GetInstance();
-        Device *Init(const char *in_appname, int in_width, int in_height,int in_csmlayercount, bool in_vsync = true);
+        Device *Init(const char *in_appname, int in_width, int in_height, int in_csmlayercount, bool in_vsync = true);
         void Release();
         void InitGlfw(const char *in_appname, int in_width, int in_height, bool in_vsync);
         void InitControlSystem();
@@ -57,15 +59,17 @@ namespace R3D {
         void InitMeshManage();
         void InitMaterialManage();
         void InitOIT();
+        void InitBloom();
         void InitFrameBuffers(int in_width, int in_height);
         void SetCamera(vec3 in_position, vec3 in_target, float in_fovy, float in_aspect, float in_zn, float in_zf);
         void UpdataAppInfo(EventInfo &in_eventInfo);
         void UpdataInputInfo(EventInfo &in_eventInfo);
         void UpdataCamera() const;
-        void PrepareCSM(Scene& in_scene);
-        void UpdataCSM(Scene& in_scene);
+        void PrepareCSM(Scene &in_scene);
+        void UpdataCSM(Scene &in_scene);
         void HDRToLow();
         void FXAA();
+        void BloomSurface(GLuint in_bloomSurface);
         bool Run();
         void Tick();//每帧初始时运行
         void Tock();//每帧结束前运行
@@ -106,6 +110,7 @@ namespace R3D {
         BufferManage *m_bufferManege = nullptr;
         RenderStateManage *m_renderStateManage = nullptr;
         OIT *m_OIT = nullptr;
+        Bloom *m_bloom = nullptr;
         bool runable = false;
     private:
         Device();
