@@ -73,7 +73,7 @@ namespace R3D {
         downSampleShader.setInt("uDstHeight", height);
         downSampleShader.setInt("uLevel", 1);
         downSampleShader.setFloat("uSampleRadius", 1.0f);
-        glBindTextureUnit(0, m_device->m_backHDRFBO.m_colorAttach0);
+        glBindTextureUnit(0, m_device->GetActiveScreenFrame().m_colorAttach0);
         glBindImageTexture(1, m_halfSizeTex0, 0, true, 0, GL_WRITE_ONLY, GL_RGBA32F);
         int workgroup_x = (width % TILE_SIZE) == 0 ? (width / TILE_SIZE) : (
                 width / TILE_SIZE + 1);
@@ -142,7 +142,11 @@ namespace R3D {
     }
     void DepthOfField::MergeDOF() {
         static Shader mergeDOFShader = m_device->m_shaderCache.GetShader("mergedof");
-        glBindFramebuffer(GL_FRAMEBUFFER, m_device->m_postHDRFBO.m_frameBuffer);
+        m_device->ExangeActiveScreenFrame();
+        glBindFramebuffer(GL_FRAMEBUFFER, m_device->GetActiveScreenFrame().m_frameBuffer);
+        glBindTextureUnit(0, m_device->GetNotActiveScreenFrame().m_colorAttach0);//绑定到着色器
+        glBindTextureUnit(1, m_COCTex);//绑定到着色器
+        glBindTextureUnit(2, m_halfSizeTex0);//绑定到着色器
         if (RenderStateManage::GetInstance()->NeedChangeState(mergeDOFShader.ID)) {
             glDisable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
@@ -152,9 +156,6 @@ namespace R3D {
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             mergeDOFShader.use();
         }
-        glBindTextureUnit(0, m_device->m_backHDRFBO.m_colorAttach0);//绑定到着色器
-        glBindTextureUnit(1, m_COCTex);//绑定到着色器
-        glBindTextureUnit(2, m_halfSizeTex0);//绑定到着色器
         static Mesh *screenbackmesh = MeshManage::GetInstance()->GetMesh("screenbackmesh");
         glBindVertexArray(screenbackmesh->VAO);
         glDrawElements(GL_TRIANGLES, screenbackmesh->m_indiceSize, GL_UNSIGNED_INT, nullptr);

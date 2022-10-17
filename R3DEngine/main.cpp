@@ -278,7 +278,7 @@ int main() {
         //DOF
         device.DepthOfFieldSurface(device.m_backHDRFBO.m_colorAttach0);
         //windowframe
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, device.m_postHDRFBO.m_frameBuffer);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, device.GetActiveScreenFrame().m_frameBuffer);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
         glBlitFramebuffer(0, 0, device.m_windowWidth, device.m_windowHeight,
                           0, 0, device.m_windowWidth, device.m_windowHeight,
@@ -350,8 +350,6 @@ void guiMake() {
     ImGui::Image((ImTextureID) DepthOfField::GetInstance()->m_halfSizeTex0, ImVec2(400, 225), ImVec2(0, 1),
                  ImVec2(1, 0));
     ImGui::Image((ImTextureID) DepthOfField::GetInstance()->m_halfSizeTex1, ImVec2(400, 225), ImVec2(0, 1),
-                 ImVec2(1, 0));
-    ImGui::Image((ImTextureID) Device::GetInstance()->m_postHDRFBO.m_colorAttach0, ImVec2(400, 225), ImVec2(0, 1),
                  ImVec2(1, 0));
     ImGui::End();
     ImGui::Begin("AO Config");

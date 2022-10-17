@@ -190,7 +190,7 @@ namespace R3D {
         m_aabb.max = in_max;
     }
     void Scene::RenderOpaque() {
-        glBindFramebuffer(GL_FRAMEBUFFER, m_device->m_backHDRFBO.m_frameBuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, m_device->GetActiveScreenFrame().m_frameBuffer);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);

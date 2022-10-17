@@ -420,6 +420,7 @@ namespace R3D {
         }
     }
     void Device::Tick() {
+        m_activeMainFrame = true;
         m_gameTime.Tick();
         m_mouseInfo.xoffset = 0.0f;
         m_mouseInfo.yoffset = 0.0f;
@@ -433,8 +434,9 @@ namespace R3D {
     }
     void Device::HDRToLow() {
         static Shader hdrToLowShader = m_shaderCache.GetShader("hdrtolow");
-        glBindFramebuffer(GL_FRAMEBUFFER, m_postHDRFBO.m_frameBuffer);
-        glBindTextureUnit(0, m_backHDRFBO.m_colorAttach0);//绑定到着色器
+        ExangeActiveScreenFrame();
+        glBindFramebuffer(GL_FRAMEBUFFER, GetActiveScreenFrame().m_frameBuffer);
+        glBindTextureUnit(0, GetNotActiveScreenFrame().m_colorAttach0);//绑定到着色器
         glBindBufferBase(GL_UNIFORM_BUFFER, 0, BufferManage::GetInstance()->m_uniBlockBaseBuffer);
         if (RenderStateManage::GetInstance()->NeedChangeState(hdrToLowShader.ID)) {
             glDisable(GL_DEPTH_TEST);
@@ -450,8 +452,9 @@ namespace R3D {
     }
     void Device::FXAA() {
         static Shader fxaaShader = m_shaderCache.GetShader("fxaa");
-        glBindFramebuffer(GL_FRAMEBUFFER, m_backHDRFBO.m_frameBuffer);
-        glBindTextureUnit(0, m_postHDRFBO.m_colorAttach0);//绑定到着色器
+        ExangeActiveScreenFrame();
+        glBindFramebuffer(GL_FRAMEBUFFER, GetActiveScreenFrame().m_frameBuffer);
+        glBindTextureUnit(0, GetNotActiveScreenFrame().m_colorAttach0);//绑定到着色器
         glBindBufferBase(GL_UNIFORM_BUFFER, 0, BufferManage::GetInstance()->m_uniBlockBaseBuffer);
         if (RenderStateManage::GetInstance()->NeedChangeState(fxaaShader.ID)) {
             glDisable(GL_DEPTH_TEST);
@@ -479,6 +482,13 @@ namespace R3D {
     }
     FrameBufferColDepthHDR &Device::GetActiveScreenFrame() {
         if (m_activeMainFrame) {
+            return m_backHDRFBO;
+        } else {
+            return m_postHDRFBO;
+        }
+    }
+    FrameBufferColDepthHDR &Device::GetNotActiveScreenFrame() {
+        if (!m_activeMainFrame) {
             return m_backHDRFBO;
         } else {
             return m_postHDRFBO;

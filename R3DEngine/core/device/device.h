@@ -79,6 +79,7 @@ namespace R3D {
         GLFWwindow *GetWindow();
         void SetAppName(const char *in_appname);
         FrameBufferColDepthHDR &GetActiveScreenFrame();
+        FrameBufferColDepthHDR &GetNotActiveScreenFrame();
         void ExangeActiveScreenFrame();
     public:
         void OnWindowSize(GLFWwindow *window, int width, int height);

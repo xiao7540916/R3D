@@ -50,7 +50,7 @@ namespace R3D {
         downSampleShader.setInt("uLevel", 0);
         downSampleShader.setVec4("uFilter", filter);
         downSampleShader.setFloat("uSampleRadius", 1.0f);
-        glBindTextureUnit(0, in_bloomSurface);
+        glBindTextureUnit(0, m_device->GetActiveScreenFrame().m_colorAttach0);
         glBindImageTexture(1, m_bloomTex[0], 0, true, 0, GL_WRITE_ONLY, GL_RGBA32F);
         int workgroup_x = (m_bloomTexSize[0].x % TILE_SIZE) == 0 ? (m_bloomTexSize[0].x / TILE_SIZE) : (
                 m_bloomTexSize[0].x / TILE_SIZE + 1);
