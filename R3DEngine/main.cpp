@@ -275,8 +275,10 @@ int main() {
         device.FXAA();
         //Bloom
         device.BloomSurface(device.m_backHDRFBO.m_colorAttach0);
+        //DOF
+        device.DepthOfFieldSurface(device.m_backHDRFBO.m_colorAttach0);
         //windowframe
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, device.m_backHDRFBO.m_frameBuffer);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, device.m_postHDRFBO.m_frameBuffer);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
         glBlitFramebuffer(0, 0, device.m_windowWidth, device.m_windowHeight,
                           0, 0, device.m_windowWidth, device.m_windowHeight,
@@ -326,15 +328,13 @@ void guiMake() {
     ImGui::SliderFloat("BloomThreshold", &optionConfig.threshold, 0.1, 10.0);
     ImGui::SliderFloat("BloomSoftThreshold", &optionConfig.softThreshold, 0.0, 1.0);
     ImGui::SliderFloat("BloomStrength", &optionConfig.bloomStrength, 0.0, 1.0);
+    ImGui::SliderFloat("Focus", &optionConfig.focus, 0.1, 50.0);
+    ImGui::SliderFloat("FocusRange", &optionConfig.focusRange, 0.1, 40.0);
+    ImGui::SliderFloat("BokehRadius", &optionConfig.bokehRadius, 0.1, 10.0);
     ImGui::End();
     ImGui::Begin("DepthTex");
     //翻转y轴使图像于屏幕匹配
     ImGui::Image((ImTextureID) Device::GetInstance()->m_preDepthFBO.m_depthAttach, ImVec2(400, 225), ImVec2(0, 1),
-                 ImVec2(1, 0));
-    ImGui::End();
-    ImGui::Begin("BackColTex");
-    //翻转y轴使图像于屏幕匹配
-    ImGui::Image((ImTextureID) Device::GetInstance()->m_backHDRFBO.m_colorAttach0, ImVec2(400, 225), ImVec2(0, 1),
                  ImVec2(1, 0));
     ImGui::End();
     ImGui::Begin("ShadowMap0");
@@ -343,20 +343,15 @@ void guiMake() {
                  ImVec2(400, 400), ImVec2(0, 1),
                  ImVec2(1, 0));
     ImGui::End();
-    ImGui::Begin("AO");
+    ImGui::Begin("COC");
     //翻转y轴使图像于屏幕匹配
-    ImGui::Image((ImTextureID) Device::GetInstance()->m_AOFBO.m_colorAttach0, ImVec2(400, 225), ImVec2(0, 1),
+    ImGui::Image((ImTextureID) DepthOfField::GetInstance()->m_COCTex, ImVec2(400, 225), ImVec2(0, 1),
                  ImVec2(1, 0));
-    ImGui::End();
-    ImGui::Begin("Bloom");
-    //翻转y轴使图像于屏幕匹配
-    ImGui::Image((ImTextureID) Bloom::GetInstance()->m_bloomTex[4], ImVec2(400, 225), ImVec2(0, 1),
+    ImGui::Image((ImTextureID) DepthOfField::GetInstance()->m_halfSizeTex0, ImVec2(400, 225), ImVec2(0, 1),
                  ImVec2(1, 0));
-    ImGui::Image((ImTextureID) Bloom::GetInstance()->m_bloomTex[3], ImVec2(400, 225), ImVec2(0, 1),
+    ImGui::Image((ImTextureID) DepthOfField::GetInstance()->m_halfSizeTex1, ImVec2(400, 225), ImVec2(0, 1),
                  ImVec2(1, 0));
-    ImGui::Image((ImTextureID) Bloom::GetInstance()->m_bloomTex[2], ImVec2(400, 225), ImVec2(0, 1),
-                 ImVec2(1, 0));
-    ImGui::Image((ImTextureID) Bloom::GetInstance()->m_bloomTex[1], ImVec2(400, 225), ImVec2(0, 1),
+    ImGui::Image((ImTextureID) Device::GetInstance()->m_postHDRFBO.m_colorAttach0, ImVec2(400, 225), ImVec2(0, 1),
                  ImVec2(1, 0));
     ImGui::End();
     ImGui::Begin("AO Config");

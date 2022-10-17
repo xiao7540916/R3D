@@ -1,5 +1,6 @@
 #version 460
 uniform int uLevel;
+uniform float uSampleRadius;
 uniform int uDstWidth;
 uniform int uDstHeight;
 uniform vec4 uFilter;//阈值控制
@@ -41,7 +42,7 @@ vec3 PreFilter(vec3 c){
     soft = soft*soft*uFilter.w;
     float contribution = max(soft, brightness-uFilter.x);
     contribution/=max(brightness, 0.00001);
-    return min(c*contribution,vec3(1000000));
+    return min(c*contribution, vec3(1000000));
 }
 //未预先计算参数的过滤
 /*vec3 PreFilter(vec3 c){
@@ -58,7 +59,7 @@ vec3 PreFilter(vec3 c){
 }*/
 
 vec3 SampleBoxFilter(vec2 uv, vec2 texelSize){
-    vec4 o = texelSize.xyxy*vec2(-1, 1).xxyy;
+    vec4 o = texelSize.xyxy*vec2(-1, 1).xxyy*uSampleRadius;
     vec3 colxy = PreFilter(Sample(uv+o.xy));
     vec3 colzy = PreFilter(Sample(uv+o.zy));
     vec3 colxw = PreFilter(Sample(uv+o.xw));
@@ -67,7 +68,7 @@ vec3 SampleBoxFilter(vec2 uv, vec2 texelSize){
     return s*0.25f;
 }
 vec3 SampleBox(vec2 uv, vec2 texelSize){
-    vec4 o = texelSize.xyxy*vec2(-1, 1).xxyy;
+    vec4 o = texelSize.xyxy*vec2(-1, 1).xxyy*uSampleRadius;
     vec3 colxy = Sample(uv+o.xy);
     vec3 colzy = Sample(uv+o.zy);
     vec3 colxw = Sample(uv+o.xw);

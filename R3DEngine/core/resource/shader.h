@@ -28,6 +28,7 @@ namespace R3D {
         Shader(const string &vertexPath, const string &fragmentPath);
         void loadShader(vector<ShaderCreateDesc> &shaderCreateDescs);
         void loadShader(const string &vertexPath, const string &fragmentPath);
+        void loadCompShader(const string &compPath);
         //绑定uniform块,uniformBlockIndex指着色器中的uniform块绑定值，uniformBlockBinding指opengl状态机中的值
         void bindUniformBlock(uint32_t uniformBlockIndex, uint32_t uniformBlockBinding);
         void bindUniformBlock(const std::string &name, uint32_t uniformBlockBinding);

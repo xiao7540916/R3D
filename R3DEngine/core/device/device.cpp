@@ -26,6 +26,7 @@ namespace R3D {
             device->InitControlSystem();
             device->InitShaderCache();
             device->InitBloom();
+            device->InitDepthOfField();
             device->InitCSM(in_csmlayercount);
             device->InitOIT();
             device->InitGui();
@@ -73,6 +74,10 @@ namespace R3D {
         m_bloom->Release();
         if (Bloom::GetInstance()) {
             delete Bloom::GetInstance();
+        }
+        m_depthOfField->Release();
+        if (DepthOfField::GetInstance()) {
+            delete DepthOfField::GetInstance();
         }
     }
     GLFWwindow *Device::GetWindow() {
@@ -227,6 +232,11 @@ namespace R3D {
         Device *device = GetInstance();
         device->m_bloom = Bloom::GetInstance();
         device->m_bloom->Init(device);
+    }
+    void Device::InitDepthOfField() {
+        Device *device = GetInstance();
+        device->m_depthOfField = DepthOfField::GetInstance();
+        device->m_depthOfField->Init(device);
     }
     void Device::InitMaterialManage() {
         Device *device = GetInstance();
@@ -459,6 +469,23 @@ namespace R3D {
         m_bloom->DownSample(in_bloomSurface);
         m_bloom->UpSample();
         m_bloom->MergeBloom();
+    }
+    void Device::DepthOfFieldSurface(GLuint in_bloomSurface) {
+        m_depthOfField->MakeCOC();
+        m_depthOfField->DownSample();
+        m_depthOfField->COCDownSample();
+        m_depthOfField->CircleSample();
+        m_depthOfField->MergeDOF();
+    }
+    FrameBufferColDepthHDR &Device::GetActiveScreenFrame() {
+        if (m_activeMainFrame) {
+            return m_backHDRFBO;
+        } else {
+            return m_postHDRFBO;
+        }
+    }
+    void Device::ExangeActiveScreenFrame() {
+        m_activeMainFrame = !m_activeMainFrame;
     }
 }
 

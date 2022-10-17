@@ -149,6 +149,50 @@ namespace R3D {
             glDeleteShader(shaderid[i]);
         }
     }
+    void Shader::loadCompShader(const string &compPath) {
+        vector<ShaderCreateDesc> shaderCreateDescs;
+        shaderCreateDescs.push_back({compPath, GL_COMPUTE_SHADER});
+        size_t shadercount = shaderCreateDescs.size();
+        // 1.从路径中获取顶点，片元着色器源代码
+        vector<string> shadercode(shadercount);
+        vector<std::ifstream> shaderfile(shadercount);
+        for (int i = 0;i < shadercount;++i) {
+            shaderfile[i].exceptions(std::ifstream::failbit | std::ifstream::badbit);
+            try {
+                //打开文件
+                shaderfile[i].open(shaderCreateDescs[i].shaderpath);
+                std::stringstream shaderStream;
+                //将文件读入流
+                shaderStream << shaderfile[i].rdbuf();
+                //关闭文件句柄
+                shaderfile[i].close();
+                //将流转换为string
+                shadercode[i] = shaderStream.str();
+            }
+            catch (std::ifstream::failure e) {
+                std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+            }
+        }
+        vector<unsigned int> shaderid(shadercount);
+        for (int i = 0;i < shadercount;++i) {
+            const char *shaderCode = shadercode[i].c_str();
+            shaderid[i] = glCreateShader(shaderCreateDescs[i].shaderstage);
+            glShaderSource(shaderid[i], 1, &shaderCode, nullptr);
+            glCompileShader(shaderid[i]);
+            checkCompileErrors(shaderid[i], "");
+        }
+        // shader Program
+        ID = glCreateProgram();
+        for (int i = 0;i < shadercount;++i) {
+            glAttachShader(ID, shaderid[i]);
+        }
+        glLinkProgram(ID);
+        checkCompileErrors(ID, "PROGRAM");
+        //删除shader
+        for (int i = 0;i < shadercount;++i) {
+            glDeleteShader(shaderid[i]);
+        }
+    }
 //绑定uniform块,uniformBlockIndex指着色器中的uniform块绑定值，uniformBlockBinding指opengl状态机中的值
     void Shader::bindUniformBlock(uint32_t uniformBlockIndex, uint32_t uniformBlockBinding) {
         glUniformBlockBinding(ID, uniformBlockIndex, uniformBlockBinding);

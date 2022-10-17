@@ -187,5 +187,8 @@ struct OptionConfig {
     float bloomStrength = 0.2f;
     float threshold = 3.0f;//bloom阈值
     float softThreshold = 0.5;//用于柔和bloom阈值的控制项
+    float focus = 8.0f;//焦距
+    float focusRange = 16.0f;//焦距范围
+    float bokehRadius = 3.0f;//弥散圈大小
 };
 #endif //R3D_STRUCTDEFINE_H

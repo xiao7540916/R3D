@@ -25,15 +25,13 @@ namespace R3D {
         lightradius.loadShader(SHADER_DIR + "lightradius/vert.glsl", SHADER_DIR + "lightradius/frag.glsl");
         m_shaders.insert({"lightradius", lightradius});
         Shader lightcull;
-        vector<ShaderCreateDesc> lightculldesc = {{SHADER_DIR + "lightcull/lightcull.comp", GL_COMPUTE_SHADER}};
-        lightcull.loadShader(lightculldesc);
+        lightcull.loadCompShader(SHADER_DIR + "lightcull/lightcull.comp");
         m_shaders.insert({"lightcull", lightcull});
         Shader gtao;
         gtao.loadShader(SHADER_DIR + "gtao/vert.glsl", SHADER_DIR + "gtao/frag.glsl");
         m_shaders.insert({"gtao", gtao});
         Shader blur;
-        vector<ShaderCreateDesc> blurdesc = {{SHADER_DIR + "blur/blur.comp", GL_COMPUTE_SHADER}};
-        blur.loadShader(blurdesc);
+        blur.loadCompShader(SHADER_DIR + "blur/blur.comp");
         m_shaders.insert({"blur", blur});
         Shader shadowmap;
         shadowmap.loadShader(SHADER_DIR + "shadowmap/vert.glsl", SHADER_DIR + "shadowmap/frag.glsl");
@@ -51,16 +49,27 @@ namespace R3D {
         hdrtolow.loadShader(SHADER_DIR + "hdrtolow/vert.glsl", SHADER_DIR + "hdrtolow/frag.glsl");
         m_shaders.insert({"hdrtolow", hdrtolow});
         Shader downsample;
-        vector<ShaderCreateDesc> downsampledesc = {{SHADER_DIR + "bloom/downsample.comp", GL_COMPUTE_SHADER}};
-        downsample.loadShader(downsampledesc);
+        downsample.loadCompShader(SHADER_DIR + "bloom/downsample.comp");
         m_shaders.insert({"downsample", downsample});
         Shader upsample;
-        vector<ShaderCreateDesc> upsampledesc = {{SHADER_DIR + "bloom/upsample.comp", GL_COMPUTE_SHADER}};
-        upsample.loadShader(upsampledesc);
+        upsample.loadCompShader(SHADER_DIR + "bloom/upsample.comp");
         m_shaders.insert({"upsample", upsample});
         Shader mergebloom;
         mergebloom.loadShader(SHADER_DIR + "bloom/mergebloomvert.glsl", SHADER_DIR + "bloom/mergebloomfrag.glsl");
         m_shaders.insert({"mergebloom", mergebloom});
+        Shader depthtococ;
+        depthtococ.loadCompShader(SHADER_DIR + "depthoffield/depthtococ.comp");
+        m_shaders.insert({"depthtococ", depthtococ});
+        Shader circlesample;
+        circlesample.loadCompShader(SHADER_DIR + "depthoffield/circlesample.comp");
+        m_shaders.insert({"circlesample", circlesample});
+        Shader cocdownsample;
+        cocdownsample.loadCompShader(SHADER_DIR + "depthoffield/cocdownsample.comp");
+        m_shaders.insert({"cocdownsample", cocdownsample});
+        Shader mergedof;
+        mergedof.loadShader(SHADER_DIR + "depthoffield/mergedofvert.glsl",
+                            SHADER_DIR + "depthoffield/mergedoffrag.glsl");
+        m_shaders.insert({"mergedof", mergedof});
     }
     Shader ShaderCache::GetShader(string in_shadertype) {
         if (m_shaders.find(in_shadertype) == m_shaders.end()) {

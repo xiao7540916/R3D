@@ -49,6 +49,7 @@ namespace R3D {
         downSampleShader.setInt("uDstHeight", m_bloomTexSize[0].y);
         downSampleShader.setInt("uLevel", 0);
         downSampleShader.setVec4("uFilter", filter);
+        downSampleShader.setFloat("uSampleRadius", 1.0f);
         glBindTextureUnit(0, in_bloomSurface);
         glBindImageTexture(1, m_bloomTex[0], 0, true, 0, GL_WRITE_ONLY, GL_RGBA32F);
         int workgroup_x = (m_bloomTexSize[0].x % TILE_SIZE) == 0 ? (m_bloomTexSize[0].x / TILE_SIZE) : (
@@ -61,6 +62,7 @@ namespace R3D {
             downSampleShader.setInt("uDstWidth", m_bloomTexSize[i].x);
             downSampleShader.setInt("uDstHeight", m_bloomTexSize[i].y);
             downSampleShader.setInt("uLevel", i);
+            downSampleShader.setFloat("uSampleRadius", 1.0f);
             glBindTextureUnit(0, m_bloomTex[i - 1]);
             glBindImageTexture(1, m_bloomTex[i], 0, false, 0, GL_WRITE_ONLY, GL_RGBA32F);
             workgroup_x = (m_bloomTexSize[i].x % TILE_SIZE) == 0 ? (m_bloomTexSize[i].x / TILE_SIZE) : (

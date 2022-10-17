@@ -1,0 +1,79 @@
+#version 460
+uniform float uFocus;
+uniform float uFocusRange;
+uniform float uBokehRadius;
+layout (binding = 0) uniform sampler2D srcTex;
+layout (binding = 1, r32f) uniform writeonly image2D dstImage;
+#define DIRECTION_LIGHT_COUNT 4
+struct DirLight {
+    vec3 direction;
+    float fill0;
+    vec3 strength;
+    float fill1;
+};
+struct UniformBlockBase {
+    mat4 view;
+    mat4 proj;
+    mat4 invproj;
+    mat4 viewproj;
+    vec3 camerapos;
+    int dirlightactivenum;//平行光启用数目
+    DirLight dirLights[DIRECTION_LIGHT_COUNT];
+    int pointlightactivenum;//点光源启用数目
+    int tilepointlightmax;//单个块最多点光源数目
+    float windowwidth;
+    float windowheight;
+    int workgroup_x;//用于灯光剔除的横向组数
+    float znear;
+    float zfar;
+    int csmlayercount;
+    mat4 lightviewprojdata[6];
+    float depthbias;
+    float normalbias;
+    float fill0;
+    float fill1;
+    vec3 ambient;
+    float fill2;
+};
+layout(std140, binding = 0) uniform UniformBaseBuffer {
+    UniformBlockBase ubobasedata;
+};
+
+layout(local_size_x = 16, local_size_y = 16) in;
+/*in uvec3 gl_NumWorkGroups;
+in uvec3 gl_WorkGroupID;
+in uvec3 gl_LocalInvocationID;
+in uvec3 gl_GlobalInvocationID;
+in uint gl_LocalInvocationIndex;
+
+gl_NumWorkGroups：此变量包含传递给调度功能的工作组数。
+gl_WorkGroupID：这是此着色器调用的当前工作组。每个XYZ组件将处于半开范围[0，gl_NumWorkGroups.XYZ）
+gl_LocalInvocationID：这是着色器的当前调用中的工作组。每个XYZ组件将处于半开范围[0，gl_WorkGroupSize.XYZ）
+gl_GlobalInvocationID：此值在此计算调度调用的所有调用中唯一标识该计算着色器的特定调用
+它跟前者有着等式关系：gl_GlobalInvocationID = gl_WorkGroupID * gl_WorkGroupSize + gl_LocalInvocationID;
+gl_LocalInvocationIndex：这是gl_LocalInvocationID的一维版本。它在工作组中标识此调用的索引
+它跟前者有着等式关系： gl_LocalInvocationIndex =
+gl_LocalInvocationID.z * gl_WorkGroupSize.x * gl_WorkGroupSize.y +
+gl_LocalInvocationID.y * gl_WorkGroupSize.x +
+gl_LocalInvocationID.x;*/
+/*
+//gl_GlobalInvocationID.xy 全局工作组的位置gl_WorkGroupID*gl_WorkGroupSize+gl_LocalInvocationID
+//gl_LocalInvocationID.xy 本地工作组的序号(0,0,0)到(3,3,1);
+//gl_WorkGroupID 当前工作组在全局工作组中的位置（0,0,0）到（299,224,0）
+//gl_WorkGroupSize.xyz 工作组大小(4,4,1)
+//gl_NumWorkGroups 工作组个数向量vec3(300,225,1);
+*/
+//深度转换到视空间z
+float depthToViewZ(float in_depth, float in_znear, float in_zfar){
+    float NDCZ = in_depth*2.0f-1.0f;
+    float VZ = 2.0f*in_zfar*in_znear/((in_zfar+in_znear)-NDCZ*(in_zfar-in_znear));
+    return -VZ;
+}
+void main()
+{
+    float depth = texture(srcTex, (vec2(gl_GlobalInvocationID.xy)+vec2(0.5))/vec2(ubobasedata.windowwidth, ubobasedata.windowheight)).r;
+    float abscamz = -depthToViewZ(depth, ubobasedata.znear, ubobasedata.zfar);
+    float coc =(abscamz-uFocus)/uFocusRange;
+    coc = clamp(coc, -1.0f, 1.0f)*uBokehRadius;
+    imageStore(dstImage, ivec2(gl_GlobalInvocationID.xy), vec4(coc));
+}

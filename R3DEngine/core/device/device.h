@@ -14,6 +14,7 @@
 #include <device/render_list.h>
 #include <resource/oit.h>
 #include <resource/bloom.h>
+#include <resource/depth_of_field.h>
 #include <math/camera.h>
 #include <util/r_log.h>
 #include <queue>
@@ -60,6 +61,7 @@ namespace R3D {
         void InitMaterialManage();
         void InitOIT();
         void InitBloom();
+        void InitDepthOfField();
         void InitFrameBuffers(int in_width, int in_height);
         void SetCamera(vec3 in_position, vec3 in_target, float in_fovy, float in_aspect, float in_zn, float in_zf);
         void UpdataAppInfo(EventInfo &in_eventInfo);
@@ -70,11 +72,14 @@ namespace R3D {
         void HDRToLow();
         void FXAA();
         void BloomSurface(GLuint in_bloomSurface);
+        void DepthOfFieldSurface(GLuint in_bloomSurface);
         bool Run();
         void Tick();//每帧初始时运行
         void Tock();//每帧结束前运行
         GLFWwindow *GetWindow();
         void SetAppName(const char *in_appname);
+        FrameBufferColDepthHDR &GetActiveScreenFrame();
+        void ExangeActiveScreenFrame();
     public:
         void OnWindowSize(GLFWwindow *window, int width, int height);
         void OnCursorPos(GLFWwindow *window, double xpos, double ypos);
@@ -98,7 +103,7 @@ namespace R3D {
         RenderList m_opaqueList;
         FrameBufferDepthNormal m_preDepthFBO;
         FrameBufferColDepthHDR m_backHDRFBO;
-        FrameBufferColHDR m_postHDRFBO;
+        FrameBufferColDepthHDR m_postHDRFBO;
         FrameBufferAO m_AOFBO;
         CascadedShadowMap m_cascadedShadowMap;
     private:
@@ -111,7 +116,9 @@ namespace R3D {
         RenderStateManage *m_renderStateManage = nullptr;
         OIT *m_OIT = nullptr;
         Bloom *m_bloom = nullptr;
+        DepthOfField *m_depthOfField = nullptr;
         bool runable = false;
+        bool m_activeMainFrame = true;
     private:
         Device();
     };
