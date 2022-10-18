@@ -12,13 +12,13 @@
 #include <resource/material.h>
 #include <resource/frame_buffer.h>
 #include <device/render_list.h>
-#include <resource/oit.h>
-#include <resource/bloom.h>
-#include <resource/depth_of_field.h>
+#include <effect/oit.h>
+#include <effect/bloom.h>
+#include <effect/depth_of_field.h>
 #include <math/camera.h>
 #include <util/r_log.h>
 #include <queue>
-#include <resource/cascaded_shadow_map.h>
+#include <effect/cascaded_shadow_map.h>
 namespace R3D {
     class Bloom;
     struct MouseInfo {
@@ -71,8 +71,8 @@ namespace R3D {
         void UpdataCSM(Scene &in_scene);
         void HDRToLow();
         void FXAA();
-        void BloomSurface(GLuint in_bloomSurface);
-        void DepthOfFieldSurface(GLuint in_bloomSurface);
+        void BloomSurface();
+        void DepthOfFieldSurface();
         bool Run();
         void Tick();//每帧初始时运行
         void Tock();//每帧结束前运行

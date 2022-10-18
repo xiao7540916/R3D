@@ -7,7 +7,7 @@
 #include <math/sphere.h>
 #include <resource/object.h>
 #include <device/scene.h>
-#include <resource/cascaded_shadow_map.h>
+#include <effect/cascaded_shadow_map.h>
 using namespace std;
 using namespace R3D;
 string CURRENT_SOURCE_DIR = "../../";
@@ -241,7 +241,7 @@ int main() {
         scene.MakeAO();
         //拷贝pre深度缓冲到后台缓冲，使用深度相等渲染
         glBindFramebuffer(GL_READ_FRAMEBUFFER, device.m_preDepthFBO.m_frameBuffer);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, device.m_backHDRFBO.m_frameBuffer);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, device.GetActiveScreenFrame().m_frameBuffer);
         glBlitFramebuffer(0, 0, device.m_windowWidth, device.m_windowHeight,
                           0, 0, device.m_windowWidth, device.m_windowHeight,
                           GL_DEPTH_BUFFER_BIT, GL_NEAREST);
@@ -274,9 +274,9 @@ int main() {
         //FXAA
         device.FXAA();
         //Bloom
-        device.BloomSurface(device.m_backHDRFBO.m_colorAttach0);
+        device.BloomSurface();
         //DOF
-        device.DepthOfFieldSurface(device.m_backHDRFBO.m_colorAttach0);
+        device.DepthOfFieldSurface();
         //windowframe
         glBindFramebuffer(GL_READ_FRAMEBUFFER, device.GetActiveScreenFrame().m_frameBuffer);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);

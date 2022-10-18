@@ -33,7 +33,7 @@ namespace R3D {
             m_bloomTexSize[i].y = height;
         }
     }
-    void Bloom::DownSample(GLuint in_bloomSurface) {
+    void Bloom::DownSample() {
         static Shader downSampleShader = m_device->m_shaderCache.GetShader("downsample");
         m_threshold = optionConfig.threshold;
         m_softThreshold = optionConfig.softThreshold;

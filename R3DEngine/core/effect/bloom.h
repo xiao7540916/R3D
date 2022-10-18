@@ -19,7 +19,7 @@ namespace R3D {
     public:
         static Bloom *GetInstance();
         void Init(Device *in_device);
-        void DownSample(GLuint in_bloomSurface);
+        void DownSample();
         void UpSample();
         void MergeBloom();
         void Release();

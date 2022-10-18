@@ -289,7 +289,7 @@ void main() {
 
     vec3 albedo     = pow(texture(albedoTex, fs_in.TexCoords).rgb, vec3(2.2));//转到线性空间
     float metallic  = texture(metalTex, fs_in.TexCoords).r;
-    float roughness = max(texture(roughnessTex, fs_in.TexCoords).r,0.01);
+    float roughness = max(texture(roughnessTex, fs_in.TexCoords).r,0.1);
     float ao        = texture(aoTex, fs_in.TexCoords).r;
 
     vec3 camPos = ubobasedata.camerapos;

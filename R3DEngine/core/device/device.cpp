@@ -468,12 +468,12 @@ namespace R3D {
         glBindVertexArray(screenbackmesh->VAO);
         glDrawElements(GL_TRIANGLES, screenbackmesh->m_indiceSize, GL_UNSIGNED_INT, nullptr);
     }
-    void Device::BloomSurface(GLuint in_bloomSurface) {
-        m_bloom->DownSample(in_bloomSurface);
+    void Device::BloomSurface() {
+        m_bloom->DownSample();
         m_bloom->UpSample();
         m_bloom->MergeBloom();
     }
-    void Device::DepthOfFieldSurface(GLuint in_bloomSurface) {
+    void Device::DepthOfFieldSurface() {
         m_depthOfField->MakeCOC();
         m_depthOfField->DownSample();
         m_depthOfField->COCDownSample();

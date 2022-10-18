@@ -184,7 +184,7 @@ struct OptionConfig {
     float depthbias = 0.05f;
     float normalbias = 0.05f;
     float hdrExp = 1.5f;
-    float bloomStrength = 0.2f;
+    float bloomStrength = 0.05f;
     float threshold = 3.0f;//bloom阈值
     float softThreshold = 0.5;//用于柔和bloom阈值的控制项
     float focus = 8.0f;//焦距
