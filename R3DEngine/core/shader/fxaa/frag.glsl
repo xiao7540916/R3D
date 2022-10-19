@@ -200,6 +200,6 @@ void main() {
     //vec3 retonemapcol = pow(fxaacol, vec3(1.0/2.2));
     //vec3 retonemapcol = -log(vec3(1.0)-fxaacol)/ubobasedata.hdrexp;//反色调映射回hdr，用于其他后处理
     vec3 retonemapcol = fxaacol/max((vec3(1)-fxaacol), vec3(0.00001));
-    retonemapcol = max(vec3(0),retonemapcol);
+    retonemapcol = max(vec3(0), retonemapcol);
     FragColor = vec4(retonemapcol, 1.0);
 }

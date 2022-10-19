@@ -68,13 +68,21 @@ namespace R3D {
             m_frameBuffer = 0;
         }
     }
-    void FrameBufferColDepthHDR::Init(int in_width, int in_height) {
+    void FrameBufferColDepthNorRoughHDR::Init(int in_width, int in_height) {
         glGenFramebuffers(1, &m_frameBuffer);
         glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer);
-        //颜色附着
+        //颜色附着0
         glGenTextures(1, &m_colorAttach0);
         glBindTexture(GL_TEXTURE_2D, m_colorAttach0);
         glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, in_width, in_height);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        //颜色附着1
+        glGenTextures(1, &m_colorAttach1);
+        glBindTexture(GL_TEXTURE_2D, m_colorAttach1);
+        glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, in_width, in_height);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -85,14 +93,16 @@ namespace R3D {
         glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, in_width, in_height);
         //指定缓冲附着
         glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_colorAttach0, 0);
+        glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, m_colorAttach1, 0);
         glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_depthAttach, 0);
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             std::cout << "ERROR::FRAMEBUFFER:: FrameBufferColDepthHDR is not complete!" << std::endl;
-        static const GLenum draw_buffers[] = {GL_COLOR_ATTACHMENT0};//设置启用的颜色附着，可指定不同顺序
+        //初始化时仅启用一个着色附着，在程序中控制需要的fbo开启更多附着
+        GLuint draw_buffers[1] = {GL_COLOR_ATTACHMENT0};//设置启用的颜色附着，可指定不同顺序
         glDrawBuffers(1, draw_buffers);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);//恢复到默认帧缓冲
     }
-    void FrameBufferColDepthHDR::Release() {
+    void FrameBufferColDepthNorRoughHDR::Release() {
         if (m_depthAttach) {
             glDeleteTextures(1, &m_depthAttach);
             m_depthAttach = 0;
@@ -100,6 +110,10 @@ namespace R3D {
         if (m_colorAttach0) {
             glDeleteTextures(1, &m_colorAttach0);
             m_colorAttach0 = 0;
+        }
+        if (m_colorAttach1) {
+            glDeleteTextures(1, &m_colorAttach1);
+            m_colorAttach1 = 0;
         }
         if (m_frameBuffer) {
             glDeleteFramebuffers(1, &m_frameBuffer);

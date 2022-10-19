@@ -424,10 +424,9 @@ namespace R3D {
         m_gameTime.Tick();
         m_mouseInfo.xoffset = 0.0f;
         m_mouseInfo.yoffset = 0.0f;
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glEnable(GL_DEPTH_TEST);
+        GLuint draw_buffers[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};//设置启用的颜色附着，可指定不同顺序
+        glBindFramebuffer(GL_FRAMEBUFFER, GetActiveScreenFrame().m_frameBuffer);
+        glDrawBuffers(2, draw_buffers);
     }
     void Device::Tock() {
         UpdataCamera();
@@ -498,14 +497,14 @@ namespace R3D {
         glBindVertexArray(screenbackmesh->VAO);
         glDrawElements(GL_TRIANGLES, screenbackmesh->m_indiceSize, GL_UNSIGNED_INT, nullptr);
     }
-    FrameBufferColDepthHDR &Device::GetActiveScreenFrame() {
+    FrameBufferColDepthNorRoughHDR &Device::GetActiveScreenFrame() {
         if (m_activeMainFrame) {
             return m_backHDRFBO;
         } else {
             return m_postHDRFBO;
         }
     }
-    FrameBufferColDepthHDR &Device::GetNotActiveScreenFrame() {
+    FrameBufferColDepthNorRoughHDR &Device::GetNotActiveScreenFrame() {
         if (!m_activeMainFrame) {
             return m_backHDRFBO;
         } else {

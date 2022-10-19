@@ -6,6 +6,7 @@ layout(early_fragment_tests) in;
 #define TILE_SIZE 16
 #define TILE_LIGHT_MAX 256
 layout(location = 0)out vec4 FragColor;
+layout(location = 1)out vec4 NormalRoughness;//世界空间法线和粗糙度
 layout(binding = 0)uniform sampler2D albedoTex;
 layout(binding = 1)uniform sampler2D normalTex;
 layout(binding = 2)uniform sampler2D metalTex;
@@ -387,9 +388,10 @@ void main() {
     // gamma correct
     //color = pow(color, vec3(1.0/2.2));
     //限制最大亮度
-    float maxcol = max(color.r, max(color.g, color.b));
-    if (maxcol>100.0f){
-        color = 100.0f*(color/maxcol);
-    }
+    //    float maxcol = max(color.r, max(color.g, color.b));
+    //    if (maxcol>100.0f){
+    //        color = 100.0f*(color/maxcol);
+    //    }
     FragColor = vec4(color, 1.0);
+    NormalRoughness = vec4(N, roughness);
 }

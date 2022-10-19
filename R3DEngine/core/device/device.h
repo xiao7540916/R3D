@@ -79,8 +79,8 @@ namespace R3D {
         void Tock();//每帧结束前运行
         GLFWwindow *GetWindow();
         void SetAppName(const char *in_appname);
-        FrameBufferColDepthHDR &GetActiveScreenFrame();
-        FrameBufferColDepthHDR &GetNotActiveScreenFrame();
+        FrameBufferColDepthNorRoughHDR &GetActiveScreenFrame();
+        FrameBufferColDepthNorRoughHDR &GetNotActiveScreenFrame();
         void ExangeActiveScreenFrame();
     public:
         void OnWindowSize(GLFWwindow *window, int width, int height);
@@ -104,8 +104,8 @@ namespace R3D {
         MeshManage *m_meshManage = nullptr;
         RenderList m_opaqueList;
         FrameBufferDepthNormal m_preDepthFBO;
-        FrameBufferColDepthHDR m_backHDRFBO;
-        FrameBufferColDepthHDR m_postHDRFBO;
+        FrameBufferColDepthNorRoughHDR m_backHDRFBO;
+        FrameBufferColDepthNorRoughHDR m_postHDRFBO;
         FrameBufferAO m_AOFBO;
         CascadedShadowMap m_cascadedShadowMap;
     private:
