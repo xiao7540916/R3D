@@ -20,7 +20,7 @@ void guiMake();
 int main() {
     Device &device = *Device::GetInstance();
     device.Init("windowtest", 1600, 900, 3, true);
-    device.SetCamera(vec3(-8, 3, -8), vec3(0, 0, 0), radians(70.0f),
+    device.SetCamera(vec3(-6.5, 3, -7), vec3(0, 0, 0), radians(70.0f),
                      float(device.m_windowWidth) / float(device.m_windowHeight),
                      0.1f, 50.0f);
     BufferManage::GetInstance()->CreateTileClipBuffer(*device.m_camera, device.m_windowWidth, device.m_windowHeight,
@@ -57,24 +57,24 @@ int main() {
     Object *rootplane = NEW Object("rootplane", nullptr, vec3(0), 0, 0, 0, true);
     scene.SetRoot(rootplane);
     rootplane->SetMesh(meshManage.GetMesh("planemesh"));
-    rootplane->SetMaterial(materialManage.GetMaterial("metalpbr_floor"));
-    rootplane->SetUvConfig(vec2(0), vec2(16));
-    rootplane->Scale(16.0f);
+    rootplane->SetMaterial(materialManage.GetMaterial("metalpbr_puddleinforest"));
+    rootplane->SetUvConfig(vec2(0.16,0.25), vec2(8));
+    rootplane->Scale(64.0f);
     //墙面
     {
         Object *wall0 = NEW Object("wall0", rootplane, vec3(0), 0, 0, 0, true);
         wall0->SetMesh(meshManage.GetMesh("boxwallmesh"));
         wall0->SetMaterial(materialManage.GetMaterial("metalpbr_stonewall"));
-        wall0->SetUvConfig(vec2(0), vec2(2));
-        wall0->Scale(16.0f);
-        wall0->Move(vec3(0.0f, 8.0f, 8.0f));
+        wall0->SetUvConfig(vec2(0), vec2(4));
+        wall0->Scale(32.0f);
+        wall0->Move(vec3(0.0f, 16.0f, 16.0f));
         Object *wall1 = NEW Object("wall1", rootplane, vec3(0), 0, 0, 0, true);
         wall1->SetMesh(meshManage.GetMesh("boxwallmesh"));
         wall1->SetMaterial(materialManage.GetMaterial("metalpbr_stonewall"));
-        wall1->SetUvConfig(vec2(0), vec2(2));
-        wall1->Scale(16.0f);
+        wall1->SetUvConfig(vec2(0), vec2(4));
+        wall1->Scale(32.0f);
         wall1->RotationYaw(PI_DIV_2);
-        wall1->Move(vec3(8.0f, 8.0f, 0.0f));
+        wall1->Move(vec3(16.0f, 16.0f, 0.0f));
     }
     {
         //i=0

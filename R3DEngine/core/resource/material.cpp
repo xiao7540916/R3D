@@ -336,6 +336,15 @@ namespace R3D {
         metalpbr_floor->InitResource();
         AddMaterial("metalpbr_floor", metalpbr_floor);
         //----------------------------------------------
+        MaterialMetalPbr *metalpbr_puddleinforest = NEW MaterialMetalPbr();
+        metalpbr_puddleinforest->m_shader = shaderCache.GetShader("metalpbr");
+        metalpbr_puddleinforest->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/puddleinforest/albedo.jpg";
+        metalpbr_puddleinforest->m_normalTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/puddleinforest/normal.jpg";
+        metalpbr_puddleinforest->m_roughnessTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/puddleinforest/roughness.jpg";
+        metalpbr_puddleinforest->m_aoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/puddleinforest/ao.jpg";
+        metalpbr_puddleinforest->InitResource();
+        AddMaterial("metalpbr_puddleinforest", metalpbr_puddleinforest);
+        //----------------------------------------------
         MaterialMetalPbr *metalpbr_check = NEW MaterialMetalPbr();
         metalpbr_check->m_shader = shaderCache.GetShader("metalpbr");
         metalpbr_check->m_albedoTexUrl = CURRENT_SOURCE_DIR + "Data/image/pbr/check/albedo.png";
