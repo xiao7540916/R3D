@@ -48,6 +48,9 @@ namespace R3D {
         Shader hdrtolow;
         hdrtolow.loadShader(SHADER_DIR + "hdrtolow/vert.glsl", SHADER_DIR + "hdrtolow/frag.glsl");
         m_shaders.insert({"hdrtolow", hdrtolow});
+        Shader hdrtogama;
+        hdrtogama.loadShader(SHADER_DIR + "hdrtogama/vert.glsl", SHADER_DIR + "hdrtogama/frag.glsl");
+        m_shaders.insert({"hdrtogama", hdrtogama});
         Shader downsample;
         downsample.loadCompShader(SHADER_DIR + "bloom/downsample.comp");
         m_shaders.insert({"downsample", downsample});

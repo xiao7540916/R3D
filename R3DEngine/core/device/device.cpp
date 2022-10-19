@@ -480,6 +480,24 @@ namespace R3D {
         m_depthOfField->CircleSample();
         m_depthOfField->MergeDOF();
     }
+    void Device::HDRToGama() {
+        static Shader hdrToGamaShader = m_shaderCache.GetShader("hdrtogama");
+        ExangeActiveScreenFrame();
+        glBindFramebuffer(GL_FRAMEBUFFER, GetActiveScreenFrame().m_frameBuffer);
+        glBindTextureUnit(0, GetNotActiveScreenFrame().m_colorAttach0);//绑定到着色器
+        glBindBufferBase(GL_UNIFORM_BUFFER, 0, BufferManage::GetInstance()->m_uniBlockBaseBuffer);
+        if (RenderStateManage::GetInstance()->NeedChangeState(hdrToGamaShader.ID)) {
+            glDisable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
+            glFrontFace(GL_CCW);
+            glCullFace(GL_BACK);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            hdrToGamaShader.use();
+        }
+        static Mesh *screenbackmesh = MeshManage::GetInstance()->GetMesh("screenbackmesh");
+        glBindVertexArray(screenbackmesh->VAO);
+        glDrawElements(GL_TRIANGLES, screenbackmesh->m_indiceSize, GL_UNSIGNED_INT, nullptr);
+    }
     FrameBufferColDepthHDR &Device::GetActiveScreenFrame() {
         if (m_activeMainFrame) {
             return m_backHDRFBO;

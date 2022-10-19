@@ -184,11 +184,11 @@ struct OptionConfig {
     float depthbias = 0.05f;
     float normalbias = 0.05f;
     float hdrExp = 1.5f;
-    float bloomStrength = 0.05f;
+    float bloomStrength = 0.5f;
     float threshold = 3.0f;//bloom阈值
     float softThreshold = 0.5;//用于柔和bloom阈值的控制项
     float focus = 8.0f;//焦距
     float focusRange = 16.0f;//焦距范围
-    float bokehRadius = 3.0f;//弥散圈大小
+    float bokehRadius = 2.0f;//弥散圈大小
 };
 #endif //R3D_STRUCTDEFINE_H

@@ -73,6 +73,7 @@ namespace R3D {
         void FXAA();
         void BloomSurface();
         void DepthOfFieldSurface();
+        void HDRToGama();
         bool Run();
         void Tick();//每帧初始时运行
         void Tock();//每帧结束前运行

@@ -289,7 +289,7 @@ void main() {
 
     vec3 albedo     = pow(texture(albedoTex, fs_in.TexCoords).rgb, vec3(2.2));//转到线性空间
     float metallic  = texture(metalTex, fs_in.TexCoords).r;
-    float roughness = max(texture(roughnessTex, fs_in.TexCoords).r,0.1);
+    float roughness = max(texture(roughnessTex, fs_in.TexCoords).r, 0.01);
     float ao        = texture(aoTex, fs_in.TexCoords).r;
 
     vec3 camPos = ubobasedata.camerapos;
@@ -386,6 +386,10 @@ void main() {
     //color = color / (color + vec3(1.0));
     // gamma correct
     //color = pow(color, vec3(1.0/2.2));
-
+    //限制最大亮度
+    float maxcol = max(color.r, max(color.g, color.b));
+    if (maxcol>100.0f){
+        color = 100.0f*(color/maxcol);
+    }
     FragColor = vec4(color, 1.0);
 }

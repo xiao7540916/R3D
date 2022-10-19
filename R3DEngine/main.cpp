@@ -36,7 +36,7 @@ int main() {
     scene.SetAABB(vec3(-9, -1, -9), vec3(9, 17, 9));
     scene.SetLightCount(1, optionConfig.PointLightCount, TILE_LIGHT_MAX);
     scene.m_dirLights[0].direction = glm::normalize(vec3(-8, 16, -8));
-    scene.m_dirLights[0].strength = vec3(4, 4, 3.6);
+    scene.m_dirLights[0].strength = vec3(3, 3, 2.6);
     scene.m_dirLights[1].direction = glm::normalize(vec3(-1, 5, 1));
     scene.m_dirLights[1].strength = vec3(0, 0, 0);
     for (int i = 0;i < scene.m_pointLights.size();++i) {
@@ -277,6 +277,8 @@ int main() {
         device.BloomSurface();
         //DOF
         device.DepthOfFieldSurface();
+        //色调映射到低动态范围
+        device.HDRToGama();
         //windowframe
         glBindFramebuffer(GL_READ_FRAMEBUFFER, device.GetActiveScreenFrame().m_frameBuffer);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
