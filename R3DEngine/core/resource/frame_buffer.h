@@ -27,6 +27,7 @@ namespace R3D {
         GLuint m_depthAttach = 0;
         GLuint m_colorAttach0 = 0;
         GLuint m_colorAttach1 = 0;
+        GLuint m_colorAttach2 = 0;
         void Init(int in_width, int in_height);
         void Release();
     };

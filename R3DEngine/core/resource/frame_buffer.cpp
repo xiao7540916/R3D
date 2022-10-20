@@ -82,6 +82,14 @@ namespace R3D {
         //颜色附着1
         glGenTextures(1, &m_colorAttach1);
         glBindTexture(GL_TEXTURE_2D, m_colorAttach1);
+        glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, in_width, in_height);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        //颜色附着2
+        glGenTextures(1, &m_colorAttach2);
+        glBindTexture(GL_TEXTURE_2D, m_colorAttach2);
         glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, in_width, in_height);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -94,6 +102,7 @@ namespace R3D {
         //指定缓冲附着
         glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_colorAttach0, 0);
         glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, m_colorAttach1, 0);
+        glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, m_colorAttach2, 0);
         glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_depthAttach, 0);
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
             std::cout << "ERROR::FRAMEBUFFER:: FrameBufferColDepthHDR is not complete!" << std::endl;
@@ -114,6 +123,10 @@ namespace R3D {
         if (m_colorAttach1) {
             glDeleteTextures(1, &m_colorAttach1);
             m_colorAttach1 = 0;
+        }
+        if (m_colorAttach2) {
+            glDeleteTextures(1, &m_colorAttach2);
+            m_colorAttach2 = 0;
         }
         if (m_frameBuffer) {
             glDeleteFramebuffers(1, &m_frameBuffer);

@@ -355,6 +355,8 @@ void guiMake() {
                  ImVec2(1, 0));
     ImGui::Image((ImTextureID) Device::GetInstance()->m_backHDRFBO.m_colorAttach1, ImVec2(400, 225), ImVec2(0, 1),
                  ImVec2(1, 0));
+    ImGui::Image((ImTextureID) Device::GetInstance()->m_backHDRFBO.m_colorAttach2, ImVec2(400, 225), ImVec2(0, 1),
+                 ImVec2(1, 0));
     ImGui::End();
     ImGui::Begin("AO Config");
     ImGui::SliderFloat("RadiusScale", &optionConfig.radiusScale, 0.01, 2.0);

@@ -7,6 +7,7 @@ layout(early_fragment_tests) in;
 #define TILE_LIGHT_MAX 256
 layout(location = 0)out vec4 FragColor;
 layout(location = 1)out vec4 NormalRoughness;//世界空间法线和粗糙度
+layout(location = 2)out vec4 AlbedoMetal;
 layout(binding = 0)uniform sampler2D albedoTex;
 layout(binding = 1)uniform sampler2D normalTex;
 layout(binding = 2)uniform sampler2D metalTex;
@@ -394,4 +395,5 @@ void main() {
     //    }
     FragColor = vec4(color, 1.0);
     NormalRoughness = vec4(N, roughness);
+    AlbedoMetal = vec4(albedo, metallic);
 }

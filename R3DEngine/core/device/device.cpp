@@ -424,9 +424,9 @@ namespace R3D {
         m_gameTime.Tick();
         m_mouseInfo.xoffset = 0.0f;
         m_mouseInfo.yoffset = 0.0f;
-        GLuint draw_buffers[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};//设置启用的颜色附着，可指定不同顺序
+        GLuint draw_buffers[3] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};//设置启用的颜色附着，可指定不同顺序
         glBindFramebuffer(GL_FRAMEBUFFER, GetActiveScreenFrame().m_frameBuffer);
-        glDrawBuffers(2, draw_buffers);
+        glDrawBuffers(3, draw_buffers);
     }
     void Device::Tock() {
         UpdataCamera();
