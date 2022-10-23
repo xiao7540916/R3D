@@ -5,6 +5,7 @@
 #include "buffer_manage.h"
 #include <device/device.h>
 #include <device/scene.h>
+#include <effect/stochastic_ssr.h>
 extern OptionConfig optionConfig;
 namespace R3D {
     using std::cout;
@@ -53,6 +54,26 @@ namespace R3D {
         glCreateBuffers(1, &m_uniCSMMeshBuffer);
         glNamedBufferData(m_uniCSMMeshBuffer, sizeof(mat4),
                           nullptr, GL_DYNAMIC_DRAW);
+        //深度图bindless buffer
+        {
+            vector<GLuint64> depthMipHandles;
+            depthMipHandles.resize(DEPTH_DOWN_LEVEL + 1);
+            glBindTexture(GL_TEXTURE_2D, m_device->m_backHDRFBO.m_depthAttach);
+            depthMipHandles[0] = glGetTextureHandleARB(m_device->m_backHDRFBO.m_depthAttach);
+            glMakeTextureHandleResidentARB(depthMipHandles[0]);
+            for (int i = 0;i < DEPTH_DOWN_LEVEL;++i) {
+                glBindTexture(GL_TEXTURE_2D, StochasticSSR::GetInstance()->m_downDepthTex[i]);
+                depthMipHandles[i + 1] = glGetTextureHandleARB(StochasticSSR::GetInstance()->m_downDepthTex[i]);
+                glMakeTextureHandleResidentARB(depthMipHandles[i + 1]);
+            }
+            glCreateBuffers(1, &m_uniDepthMinMipBuffer);
+            glNamedBufferData(m_uniDepthMinMipBuffer, sizeof(uint64_t) * depthMipHandles.size(),
+                              nullptr, GL_DYNAMIC_DRAW);//DRAW代表会被用于GPU
+            glBindBuffer(GL_UNIFORM_BUFFER, m_uniDepthMinMipBuffer);
+            glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(GLuint64) * depthMipHandles.size(),
+                            depthMipHandles.data());
+            glUnmapBuffer(GL_UNIFORM_BUFFER);
+        }
     }
     void BufferManage::Release() {
     }
@@ -63,6 +84,7 @@ namespace R3D {
         uniformBlockBase.proj = camera.GetProjection();
         uniformBlockBase.invproj = glm::inverse(camera.GetProjection());
         uniformBlockBase.viewproj = camera.GetProjection() * camera.GetView();
+        uniformBlockBase.invviewproj = glm::inverse(camera.GetProjection() * camera.GetView());
         uniformBlockBase.camerapos = camera.GetPosition();
         uniformBlockBase.dirLights[0] = in_scene.m_dirLights[0];
         uniformBlockBase.dirLights[1] = in_scene.m_dirLights[1];
@@ -84,6 +106,11 @@ namespace R3D {
         uniformBlockBase.ambient = vec3(0.01);
         for (int i = 0;i < 6;++i) {
             uniformBlockBase.lightviewprojdata[i] = m_device->m_cascadedShadowMap.m_lightViewProjs[i];
+        }
+        uniformBlockBase.depthimagesize[0] = ivec4(m_device->m_windowWidth,m_device->m_windowHeight,0,0);
+        ivec2 *downDepthTexSize = StochasticSSR::GetInstance()->m_downDepthTexSize.data();
+        for (int i = 0;i < DEPTH_DOWN_LEVEL;++i) {
+            uniformBlockBase.depthimagesize[i+1] = ivec4(downDepthTexSize[i].x,downDepthTexSize[i].y,0,0);
         }
         glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_uniBlockBaseBuffer);
         glNamedBufferSubData(m_uniBlockBaseBuffer, 0, sizeof(UniformBlockBase), &uniformBlockBase);

@@ -27,15 +27,16 @@ namespace R3D {
             device->InitShaderCache();
             device->InitBloom();
             device->InitDepthOfField();
+            device->InitSSSR();
             device->InitCSM(in_csmlayercount);
             device->InitOIT();
             device->InitGui();
             device->InitTextureManage();
+            device->InitFrameBuffers(in_width, in_height);
             device->InitBufferManage();
             device->InitRenderStateManage();
             device->InitMeshManage();
             device->InitMaterialManage();
-            device->InitFrameBuffers(in_width, in_height);
             onceInit = false;
         }
         return device;
@@ -78,6 +79,10 @@ namespace R3D {
         m_depthOfField->Release();
         if (DepthOfField::GetInstance()) {
             delete DepthOfField::GetInstance();
+        }
+        m_stochasticSsr->Release();
+        if (StochasticSSR::GetInstance()) {
+            delete StochasticSSR::GetInstance();
         }
     }
     GLFWwindow *Device::GetWindow() {
@@ -237,6 +242,11 @@ namespace R3D {
         Device *device = GetInstance();
         device->m_depthOfField = DepthOfField::GetInstance();
         device->m_depthOfField->Init(device);
+    }
+    void Device::InitSSSR() {
+        Device *device = GetInstance();
+        device->m_stochasticSsr = StochasticSSR::GetInstance();
+        device->m_stochasticSsr->Init(device);
     }
     void Device::InitMaterialManage() {
         Device *device = GetInstance();
@@ -478,6 +488,10 @@ namespace R3D {
         m_depthOfField->COCDownSample();
         m_depthOfField->CircleSample();
         m_depthOfField->MergeDOF();
+    }
+    void Device::SSSRSurface() {
+        m_stochasticSsr->DownMinDepth();
+        m_stochasticSsr->TraceHitPixel();
     }
     void Device::HDRToGama() {
         static Shader hdrToGamaShader = m_shaderCache.GetShader("hdrtogama");

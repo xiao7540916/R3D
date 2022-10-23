@@ -31,7 +31,7 @@ namespace R3D {
         (void) io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+//        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
 //        io.ConfigViewportsNoAutoMerge = true;//是否自动调整窗口融合的显示层
 //        io.ConfigViewportsNoTaskBarIcon = true;
 

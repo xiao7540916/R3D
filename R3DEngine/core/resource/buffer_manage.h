@@ -22,13 +22,14 @@ namespace R3D {
         GLuint m_uniCSMBaseBuffer;
         GLuint m_uniCSMMeshBuffer;
         GLuint m_uniCSMHandleBuffer;
+        GLuint m_uniDepthMinMipBuffer;
         ~BufferManage();
         BufferManage(const BufferManage &) = delete;
         BufferManage &operator=(const BufferManage &) = delete;
         static BufferManage *GetInstance();
         void Init(Device *in_device);
-        void CreateTileLightBuffer(int in_windowwidth,int in_windowheight,int in_tilesize);
-        void CreateTileClipBuffer(Camera& in_camera,int in_windowwidth,int in_windowheight,int in_tilesize);
+        void CreateTileLightBuffer(int in_windowwidth, int in_windowheight, int in_tilesize);
+        void CreateTileClipBuffer(Camera &in_camera, int in_windowwidth, int in_windowheight, int in_tilesize);
         void Release();
         void UpdataUniBaseBuf(Scene &in_scene);
     private:

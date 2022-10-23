@@ -143,7 +143,7 @@ namespace R3D {
     void Scene::MakeAO() {
         static Mesh *screenbackmesh = MeshManage::GetInstance()->GetMesh("screenbackmesh");
         ShaderCache &shaderCache = Device::GetInstance()->m_shaderCache;
-        if (RenderStateManage::GetInstance()->NeedChangeState(shaderCache.GetShader("gtao").ID)){
+        if (RenderStateManage::GetInstance()->NeedChangeState(shaderCache.GetShader("gtao").ID)) {
             shaderCache.GetShader("gtao").use();
         }
         glBindBufferBase(GL_UNIFORM_BUFFER, 0, BufferManage::GetInstance()->m_uniBlockBaseBuffer);
@@ -191,7 +191,7 @@ namespace R3D {
     }
     void Scene::RenderOpaque() {
         glBindFramebuffer(GL_FRAMEBUFFER, m_device->GetActiveScreenFrame().m_frameBuffer);
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 2.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
         glBindBufferBase(GL_UNIFORM_BUFFER, 0, BufferManage::GetInstance()->m_uniBlockBaseBuffer);

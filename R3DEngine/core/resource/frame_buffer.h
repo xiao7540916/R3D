@@ -26,8 +26,8 @@ namespace R3D {
     public:
         GLuint m_depthAttach = 0;
         GLuint m_colorAttach0 = 0;
-        GLuint m_colorAttach1 = 0;
-        GLuint m_colorAttach2 = 0;
+        GLuint m_colorAttach1 = 0;//normal roughness
+        GLuint m_colorAttach2 = 0;//albedo metal
         void Init(int in_width, int in_height);
         void Release();
     };

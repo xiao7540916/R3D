@@ -233,6 +233,7 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
         glBindBufferBase(GL_UNIFORM_BUFFER, 0, BufferManage::GetInstance()->m_uniBlockBaseBuffer);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 14, BufferManage::GetInstance()->m_uniDepthMinMipBuffer);
         glBindBufferBase(GL_UNIFORM_BUFFER, 15, BufferManage::GetInstance()->m_uniCSMHandleBuffer);
         scene.m_opaqueList.RenderDepth();
         //光源剔除
@@ -251,6 +252,7 @@ int main() {
         GLuint draw_buffers[1] = {GL_COLOR_ATTACHMENT0};//设置启用的颜色附着，可指定不同顺序
         glBindFramebuffer(GL_FRAMEBUFFER, device.GetActiveScreenFrame().m_frameBuffer);
         glDrawBuffers(1, draw_buffers);
+        device.SSSRSurface();
         if (optionConfig.LightShowRender) {
             scene.RenderLightShow();
         }
@@ -351,11 +353,7 @@ void guiMake() {
     ImGui::End();
     ImGui::Begin("COC");
     //翻转y轴使图像于屏幕匹配
-    ImGui::Image((ImTextureID) Device::GetInstance()->m_backHDRFBO.m_colorAttach0, ImVec2(400, 225), ImVec2(0, 1),
-                 ImVec2(1, 0));
-    ImGui::Image((ImTextureID) Device::GetInstance()->m_backHDRFBO.m_colorAttach1, ImVec2(400, 225), ImVec2(0, 1),
-                 ImVec2(1, 0));
-    ImGui::Image((ImTextureID) Device::GetInstance()->m_backHDRFBO.m_colorAttach2, ImVec2(400, 225), ImVec2(0, 1),
+    ImGui::Image((ImTextureID) StochasticSSR::GetInstance()->m_debugTex, ImVec2(800, 450), ImVec2(0, 1),
                  ImVec2(1, 0));
     ImGui::End();
     ImGui::Begin("AO Config");

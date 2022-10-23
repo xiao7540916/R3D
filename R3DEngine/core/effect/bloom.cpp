@@ -95,6 +95,7 @@ namespace R3D {
         for (int i = 0;i < BLOOM_ITERATION;++i) {
             if (m_bloomTex[i]) {
                 glDeleteTextures(1, &m_bloomTex[i]);
+                m_bloomTex[i] = 0;
             }
         }
     }

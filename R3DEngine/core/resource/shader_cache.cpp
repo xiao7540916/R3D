@@ -73,6 +73,12 @@ namespace R3D {
         mergedof.loadShader(SHADER_DIR + "depthoffield/mergedofvert.glsl",
                             SHADER_DIR + "depthoffield/mergedoffrag.glsl");
         m_shaders.insert({"mergedof", mergedof});
+        Shader depthmin;
+        depthmin.loadCompShader(SHADER_DIR + "sssr/depthmin.comp");
+        m_shaders.insert({"depthmin", depthmin});
+        Shader tracehitpixel;
+        tracehitpixel.loadCompShader(SHADER_DIR + "sssr/tracehitpixel.comp");
+        m_shaders.insert({"tracehitpixel", tracehitpixel});
     }
     Shader ShaderCache::GetShader(string in_shadertype) {
         if (m_shaders.find(in_shadertype) == m_shaders.end()) {

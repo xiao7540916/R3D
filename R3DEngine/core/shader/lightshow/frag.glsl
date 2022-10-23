@@ -18,6 +18,7 @@ struct UniformBlockBase {
     mat4 proj;
     mat4 invproj;
     mat4 viewproj;
+    mat4 invviewproj;
     vec3 camerapos;
     int dirlightactivenum;//平行光启用数目
     DirLight dirLights[DIRECTION_LIGHT_COUNT];

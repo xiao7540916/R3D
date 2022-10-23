@@ -39,6 +39,7 @@ struct UniformBlockBase {
     mat4 proj;
     mat4 invproj;
     mat4 viewproj;
+    mat4 invviewproj;
     vec3 camerapos;
     int dirlightactivenum;//平行光启用数目
     DirLight dirLights[DIRECTION_LIGHT_COUNT];
@@ -57,6 +58,7 @@ struct UniformBlockBase {
     float fill1;
     vec3 ambient;
     float fill2;
+    glm::ivec4 depthimagesize[9];
 };
 struct UniformBlockMesh {
     mat4 model;

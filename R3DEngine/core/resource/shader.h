@@ -51,7 +51,10 @@ namespace R3D {
         void setVec3(const std::string &name, float x, float y, float z) const;
         // ------------------------------------------------------------------------
         void setVec4(const std::string &name, const glm::vec4 &value) const;
-        void setVec4(const std::string &name, float x, float y, float z, float w);
+        void setVec4(const std::string &name, float x, float y, float z, float w) const;
+        //-------------------------------------------------------------------------
+        void setIVec4(const std::string &name, const glm::ivec4 &value) const;
+        void setIVec4(const std::string &name, int x, int y, int z, int w) const;
         // ------------------------------------------------------------------------
         void setMat2(const std::string &name, const glm::mat2 &mat) const;
         // ------------------------------------------------------------------------

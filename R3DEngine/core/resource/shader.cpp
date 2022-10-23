@@ -239,8 +239,15 @@ namespace R3D {
     void Shader::setVec4(const std::string &name, const glm::vec4 &value) const {
         glUniform4fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]);
     }
-    void Shader::setVec4(const std::string &name, float x, float y, float z, float w) {
+    void Shader::setVec4(const std::string &name, float x, float y, float z, float w) const {
         glUniform4f(glGetUniformLocation(ID, name.c_str()), x, y, z, w);
+    }
+// ------------------------------------------------------------------------
+    void Shader::setIVec4(const std::string &name, const glm::ivec4 &value) const {
+        glUniform4iv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]);
+    }
+    void Shader::setIVec4(const std::string &name, int x, int y, int z, int w) const {
+        glUniform4i(glGetUniformLocation(ID, name.c_str()), x, y, z, w);
     }
 // ------------------------------------------------------------------------
     void Shader::setMat2(const std::string &name, const glm::mat2 &mat) const {

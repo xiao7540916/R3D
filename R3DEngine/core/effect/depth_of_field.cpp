@@ -62,6 +62,18 @@ namespace R3D {
         glTextureBarrier();
     }
     void DepthOfField::Release() {
+        if(m_COCTex){
+            glDeleteTextures(1, &m_COCTex);
+            m_COCTex = 0;
+        }
+        if(m_halfSizeTex0){
+            glDeleteTextures(1, &m_halfSizeTex0);
+            m_halfSizeTex0 = 0;
+        }
+        if(m_halfSizeTex1){
+            glDeleteTextures(1, &m_halfSizeTex1);
+            m_halfSizeTex1 = 0;
+        }
     }
     void DepthOfField::DownSample() {
         int width = m_device->m_windowWidth / 2;

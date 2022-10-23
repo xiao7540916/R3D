@@ -15,6 +15,7 @@
 #include <effect/oit.h>
 #include <effect/bloom.h>
 #include <effect/depth_of_field.h>
+#include <effect/stochastic_ssr.h>
 #include <math/camera.h>
 #include <util/r_log.h>
 #include <queue>
@@ -62,6 +63,7 @@ namespace R3D {
         void InitOIT();
         void InitBloom();
         void InitDepthOfField();
+        void InitSSSR();
         void InitFrameBuffers(int in_width, int in_height);
         void SetCamera(vec3 in_position, vec3 in_target, float in_fovy, float in_aspect, float in_zn, float in_zf);
         void UpdataAppInfo(EventInfo &in_eventInfo);
@@ -73,6 +75,7 @@ namespace R3D {
         void FXAA();
         void BloomSurface();
         void DepthOfFieldSurface();
+        void SSSRSurface();
         void HDRToGama();
         bool Run();
         void Tick();//每帧初始时运行
@@ -119,6 +122,7 @@ namespace R3D {
         OIT *m_OIT = nullptr;
         Bloom *m_bloom = nullptr;
         DepthOfField *m_depthOfField = nullptr;
+        StochasticSSR *m_stochasticSsr = nullptr;
         bool runable = false;
         bool m_activeMainFrame = true;
     private:
