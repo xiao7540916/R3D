@@ -21,16 +21,8 @@ namespace R3D {
             int width = m_device->m_windowWidth;
             int height = m_device->m_windowHeight;
             for (int i = 0;i < DEPTH_DOWN_LEVEL;++i) {
-                if ((width % 2) == 0) {
-                    width = width / 2;
-                } else {
-                    width = width / 2 + 1;
-                }
-                if ((height % 2) == 0) {
-                    height = height / 2;
-                } else {
-                    height = height / 2 + 1;
-                }
+                width = width / 2;
+                height = height / 2;
                 glGenTextures(1, &m_downDepthTex[i]);
                 glBindTexture(GL_TEXTURE_2D, m_downDepthTex[i]);
                 glTexStorage2D(GL_TEXTURE_2D, 1, GL_R32F, width, height);

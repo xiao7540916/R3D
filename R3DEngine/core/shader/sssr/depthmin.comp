@@ -28,19 +28,66 @@ gl_LocalInvocationID.x;*/
 //gl_NumWorkGroups 工作组个数向量vec3(300,225,1);
 */
 float Sample(ivec2 pixellocal){
-    vec2 pixeluv = vec2((float(pixellocal.x)+0.5f)/float(uSrcDstImageSize.x),(float(pixellocal.y)+0.5f)/float(uSrcDstImageSize.y));
+    vec2 pixeluv = vec2((float(pixellocal.x)+0.5f)/float(uSrcDstImageSize.x), (float(pixellocal.y)+0.5f)/float(uSrcDstImageSize.y));
     return texture(srcTex, pixeluv).r;
 }
 float SampleBox(ivec2 pixellocal){
     ivec2 pixelsrc = ivec2(pixellocal*2);
-    float col00 = Sample(pixelsrc+ivec2(0, 0));
-    float col01 = Sample(pixelsrc+ivec2(0, 1));
-    float col10 = Sample(pixelsrc+ivec2(1, 0));
-    float col11 = Sample(pixelsrc+ivec2(1, 1));
-    float s1 = min(col00, col01);
-    float s2 = min(col10, col11);
-    float s = min(s1, s2);
-    return s;
+    int xmod = uSrcDstImageSize.x%2;
+    int ymod = uSrcDstImageSize.y%2;
+    if ((xmod==0)&&(ymod==0)){
+        float col00 = Sample(pixelsrc+ivec2(0, 0));
+        float col01 = Sample(pixelsrc+ivec2(0, 1));
+        float col10 = Sample(pixelsrc+ivec2(1, 0));
+        float col11 = Sample(pixelsrc+ivec2(1, 1));
+        float s1 = min(col00, col01);
+        float s2 = min(col10, col11);
+        float s = min(s1, s2);
+        return s;
+    }
+    if ((xmod==1)&&(ymod==0)){
+        float col00 = Sample(pixelsrc+ivec2(0, 0));
+        float col01 = Sample(pixelsrc+ivec2(0, 1));
+        float col10 = Sample(pixelsrc+ivec2(1, 0));
+        float col11 = Sample(pixelsrc+ivec2(1, 1));
+        float col20 = Sample(pixelsrc+ivec2(2, 0));
+        float col21 = Sample(pixelsrc+ivec2(2, 1));
+        float s0 = min(col00, col01);
+        float s1 = min(col10, col11);
+        float s2 = min(col20, col21);
+        float s = min(s0, min(s1, s2));
+        return s;
+    }
+    if ((xmod==0)&&(ymod==1)){
+        float col00 = Sample(pixelsrc+ivec2(0, 0));
+        float col10 = Sample(pixelsrc+ivec2(1, 0));
+        float col01 = Sample(pixelsrc+ivec2(0, 1));
+        float col11 = Sample(pixelsrc+ivec2(1, 1));
+        float col02 = Sample(pixelsrc+ivec2(0, 2));
+        float col12 = Sample(pixelsrc+ivec2(1, 2));
+        float s0 = min(col00, col10);
+        float s1 = min(col01, col11);
+        float s2 = min(col02, col12);
+        float s = min(s0, min(s1, s2));
+        return s;
+    }
+    if ((xmod==1)&&(ymod==1)){
+        float col00 = Sample(pixelsrc+ivec2(0, 0));
+        float col01 = Sample(pixelsrc+ivec2(0, 1));
+        float col02 = Sample(pixelsrc+ivec2(0, 2));
+        float col10 = Sample(pixelsrc+ivec2(1, 0));
+        float col11 = Sample(pixelsrc+ivec2(1, 1));
+        float col12 = Sample(pixelsrc+ivec2(1, 2));
+        float col20 = Sample(pixelsrc+ivec2(2, 0));
+        float col21 = Sample(pixelsrc+ivec2(2, 1));
+        float col22 = Sample(pixelsrc+ivec2(2, 2));
+        float s0 = min(col00, min(col01, col02));
+        float s1 = min(col10, min(col11, col12));
+        float s2 = min(col20, min(col21, col22));
+        float s = min(s0, min(s1, s2));
+        return s;
+    }
+
 }
 void main()
 {
