@@ -73,6 +73,7 @@ gl_LocalInvocationID.x;*/
 const float PI = 3.14159265358979323846;
 const float PI2 = 6.283185307179586;
 const float INVPI = 0.3183099;
+const float MAX_THICKNESS = 0.0017;
 //求平方。sqrt为开方
 float sqr(float x) { return x*x; }
 // 从两个无符号整数值生成一个随机无符号整数 , using 16 pairs
@@ -113,6 +114,12 @@ vec3 depthToWorldPos(vec2 in_uv, float in_depth){
     worldpos = D.xyz;
     return worldpos;
 }
+//深度转换到视空间z
+float depthToViewZ(float in_depth, float in_znear, float in_zfar){
+    float NDCZ = in_depth*2.0f-1.0f;
+    float VZ = 2.0f*in_zfar*in_znear/((in_zfar+in_znear)-NDCZ*(in_zfar-in_znear));
+    return -VZ;
+}
 vec3 tantoworld(vec3 dir, vec3 normal){
     vec3 w = normal;
     vec3 u = cross(vec3(0.00424, 1, 0.00764), w);
@@ -147,9 +154,10 @@ vec3 sampleGTR2(vec2 uv, float a) {
     return H;
 }
 void sampleGTRBRDF2(vec3 uv, vec3 V, vec3 N, float roughness, inout vec3 wi, inout float pdf){
-    float agtr = max(0.001, sqr(roughness));
+    float agtr = max(0.0001, sqr(roughness));
     vec3 Hspec = sampleGTR2(uv.xy, agtr);
     Hspec = tantoworld(Hspec.xyz, N);
+
     vec3 rspec = reflect(-V, Hspec);
     wi = normalize(rspec);
     vec3 H = normalize(wi+V);
@@ -165,43 +173,101 @@ vec3 getScreenCoord(vec3  in_point){
     positionInScreen.xyz = positionInScreen.xyz*0.5+0.5;
     return positionInScreen.xyz;
 }
+//获取level深度图尺寸
+vec2 getCellCount(int in_level){
+    return vec2(ubobasedata.depthimagesize[in_level].xy);
+}
+//获取当前单元位置(横向，纵向第几格)
+vec2 getCell(vec2 pos, vec2 CellCount){
+    return vec2(floor(pos*CellCount));
+}
+vec3 intersectDepthPlane(vec3 o, vec3 d, float t){
+    return o + d * t;
+}
+vec3 intersectCellBoundary(vec3 o, vec3  d, vec2 rayCell, vec2 cell_count, vec2 crossStep, vec2 crossOffset){
+    vec2 nextPos = rayCell + crossStep;
+    nextPos = nextPos/cell_count;
+    nextPos = nextPos+crossOffset;
+    vec2 dis  = nextPos - o.xy;
+    vec2 delta = dis/d.xy;
+    float t = min(delta.x, delta.y);
+    return intersectDepthPlane(o, d, t);
+}
+float getMinimumDepthPlane(vec2 pos, int level){
+    return texture(depthTex[level], pos).r;
+}
+bool crossedCellBoundary(vec2 oldCellIdx, vec2 newCellIdx){
+    return (oldCellIdx.x!=newCellIdx.x)||(oldCellIdx.y!=newCellIdx.y);
+}
+ivec2 traceHitPixel(vec3 in_uvstart, vec3 in_uvdir, float in_maxdst, inout float in_hitdepth){
+    //主要思想，求光线与当前测试深度的交点，如果交点在当前cell中，说明相交。如果不在，步进光线起始位置
+    const int maxLevel = 8;
+    vec2 crossStep = vec2(in_uvdir.x>=0?1:-1, in_uvdir.y>=0?1:-1);
+    vec2 crossOffset = crossStep / vec2(1600.0, 900.0) / 128;
+    crossStep = clamp(crossStep, 0.0, 1.0);
 
-ivec2 traceHitPixel(vec3 in_orgin_view, vec3 in_dir_view){
-    //在第0层步进，得到的uv算地0层的pixel，计算第n层的坐标，计算第n层的uv
-    ivec2 hitpixel;
-    vec3 uvstart = getScreenCoord(in_orgin_view);
-    vec3 uvend = getScreenCoord(in_orgin_view+in_dir_view);
-    vec3 uvdir = normalize(uvend-uvstart);
-    //---
-    vec2 pixeluvsize0 = vec2(1.0)/vec2(ubobasedata.depthimagesize[0].xy);//0层uv每像素长度
-    float minuvsize0 = min(pixeluvsize0.x, pixeluvsize0.y);//最小步进uv距离
-    //---
-    float maxTraceX = uvdir.x>=0 ? (1-uvstart.x)/uvdir.x:-uvstart.x/uvdir.x;
-    float maxTraceY = uvdir.y>=0 ? (1-uvstart.y)/uvdir.y:-uvstart.y/uvdir.y;
-    float maxTraceZ = uvdir.z>=0 ? (1-uvstart.z)/uvdir.z:-uvstart.z/uvdir.z;
-    float maxuvdistance = min(maxTraceX, min(maxTraceY, maxTraceZ));//uv总距离最大值
-    //---
-    float suredst = 0.0f;//确定未被遮挡的uv距离
-    int level = 0;
-    const int maxlevel = 8;
-    //射线向当前mip的节点的边缘走，计算此时的深度是否
+    vec3 ray = in_uvstart;
+    float minZ = ray.z;
+    float maxZ = ray.z+in_uvdir.z*in_maxdst;
+    float deltaZ = (maxZ-minZ);
 
+    vec3 o = ray;
+    vec3 d = in_uvdir*in_maxdst;
 
-    //---
-    vec3 hituv = uvstart+suredst*uvdir;
-    hitpixel = ivec2(hituv.xy*vec2(ubobasedata.depthimagesize[0].xy));
-    return hitpixel;
+    int startLevel = 2;
+    int stopLevel = 0;
+    vec2 startCellCount = getCellCount(startLevel);//横向，纵向单元个数
+    vec2 rayCell = getCell(ray.xy, startCellCount);//当前光线位置位于哪个单元
+    //光线末端位置
+    ray = intersectCellBoundary(o, d, rayCell, startCellCount, crossStep, crossOffset*64);
+
+    int level = startLevel;
+    int iter = 0;
+    bool isBackwardRay = in_uvdir.z<0;
+
+    float Dir = isBackwardRay ? -1 : 1;
+
+    while (level>=stopLevel && ray.z*Dir <= maxZ*Dir && iter<100){
+        vec2 cellCount = getCellCount(level);
+        vec2 oldCellIdx = getCell(ray.xy, cellCount);
+
+        float cell_minZ = getMinimumDepthPlane(ray.xy, level);
+
+        vec3 tmpRay = ((cell_minZ>ray.z) && !isBackwardRay) ? intersectDepthPlane(o, d, (cell_minZ-minZ)/deltaZ) :ray;
+
+        vec2 newCellIdx = getCell(tmpRay.xy, cellCount);
+
+        float thickness = level ==0 ? (ray.z-cell_minZ) : 0;
+        //crossed,是不是越过了分界线。如果越过分界线，说明没有碰撞。
+        bool crossed  = crossedCellBoundary(oldCellIdx, newCellIdx)||(isBackwardRay&&(cell_minZ>ray.z))||(thickness>MAX_THICKNESS);
+        //如果越过分界线，光线起点步进到光线与分解的交界。如果没有越过分解线说明相交了。
+        ray = crossed ? intersectCellBoundary(o, d, oldCellIdx, cellCount, crossStep, crossOffset):ray;
+        level = crossed ? min(maxLevel, level+1):level-1;
+        ++iter;
+    }
+    bool intersected = (level < stopLevel);
+    vec3 hitPos = ray;
+    in_hitdepth = ray.z;
+    if (intersected){
+        //添加物体厚度检测
+        float hitdepth = getMinimumDepthPlane(hitPos.xy, 0);
+        float hitcamz = depthToViewZ(hitdepth, ubobasedata.znear, ubobasedata.zfar);
+        float raycamz = depthToViewZ(ray.z, ubobasedata.znear, ubobasedata.zfar);
+        intersected = abs(hitcamz-raycamz)<1.0?true:false;
+    }
+    return intersected ? ivec2(hitPos.xy*vec2(ubobasedata.depthimagesize[0].xy)):ivec2(-1, -1);
 }
 void main()
 {
     vec2 pixeluv = (vec2(gl_GlobalInvocationID.xy)+vec2(0.5))/vec2(uSrcDstImageSize.xy);
     vec4 normalrough = texture(normalTex, pixeluv);
-    if (normalrough.w<1.5){
+    if (normalrough.w<0.5){
         float depth = texture(depthTex[0], pixeluv).r;
         vec3 orgin = depthToWorldPos(pixeluv, depth);
         vec3 V = normalize(ubobasedata.camerapos-orgin);
         vec3 wi;
         float pdf;
+        float hitdepth;
         vec3 sampleuv;
         uint seedxy = tea(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y);
         uint seed = tea(seedxy, int(clockARB()));
@@ -211,13 +277,28 @@ void main()
         sampleGTRBRDF2(sampleuv, V, normalrough.xyz, normalrough.w, wi, pdf);
         vec3 orgin_view = (ubobasedata.view*vec4(orgin, 1.0f)).xyz;
         vec3 wi_view = mat3(ubobasedata.view)*wi;
-        ivec2 hitpixel = traceHitPixel(orgin_view, wi_view);
+
+        vec3 uvstart = getScreenCoord(orgin_view);
+        vec3 uvend = getScreenCoord(orgin_view+wi_view);
+        vec3 uvdir = normalize(uvend-uvstart);
+        //---
+        float maxTraceX = uvdir.x>=0 ? (1-uvstart.x)/uvdir.x:-uvstart.x/uvdir.x;
+        float maxTraceY = uvdir.y>=0 ? (1-uvstart.y)/uvdir.y:-uvstart.y/uvdir.y;
+        float maxTraceZ = uvdir.z>=0 ? (1-uvstart.z)/uvdir.z:-uvstart.z/uvdir.z;
+        float maxuvdistance = min(maxTraceX, min(maxTraceY, maxTraceZ));//uv总距离最大值
+
+        ivec2 hitpixel = traceHitPixel(uvstart, uvdir, maxuvdistance, hitdepth);
         uint pdfint = floatBitsToInt(pdf);
-        imageStore(hitPixelImage, ivec2(gl_GlobalInvocationID.xy), ivec4(hitpixel, pdfint, -1));
-        imageStore(debugImage, ivec2(gl_GlobalInvocationID.xy), vec4(wi_view, 1));
+        uint depthint = floatBitsToInt(hitdepth);
+        imageStore(hitPixelImage, ivec2(gl_GlobalInvocationID.xy), ivec4(hitpixel, pdfint, depthint));
+
+        vec3 refalbedo = vec3(0);
+        if (hitpixel.x!=-1){
+            refalbedo = texture(albedoTex, (vec2(hitpixel)+vec2(0.5))/vec2(ubobasedata.depthimagesize[0].xy)).rgb;
+        }
+        imageStore(debugImage, ivec2(gl_GlobalInvocationID.xy), vec4(refalbedo, 1));
     } else {
         imageStore(hitPixelImage, ivec2(gl_GlobalInvocationID.xy), ivec4(-1, -1, -1, -1));
         imageStore(debugImage, ivec2(gl_GlobalInvocationID.xy), vec4(0, -1, 0, 1));
     }
-
 }

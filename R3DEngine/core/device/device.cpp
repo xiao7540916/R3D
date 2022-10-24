@@ -490,8 +490,38 @@ namespace R3D {
         m_depthOfField->MergeDOF();
     }
     void Device::SSSRSurface() {
+        static bool sssronce = true;
+        if (sssronce) {
+            //拷贝结果到sssr比较颜色缓冲
+            glBindFramebuffer(GL_READ_FRAMEBUFFER, GetActiveScreenFrame().m_frameBuffer);
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_stochasticSsr->GetActiveFrameColCopy().m_frameBuffer);
+            glBlitFramebuffer(0, 0, m_windowWidth, m_windowHeight,
+                              0, 0, m_windowWidth, m_windowHeight,
+                              GL_COLOR_BUFFER_BIT, GL_NEAREST);
+            //拷贝结果到sssr比较颜色缓冲
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_stochasticSsr->GetNotActiveFrameColCopy().m_frameBuffer);
+            glBlitFramebuffer(0, 0, m_windowWidth, m_windowHeight,
+                              0, 0, m_windowWidth, m_windowHeight,
+                              GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+            glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+            sssronce = false;
+        } else{
+            //拷贝结果到sssr比较颜色缓冲
+            glBindFramebuffer(GL_READ_FRAMEBUFFER, GetActiveScreenFrame().m_frameBuffer);
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_stochasticSsr->GetActiveFrameColCopy().m_frameBuffer);
+            glBlitFramebuffer(0, 0, m_windowWidth, m_windowHeight,
+                              0, 0, m_windowWidth, m_windowHeight,
+                              GL_COLOR_BUFFER_BIT, GL_NEAREST);
+            glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, GetActiveScreenFrame().m_frameBuffer);
         m_stochasticSsr->DownMinDepth();
         m_stochasticSsr->TraceHitPixel();
+        m_stochasticSsr->ResloveSSSR();
+        m_stochasticSsr->MergeSSSR();
     }
     void Device::HDRToGama() {
         static Shader hdrToGamaShader = m_shaderCache.GetShader("hdrtogama");

@@ -58,6 +58,7 @@ int main() {
     scene.SetRoot(rootplane);
     rootplane->SetMesh(meshManage.GetMesh("planemesh"));
     rootplane->SetMaterial(materialManage.GetMaterial("metalpbr_puddleinforest"));
+//    rootplane->SetMaterial(materialManage.GetMaterial("metalpbr_floor"));
     rootplane->SetUvConfig(vec2(0.16, 0.25), vec2(8));
     rootplane->Scale(64.0f);
     //墙面
@@ -353,8 +354,13 @@ void guiMake() {
     ImGui::End();
     ImGui::Begin("COC");
     //翻转y轴使图像于屏幕匹配
-    ImGui::Image((ImTextureID) StochasticSSR::GetInstance()->m_debugTex, ImVec2(800, 450), ImVec2(0, 1),
+    ImGui::Image((ImTextureID) StochasticSSR::GetInstance()->m_sssrColTex[0], ImVec2(800, 450), ImVec2(0, 1),
                  ImVec2(1, 0));
+    ImGui::Image((ImTextureID) StochasticSSR::GetInstance()->GetActiveFrameColCopy().m_colorAttach0, ImVec2(800, 450), ImVec2(0, 1),
+                 ImVec2(1, 0));
+    ImGui::Image((ImTextureID) StochasticSSR::GetInstance()->GetNotActiveFrameColCopy().m_colorAttach0, ImVec2(800, 450), ImVec2(0, 1),
+                 ImVec2(1, 0));
+
     ImGui::End();
     ImGui::Begin("AO Config");
     ImGui::SliderFloat("RadiusScale", &optionConfig.radiusScale, 0.01, 2.0);

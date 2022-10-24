@@ -79,6 +79,13 @@ namespace R3D {
         Shader tracehitpixel;
         tracehitpixel.loadCompShader(SHADER_DIR + "sssr/tracehitpixel.comp");
         m_shaders.insert({"tracehitpixel", tracehitpixel});
+        Shader reslovesssr;
+        reslovesssr.loadCompShader(SHADER_DIR + "sssr/reslovesssr.comp");
+        m_shaders.insert({"reslovesssr", reslovesssr});
+        Shader mergesssr;
+        mergesssr.loadShader(SHADER_DIR + "sssr/mergesssrvert.glsl",
+                             SHADER_DIR + "sssr/mergesssrfrag.glsl");
+        m_shaders.insert({"mergesssr", mergesssr});
     }
     Shader ShaderCache::GetShader(string in_shadertype) {
         if (m_shaders.find(in_shadertype) == m_shaders.end()) {

@@ -112,6 +112,13 @@ namespace R3D {
         for (int i = 0;i < DEPTH_DOWN_LEVEL;++i) {
             uniformBlockBase.depthimagesize[i+1] = ivec4(downDepthTexSize[i].x,downDepthTexSize[i].y,0,0);
         }
+        bool oncetime = true;
+        static mat4 lastViewProj;
+        if(oncetime){
+            lastViewProj = camera.GetProjection() * camera.GetView();
+            oncetime = false;
+        }
+        uniformBlockBase.lastviewproj = lastViewProj;
         glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_uniBlockBaseBuffer);
         glNamedBufferSubData(m_uniBlockBaseBuffer, 0, sizeof(UniformBlockBase), &uniformBlockBase);
         glUnmapBuffer(GL_UNIFORM_BUFFER);
@@ -119,6 +126,7 @@ namespace R3D {
         glNamedBufferSubData(m_pointLightBuffer, 0, sizeof(PointLight) * POINT_LIGHT_COUNT,
                              in_scene.m_pointLights.data());
         glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        lastViewProj = camera.GetProjection() * camera.GetView();
         //AO----------------------------------------------------------------------
         AOConfig aoConfig{};
         aoConfig.angleBias = optionConfig.angleBias;

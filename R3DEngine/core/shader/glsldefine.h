@@ -59,6 +59,7 @@ struct UniformBlockBase {
     vec3 ambient;
     float fill2;
     glm::ivec4 depthimagesize[9];
+    mat4 lastviewproj;
 };
 struct UniformBlockMesh {
     mat4 model;

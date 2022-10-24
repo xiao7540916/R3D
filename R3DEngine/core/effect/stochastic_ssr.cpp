@@ -16,6 +16,8 @@ namespace R3D {
     }
     void StochasticSSR::Init(Device *in_device) {
         m_device = in_device;
+        m_lastFrameTex[0].Init(m_device->m_windowWidth, m_device->m_windowHeight);
+        m_lastFrameTex[1].Init(m_device->m_windowWidth, m_device->m_windowHeight);
         //depthdowntex
         {
             int width = m_device->m_windowWidth;
@@ -74,6 +76,8 @@ namespace R3D {
         }
     }
     void StochasticSSR::Release() {
+        m_lastFrameTex[0].Release();
+        m_lastFrameTex[1].Release();
         for (int i = 0;i < DEPTH_DOWN_LEVEL;++i) {
             glDeleteTextures(1, &m_downDepthTex[i]);
             m_downDepthTex[i] = 0;
@@ -82,6 +86,7 @@ namespace R3D {
             glDeleteTextures(1, &m_sssrColTex[i]);
             m_sssrColTex[i] = 0;
         }
+        glDeleteTextures(1, &m_debugTex);
     }
     void StochasticSSR::DownMinDepth() {
         static Shader depthMinShader = m_device->m_shaderCache.GetShader("depthmin");
@@ -130,5 +135,61 @@ namespace R3D {
                 height / TILE_SIZE + 1);
         glDispatchCompute(workgroup_x, workgroup_y, 1);
         glTextureBarrier();
+    }
+    void StochasticSSR::ResloveSSSR() {
+        int width = m_device->m_windowWidth;
+        int height = m_device->m_windowHeight;
+        static Shader resloveSssrShader = m_device->m_shaderCache.GetShader("reslovesssr");
+        resloveSssrShader.use();
+        glBindTextureUnit(0, m_device->GetActiveScreenFrame().m_colorAttach1);
+        glBindTextureUnit(1, m_device->GetActiveScreenFrame().m_colorAttach2);
+        glBindTextureUnit(2, m_device->GetActiveScreenFrame().m_colorAttach0);
+        glBindTextureUnit(3, m_device->GetActiveScreenFrame().m_depthAttach);
+        glBindTextureUnit(4, GetNotActiveSssrTex());
+        glBindTextureUnit(5, GetNotActiveFrameColCopy().m_colorAttach0);
+        glBindTextureUnit(6, GetActiveFrameColCopy().m_colorAttach0);
+        glBindImageTexture(0, m_hitPixelTex, 0, true, 0, GL_READ_ONLY, GL_RGBA32I);
+        glBindImageTexture(1, GetActiveSssrTex(), 0, true, 0, GL_WRITE_ONLY, GL_RGBA32F);
+        int workgroup_x = (width % TILE_SIZE) == 0 ? (width / TILE_SIZE) : (
+                width / TILE_SIZE + 1);
+        int workgroup_y = (height % TILE_SIZE) == 0 ? (height / TILE_SIZE) : (
+                height / TILE_SIZE + 1);
+        glDispatchCompute(workgroup_x, workgroup_y, 1);
+        glTextureBarrier();
+    }
+    void StochasticSSR::MergeSSSR() {
+        static Shader mergeSssrShader = m_device->m_shaderCache.GetShader("mergesssr");
+        if (RenderStateManage::GetInstance()->NeedChangeState(mergeSssrShader.ID)) {
+            glDisable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
+            glFrontFace(GL_CCW);
+            glCullFace(GL_BACK);
+            glDepthMask(GL_FALSE);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_ONE, GL_ONE);
+            mergeSssrShader.use();
+        }
+        glBindTextureUnit(0, GetActiveSssrTex());
+        static Mesh *screenbackmesh = MeshManage::GetInstance()->GetMesh("screenbackmesh");
+        glBindVertexArray(screenbackmesh->VAO);
+        glDrawElements(GL_TRIANGLES, screenbackmesh->m_indiceSize, GL_UNSIGNED_INT, nullptr);
+        glDisable(GL_BLEND);
+        ExchangeSssrTexture();
+    }
+    void StochasticSSR::ExchangeSssrTexture() {
+        m_activeSssrColIdx = (m_activeSssrColIdx + 1) % 2;
+    }
+    GLuint StochasticSSR::GetActiveSssrTex() {
+        return m_sssrColTex[m_activeSssrColIdx];
+    }
+    GLuint StochasticSSR::GetNotActiveSssrTex() {
+        return m_sssrColTex[(m_activeSssrColIdx + 1) % 2];
+    }
+    FrameBufferColHDR &StochasticSSR::GetActiveFrameColCopy() {
+        return m_lastFrameTex[m_activeSssrColIdx];
+    }
+    FrameBufferColHDR &StochasticSSR::GetNotActiveFrameColCopy() {
+        return m_lastFrameTex[(m_activeSssrColIdx + 1) % 2];
     }
 }
