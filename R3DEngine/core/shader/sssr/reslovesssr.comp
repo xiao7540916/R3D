@@ -213,14 +213,16 @@ void main()
             vec3 colmin,colmax;
             colmin = min(min(col00,min(col01,col02)),min(col03,col04));
             colmax = max(max(col00,max(col01,col02)),max(col03,col04));
-            vec3 colpre = texture(frameColLastTex, pixeluv).rgb;
+
+            vec2 lastuv;
+            vec4 projpos = ubobasedata.lastviewproj*vec4(worldPos, 1.0f);
+            projpos/=projpos.w;
+            lastuv = projpos.xy*0.5f+vec2(0.5f);
+
+            vec3 colpre = texture(frameColLastTex, lastuv).rgb;
             bool inaabb = inNowAABB(colmin, colmax, colpre);
 
             if(inaabb){
-                vec2 lastuv;
-                vec4 projpos = ubobasedata.lastviewproj*vec4(worldPos, 1.0f);
-                projpos/=projpos.w;
-                lastuv = projpos.xy*0.5f+vec2(0.5f);
                 vec3 lastLo = vec3(0);
                 lastLo = texture(sssrColLastTex, lastuv).rgb;
 
