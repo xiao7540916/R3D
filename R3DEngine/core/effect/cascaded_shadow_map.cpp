@@ -8,7 +8,7 @@
 #include <math/camera.h>
 #include <resource/object.h>
 #include <device/device.h>
-extern OptionConfig optionConfig;
+extern OptionConfig g_optionConfig;
 namespace R3D {
     void CascadedShadowMap::Init(CSMInfo &in_csmInfo) {
         //计算shadowmap分割比例
@@ -211,8 +211,8 @@ namespace R3D {
             m_CSMData[i].orthoDate.bottom = -0.5f * lightplanw;
             m_CSMData[i].orthoDate.top = 0.5f * lightplanw;
             m_CSMData[i].orthoDate.zNear = 0.0f;
-            vec3 lightpos = worldnearmid + optionConfig.lightPosOffset * lightdir;
-            m_CSMData[i].orthoDate.zFar = lightplanedepth + optionConfig.lightPosOffset;
+            vec3 lightpos = worldnearmid + g_optionConfig.lightPosOffset * lightdir;
+            m_CSMData[i].orthoDate.zFar = lightplanedepth + g_optionConfig.lightPosOffset;
             m_CSMData[i].orthoDate.target = lightpos - lightdir;
             m_CSMData[i].orthoDate.up = lightup;
             m_CSMData[i].orthoDate.pos = lightpos;

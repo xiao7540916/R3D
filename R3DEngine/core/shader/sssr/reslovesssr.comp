@@ -227,9 +227,9 @@ void main()
                 vec3 compLo = Lo/activesize;
                 vec3 finalLo;
                 vec3 blendval;
-                blendval.x = 0.2*pow(compLo.x, 0.2)+0.8*pow(lastLo.x, 0.2);
-                blendval.y = 0.2*pow(compLo.y, 0.2)+0.8*pow(lastLo.y, 0.2);
-                blendval.z = 0.2*pow(compLo.z, 0.2)+0.8*pow(lastLo.z, 0.2);
+                blendval.x = 0.1*pow(compLo.x, 0.2)+0.9*pow(lastLo.x, 0.2);
+                blendval.y = 0.1*pow(compLo.y, 0.2)+0.9*pow(lastLo.y, 0.2);
+                blendval.z = 0.1*pow(compLo.z, 0.2)+0.9*pow(lastLo.z, 0.2);
                 finalLo.x = pow(blendval.x, 5.0);
                 finalLo.y = pow(blendval.y, 5.0);
                 finalLo.z = pow(blendval.z, 5.0);

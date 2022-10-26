@@ -12,10 +12,10 @@ using namespace std;
 using namespace R3D;
 string CURRENT_SOURCE_DIR = "../../";
 string SHADER_DIR = "../../R3DEngine/core/shader/";
-OptionConfig optionConfig{};
-bool isMainLoop = true;
-uint64_t gNewCount = 0;
-unordered_map<void *, string> dstToString;
+OptionConfig g_optionConfig{};
+bool g_isMainLoop = true;
+uint64_t g_newCount = 0;
+unordered_map<void *, string> g_dstToString;
 void guiMake();
 int main() {
     Device &device = *Device::GetInstance();
@@ -34,7 +34,7 @@ int main() {
     Scene scene;
     scene.Init(&device);
     scene.SetAABB(vec3(-9, -1, -9), vec3(9, 17, 9));
-    scene.SetLightCount(1, optionConfig.PointLightCount, TILE_LIGHT_MAX);
+    scene.SetLightCount(1, g_optionConfig.PointLightCount, TILE_LIGHT_MAX);
     scene.m_dirLights[0].direction = glm::normalize(vec3(-8, 16, -8));
     scene.m_dirLights[0].strength = vec3(3, 3, 2.6);
     scene.m_dirLights[1].direction = glm::normalize(vec3(-1, 5, 1));
@@ -209,11 +209,11 @@ int main() {
         EventInfo eventInfo{};
         eventInfo.type = EVENT_NONE;
         scene.UpdataAnimate(device.m_gameTime.DeltaTime(), eventInfo);
-        scene.SetLightCount(1, optionConfig.PointLightCount, TILE_LIGHT_MAX);
+        scene.SetLightCount(1, g_optionConfig.PointLightCount, TILE_LIGHT_MAX);
         scene.UpdataTransBound();
         scene.MakeRenderList();
         scene.SortRenderList();
-        optionConfig.OpaqueRenderCount = scene.m_opaqueList.m_objectList.size();
+        g_optionConfig.OpaqueRenderCount = scene.m_opaqueList.m_objectList.size();
         //更新shadowmap
         device.PrepareCSM(scene);
         bufferManage.UpdataUniBaseBuf(scene);
@@ -254,13 +254,13 @@ int main() {
         glBindFramebuffer(GL_FRAMEBUFFER, device.GetActiveScreenFrame().m_frameBuffer);
         glDrawBuffers(1, draw_buffers);
         device.SSSRSurface();
-        if (optionConfig.LightShowRender) {
+        if (g_optionConfig.LightShowRender) {
             scene.RenderLightShow();
         }
-        if (optionConfig.LightRadiusRender) {
+        if (g_optionConfig.LightRadiusRender) {
             scene.RenderLightRadius();
         }
-        if (optionConfig.SphereRender) {
+        if (g_optionConfig.SphereRender) {
             scene.m_opaqueList.RenderBndSphere();
             scene.m_transparent.RenderBndSphere();
         }
@@ -302,11 +302,11 @@ int main() {
     scene.Release();
     device.Release();
     delete &device;
-    for (auto &item:dstToString) {
+    for (auto &item:g_dstToString) {
         cout << item.first << " " << item.second << endl;
     }
-    cout << gNewCount << endl;
-    isMainLoop = false;
+    cout << g_newCount << endl;
+    g_isMainLoop = false;
     return 0;
 }
 void guiMake() {
@@ -325,21 +325,21 @@ void guiMake() {
         lasttime = nowtime;
     }
     ImGui::Text("FPS:%d", int(100.0f / deltatime));
-    ImGui::Text("OpaqueCount:%d", int(optionConfig.OpaqueRenderCount));
-    ImGui::Checkbox("SphereRender", &optionConfig.SphereRender);
-    ImGui::Checkbox("LightShowRender", &optionConfig.LightShowRender);
-    ImGui::Checkbox("LightRadiusRender", &optionConfig.LightRadiusRender);
-    ImGui::SliderInt("PointLightCount", &optionConfig.PointLightCount, 0, 1024);
-    ImGui::SliderFloat("LightPosOffset", &optionConfig.lightPosOffset, 0.0, 20.0);
-    ImGui::SliderFloat("DepthBias", &optionConfig.depthbias, 0.0, 0.2);
-    ImGui::SliderFloat("NormalBias", &optionConfig.normalbias, 0.0, 0.2);
-    ImGui::SliderFloat("HDRExp", &optionConfig.hdrExp, 0.0, 5.0);
-    ImGui::SliderFloat("BloomThreshold", &optionConfig.threshold, 0.1, 10.0);
-    ImGui::SliderFloat("BloomSoftThreshold", &optionConfig.softThreshold, 0.0, 1.0);
-    ImGui::SliderFloat("BloomStrength", &optionConfig.bloomStrength, 0.0, 1.0);
-    ImGui::SliderFloat("Focus", &optionConfig.focus, 0.1, 50.0);
-    ImGui::SliderFloat("FocusRange", &optionConfig.focusRange, 0.1, 40.0);
-    ImGui::SliderFloat("BokehRadius", &optionConfig.bokehRadius, 0.1, 10.0);
+    ImGui::Text("OpaqueCount:%d", int(g_optionConfig.OpaqueRenderCount));
+    ImGui::Checkbox("SphereRender", &g_optionConfig.SphereRender);
+    ImGui::Checkbox("LightShowRender", &g_optionConfig.LightShowRender);
+    ImGui::Checkbox("LightRadiusRender", &g_optionConfig.LightRadiusRender);
+    ImGui::SliderInt("PointLightCount", &g_optionConfig.PointLightCount, 0, 1024);
+    ImGui::SliderFloat("LightPosOffset", &g_optionConfig.lightPosOffset, 0.0, 20.0);
+    ImGui::SliderFloat("DepthBias", &g_optionConfig.depthbias, 0.0, 0.2);
+    ImGui::SliderFloat("NormalBias", &g_optionConfig.normalbias, 0.0, 0.2);
+    ImGui::SliderFloat("HDRExp", &g_optionConfig.hdrExp, 0.0, 5.0);
+    ImGui::SliderFloat("BloomThreshold", &g_optionConfig.threshold, 0.1, 10.0);
+    ImGui::SliderFloat("BloomSoftThreshold", &g_optionConfig.softThreshold, 0.0, 1.0);
+    ImGui::SliderFloat("BloomStrength", &g_optionConfig.bloomStrength, 0.0, 1.0);
+    ImGui::SliderFloat("Focus", &g_optionConfig.focus, 0.1, 50.0);
+    ImGui::SliderFloat("FocusRange", &g_optionConfig.focusRange, 0.1, 40.0);
+    ImGui::SliderFloat("BokehRadius", &g_optionConfig.bokehRadius, 0.1, 10.0);
     ImGui::End();
     ImGui::Begin("DepthTex");
     //翻转y轴使图像于屏幕匹配
@@ -356,15 +356,16 @@ void guiMake() {
     //翻转y轴使图像于屏幕匹配
     ImGui::Image((ImTextureID) StochasticSSR::GetInstance()->m_sssrColTex[0], ImVec2(800, 450), ImVec2(0, 1),
                  ImVec2(1, 0));
-    ImGui::Image((ImTextureID) StochasticSSR::GetInstance()->GetActiveFrameColCopy().m_colorAttach0, ImVec2(800, 450), ImVec2(0, 1),
+    ImGui::Image((ImTextureID) StochasticSSR::GetInstance()->GetActiveFrameColCopy().m_colorAttach0, ImVec2(800, 450),
+                 ImVec2(0, 1),
                  ImVec2(1, 0));
-    ImGui::Image((ImTextureID) StochasticSSR::GetInstance()->GetNotActiveFrameColCopy().m_colorAttach0, ImVec2(800, 450), ImVec2(0, 1),
+    ImGui::Image((ImTextureID) StochasticSSR::GetInstance()->GetNotActiveFrameColCopy().m_colorAttach0,
+                 ImVec2(800, 450), ImVec2(0, 1),
                  ImVec2(1, 0));
-
     ImGui::End();
     ImGui::Begin("AO Config");
-    ImGui::SliderFloat("RadiusScale", &optionConfig.radiusScale, 0.01, 2.0);
-    ImGui::SliderFloat("PowExponent", &optionConfig.powExponent, 0.1, 3.0);
+    ImGui::SliderFloat("RadiusScale", &g_optionConfig.radiusScale, 0.01, 2.0);
+    ImGui::SliderFloat("PowExponent", &g_optionConfig.powExponent, 0.1, 3.0);
     ImGui::End();
 };
 

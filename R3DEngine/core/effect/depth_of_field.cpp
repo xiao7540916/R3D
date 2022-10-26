@@ -4,7 +4,7 @@
 
 #include "depth_of_field.h"
 #include <device/device.h>
-extern OptionConfig optionConfig;
+extern OptionConfig g_optionConfig;
 namespace R3D {
     DepthOfField::DepthOfField() {
     }
@@ -45,9 +45,9 @@ namespace R3D {
         int width = m_device->m_windowWidth;
         int height = m_device->m_windowHeight;
         Shader cocShader = m_device->m_shaderCache.GetShader("depthtococ");
-        m_focus = optionConfig.focus;
-        m_focusRange = optionConfig.focusRange;
-        m_bokehRadius = optionConfig.bokehRadius;
+        m_focus = g_optionConfig.focus;
+        m_focusRange = g_optionConfig.focusRange;
+        m_bokehRadius = g_optionConfig.bokehRadius;
         cocShader.use();
         cocShader.setFloat("uFocus", m_focus);
         cocShader.setFloat("uFocusRange", m_focusRange);
@@ -117,7 +117,7 @@ namespace R3D {
         int height = m_device->m_windowHeight / 2;
         //环形采样
         {
-            m_bokehRadius = optionConfig.bokehRadius;
+            m_bokehRadius = g_optionConfig.bokehRadius;
             static Shader circleSampleShader = m_device->m_shaderCache.GetShader("circlesample");
             //PASS1 提取符合阈值的颜色进行下采样
             circleSampleShader.use();

@@ -4,7 +4,7 @@
 
 #include "bloom.h"
 #include <device/device.h>
-extern OptionConfig optionConfig;
+extern OptionConfig g_optionConfig;
 namespace R3D {
     Bloom::Bloom() {
     }
@@ -35,8 +35,8 @@ namespace R3D {
     }
     void Bloom::DownSample() {
         static Shader downSampleShader = m_device->m_shaderCache.GetShader("downsample");
-        m_threshold = optionConfig.threshold;
-        m_softThreshold = optionConfig.softThreshold;
+        m_threshold = g_optionConfig.threshold;
+        m_softThreshold = g_optionConfig.softThreshold;
         float knee = m_threshold * m_softThreshold;
         vec4 filter;
         filter.x = m_threshold;
@@ -113,7 +113,7 @@ namespace R3D {
             glBlendFunc(GL_ONE, GL_ONE);
             mergeBloomShader.use();
         }
-        mergeBloomShader.setFloat("uBloomStrength", optionConfig.bloomStrength);
+        mergeBloomShader.setFloat("uBloomStrength", g_optionConfig.bloomStrength);
         static Mesh *screenbackmesh = MeshManage::GetInstance()->GetMesh("screenbackmesh");
         glBindVertexArray(screenbackmesh->VAO);
         glDrawElements(GL_TRIANGLES, screenbackmesh->m_indiceSize, GL_UNSIGNED_INT, nullptr);

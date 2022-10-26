@@ -43,13 +43,13 @@ using std::string;
 #define BLOOM_ITERATION 5
 //-----------------------------------------
 
-extern bool isMainLoop;
-extern uint64_t gNewCount;
-extern unordered_map<void *, string> dstToString;
+extern bool g_isMainLoop;
+extern uint64_t g_newCount;
+extern unordered_map<void *, string> g_dstToString;
 inline void *operator new(size_t size, const char *filename, int line) {
-    ++gNewCount;
+    ++g_newCount;
     void *data = malloc(size);
-    dstToString[data] = "file:" + string(filename) + " line:" + std::to_string(line);
+    g_dstToString[data] = "file:" + string(filename) + " line:" + std::to_string(line);
     return data;
 }
 inline void operator delete(void *p, const char *filename, int line) {}
@@ -57,10 +57,10 @@ inline void *operator new(size_t size) {
     return malloc(size);
 }
 inline void operator delete(void *p) {
-    if (isMainLoop) {
-        if (dstToString.find(p) != dstToString.end()) {
-            --gNewCount;
-            dstToString.erase(p);
+    if (g_isMainLoop) {
+        if (g_dstToString.find(p) != g_dstToString.end()) {
+            --g_newCount;
+            g_dstToString.erase(p);
         }
     }
     free(p);

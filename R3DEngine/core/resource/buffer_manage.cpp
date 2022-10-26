@@ -6,7 +6,7 @@
 #include <device/device.h>
 #include <device/scene.h>
 #include <effect/stochastic_ssr.h>
-extern OptionConfig optionConfig;
+extern OptionConfig g_optionConfig;
 namespace R3D {
     using std::cout;
     using std::endl;
@@ -100,9 +100,9 @@ namespace R3D {
                         m_device->m_windowWidth / TILE_SIZE + 1);
         uniformBlockBase.znear = camera.GetNearZ();
         uniformBlockBase.zfar = camera.GetFarZ();
-        uniformBlockBase.depthbias = optionConfig.depthbias;
-        uniformBlockBase.normalbias = optionConfig.normalbias;
-        uniformBlockBase.hdrexp = optionConfig.hdrExp;
+        uniformBlockBase.depthbias = g_optionConfig.depthbias;
+        uniformBlockBase.normalbias = g_optionConfig.normalbias;
+        uniformBlockBase.hdrexp = g_optionConfig.hdrExp;
         uniformBlockBase.ambient = vec3(0.01);
         for (int i = 0;i < 6;++i) {
             uniformBlockBase.lightviewprojdata[i] = m_device->m_cascadedShadowMap.m_lightViewProjs[i];
@@ -129,15 +129,15 @@ namespace R3D {
         lastViewProj = camera.GetProjection() * camera.GetView();
         //AO----------------------------------------------------------------------
         AOConfig aoConfig{};
-        aoConfig.angleBias = optionConfig.angleBias;
-        aoConfig.attenuation = optionConfig.attenuation;
-        aoConfig.bfRang = optionConfig.bfRang;
-        aoConfig.bfSpace = optionConfig.bfSpace;
-        aoConfig.blurPass = optionConfig.blurPass;
-        aoConfig.dirCount = optionConfig.dirCount;
-        aoConfig.radiusScale = optionConfig.radiusScale;
-        aoConfig.scaleAO = optionConfig.scaleAO;
-        aoConfig.stepCount = optionConfig.stepCount;
+        aoConfig.angleBias = g_optionConfig.angleBias;
+        aoConfig.attenuation = g_optionConfig.attenuation;
+        aoConfig.bfRang = g_optionConfig.bfRang;
+        aoConfig.bfSpace = g_optionConfig.bfSpace;
+        aoConfig.blurPass = g_optionConfig.blurPass;
+        aoConfig.dirCount = g_optionConfig.dirCount;
+        aoConfig.radiusScale = g_optionConfig.radiusScale;
+        aoConfig.scaleAO = g_optionConfig.scaleAO;
+        aoConfig.stepCount = g_optionConfig.stepCount;
         //新增
         //hbao uniforms
         aoConfig.projInfo = vec4(2.0f / camera.GetProjection()[0][0], 2.0f / camera.GetProjection()[1][1],
@@ -146,12 +146,12 @@ namespace R3D {
                                           1.0f / float(m_device->m_windowHeight));
         aoConfig.InvQuarterResolution = vec2(1.0f / float((m_device->m_windowWidth + 3) / 4),
                                              1.0f / float((m_device->m_windowHeight + 3) / 4));
-        aoConfig.R = optionConfig.radiusScale;
-        aoConfig.NegInvR2 = -1.0f / (optionConfig.radiusScale * optionConfig.radiusScale);
+        aoConfig.R = g_optionConfig.radiusScale;
+        aoConfig.NegInvR2 = -1.0f / (g_optionConfig.radiusScale * g_optionConfig.radiusScale);
         aoConfig.RadiusToScreen =
-                optionConfig.radiusScale * 0.5f * m_device->m_windowHeight / (tanf(camera.GetFovY() * 0.5f) * 2.0f);
-        aoConfig.PowExponent = optionConfig.powExponent;
-        aoConfig.NDotVBias = optionConfig.nDotVBias;
+                g_optionConfig.radiusScale * 0.5f * m_device->m_windowHeight / (tanf(camera.GetFovY() * 0.5f) * 2.0f);
+        aoConfig.PowExponent = g_optionConfig.powExponent;
+        aoConfig.NDotVBias = g_optionConfig.nDotVBias;
         aoConfig.AOMultiplier = 1.0f / (1.0f - aoConfig.NDotVBias);
         glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_uniBlockAoCfgBuffer);
         glNamedBufferSubData(m_uniBlockAoCfgBuffer, 0, sizeof(AOConfig), &aoConfig);
